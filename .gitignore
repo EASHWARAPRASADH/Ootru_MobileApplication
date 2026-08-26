@@ -1,0 +1,68 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+
+# Flutter / Dart
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/build/
+**/.fvm/
+**/.fvmrc
+
+# Android
+**/android/.gradle
+**/android/local.properties
+**/android/app/build/
+**/android/.kotlin
+**/android/captures/
+**/android/.cxx/
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Node / Webpack
+**/node_modules/
+**/npm-debug.log
+**/yarn-error.log
+
+# Laravel
+**/vendor/
+**/.env
+**/.env.backup
+**/.env.production
+**/storage/*.key
+**/storage/oauth-*.key
+**/storage/framework/cache/data/*
+**/storage/framework/sessions/*
+**/storage/framework/views/*
+**/storage/logs/*.log
+**/public/hot
+**/public/storage
+
+# Archives
+*.zip
+*.tar.gz
