@@ -52,16 +52,19 @@ String mSelectedImage = "assets/default_wallpaper.png";
 ValueNotifier<bool> isSosVisible = ValueNotifier(false);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isIOS) {
-    await Firebase.initializeApp().then((value) {
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-    });
-  } else {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    ).then((value) {
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-    });
+  try {
+    if (Firebase.apps.isEmpty) {
+      if (Platform.isIOS) {
+        await Firebase.initializeApp();
+      } else {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
+    }
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  } catch (e) {
+    print("Firebase init warning: $e");
   }
 
   // await initialize(aLocaleLanguageList: languageList());
