@@ -76,7 +76,7 @@ class _RewardListScreenState extends State<RewardListScreen> {
                     itemCount: rewardsList.length,
                     shrinkWrap: true,
                     controller: scrollController,
-                    padding: .fromLTRB(16, 16, 16, 0),
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemBuilder: (context, index) {
                       RewardsModel item = rewardsList[index];
                       return Container(

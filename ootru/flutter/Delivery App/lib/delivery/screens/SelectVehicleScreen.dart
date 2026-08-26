@@ -90,7 +90,7 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                     itemCount: vehicleHistoryList.length,
                     shrinkWrap: true,
                     controller: scrollController,
-                    padding: .fromLTRB(16, 16, 16, 0),
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemBuilder: (context, index) {
                       DeliverymanVehicle item = vehicleHistoryList[index];
                       return Container(

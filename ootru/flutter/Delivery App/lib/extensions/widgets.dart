@@ -93,7 +93,7 @@ Future<T?> showInDialog<T>(
           shape: shape ?? defaultDialogShape,
           title: title,
           titleTextStyle: titleTextStyle,
-          contentPadding: contentPadding ?? .fromLTRB(24.0, 20.0, 24.0, 24.0),
+          contentPadding: contentPadding ?? EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 24.0),
           //scrollable: scrollable,
           backgroundColor: backgroundColor,
           elevation: elevation ?? defaultElevation.toDouble(),

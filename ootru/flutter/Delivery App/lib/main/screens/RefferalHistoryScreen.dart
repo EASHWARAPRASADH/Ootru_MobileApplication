@@ -75,7 +75,7 @@ class _ReferralHistoryScreenState extends State<ReferralHistoryScreen> {
                     itemCount: referralList.length,
                     shrinkWrap: true,
                     controller: scrollController,
-                    padding: .fromLTRB(16, 16, 16, 0),
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemBuilder: (context, index) {
                       UserData item = referralList[index];
                       return Container(

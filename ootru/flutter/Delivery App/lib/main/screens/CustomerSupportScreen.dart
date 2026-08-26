@@ -91,7 +91,7 @@ class _CustomerSupportScreenState extends State<CustomerSupportScreen> {
                     itemCount: supportList.length,
                     shrinkWrap: true,
                     controller: scrollController,
-                    padding: .fromLTRB(16, 16, 16, 0),
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemBuilder: (context, index) {
                       CustomerSupport item = supportList[index];
                       return Container(

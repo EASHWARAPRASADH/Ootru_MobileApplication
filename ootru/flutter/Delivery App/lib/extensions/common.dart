@@ -274,11 +274,11 @@ Route<T> buildPageRoute<T>(
 
 EdgeInsets dynamicAppButtonPadding(BuildContext context) {
   if (context.isDesktop()) {
-    return .symmetric(vertical: 20, horizontal: 20);
+    return EdgeInsets.symmetric(vertical: 20, horizontal: 20);
   } else if (context.isTablet()) {
-    return .symmetric(vertical: 16, horizontal: 16);
+    return EdgeInsets.symmetric(vertical: 16, horizontal: 16);
   } else {
-    return .symmetric(vertical: 12, horizontal: 16);
+    return EdgeInsets.symmetric(vertical: 12, horizontal: 16);
   }
 }
 

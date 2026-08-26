@@ -51,7 +51,7 @@ class AnimatedScrollView extends StatefulWidget {
     this.flipConfiguration,
     this.onNextPage,
     this.onPageScrollChange,
-    this.crossAxisAlignment = .start,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.onSwipeRefresh,
     this.disposeScrollController = true,

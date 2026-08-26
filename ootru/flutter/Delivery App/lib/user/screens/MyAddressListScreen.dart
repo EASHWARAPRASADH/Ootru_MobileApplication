@@ -105,7 +105,7 @@ class MyAddressListScreenState extends State<MyAddressListScreen> {
                     itemCount: addressList.length,
                     shrinkWrap: true,
                     controller: scrollController,
-                    padding: .fromLTRB(16, 16, 16, 0),
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemBuilder: (context, index) {
                       AddressData item = addressList[index];
                       return InkWell(

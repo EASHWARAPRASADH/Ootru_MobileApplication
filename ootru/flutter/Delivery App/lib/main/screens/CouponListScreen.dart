@@ -81,7 +81,7 @@ class _CouponListScreenState extends State<CouponListScreen> {
                     itemCount: couponList.length,
                     shrinkWrap: true,
                     controller: scrollController,
-                    // padding: .fromLTRB(16, 16, 16, 0),
+                    // padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemBuilder: (context, index) {
                       CouponModel item = couponList[index];
                       return Container(

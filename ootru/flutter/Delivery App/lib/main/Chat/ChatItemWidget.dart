@@ -113,15 +113,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     EdgeInsetsGeometry customPadding(String? messageTypes) {
       switch (messageTypes) {
         case TEXT:
-          return .symmetric(horizontal: 12, vertical: 8);
+          return EdgeInsets.symmetric(horizontal: 12, vertical: 8);
         case IMAGE:
-          return .symmetric(horizontal: 4, vertical: 4);
+          return EdgeInsets.symmetric(horizontal: 4, vertical: 4);
         case VIDEO:
-          return .symmetric(horizontal: 4, vertical: 4);
+          return EdgeInsets.symmetric(horizontal: 4, vertical: 4);
         case AUDIO:
-          return .symmetric(horizontal: 4, vertical: 4);
+          return EdgeInsets.symmetric(horizontal: 4, vertical: 4);
         default:
-          return .symmetric(horizontal: 4, vertical: 4);
+          return EdgeInsets.symmetric(horizontal: 4, vertical: 4);
       }
     }
 

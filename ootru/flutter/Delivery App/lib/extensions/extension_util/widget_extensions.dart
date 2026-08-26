@@ -51,7 +51,7 @@ extension WidgetExtension on Widget? {
     double right = 0.0,
   }) {
     return Padding(
-      padding: .fromLTRB(left, top, right, bottom),
+      padding: EdgeInsets.fromLTRB(left, top, right, bottom),
       child: this,
     );
   }

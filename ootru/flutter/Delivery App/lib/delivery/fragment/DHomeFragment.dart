@@ -430,7 +430,7 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
                     cacheExtent: 2.0,
                     shrinkWrap: true,
                     controller: scrollController,
-                    padding: .fromLTRB(7, 5, 7, 5),
+                    padding: EdgeInsets.fromLTRB(7, 5, 7, 5),
                     itemBuilder: (context, index) {
                       log("GETCOUNT::: ${getCount(index)}");
                       return countWidget(text: items[index], value: getCount(index), color: colorList[index]).onTap(() {
