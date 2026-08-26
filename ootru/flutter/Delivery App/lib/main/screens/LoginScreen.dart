@@ -211,66 +211,72 @@ class LoginScreenState extends State<LoginScreen> {
           await setValue(USER_PASSWORD, passController.text);
         }
         await logInApi(req).then((v) async {
-          authService.signInWithEmailPassword(context, email: emailController.text, password: passController.text).then((value) async {
-            appStore.setLoading(false);
-            if (v.data!.userType == DELIVERY_MAN) {
-              isSosVisible.value = true;
-              print("KB----------------isSos-------${isSosVisible.value}");
-            } else {
-              isSosVisible.value = false;
-            }
-            if (v.data!.userType != CLIENT && v.data!.userType != DELIVERY_MAN) {
-              showConfirmDialogCustom(
-                context,
-                title: language.logoutConfirmationMsg,
-                positiveText: language.yes,
-                primaryColor: ColorUtils.colorPrimary,
-                showCancelButton: false,
-                onAccept: (v) async {
-                  await logout(context, isFromLogin: true);
-                },
-              );
-            } else {
-              appStore.setUserType(v.data!.userType.toString());
-              if (getIntAsync(STATUS) == 1) {
-                updateUserStatus({
-                  "id": getIntAsync(USER_ID),
-                  "uid": getStringAsync(UID),
-                }).then((value) {
-                  log("value...." + value.toString());
-                });
-                log('v.data!.emailVerifiedAt ${v.data!.emailVerifiedAt}');
-                log('v.data!.otp ${v.data!.otpVerifyAt}');
-                if (v.data!.emailVerifiedAt.isEmptyOrNull || v.data!.otpVerifyAt.isEmptyOrNull || (v.data!.documentVerifiedAt.isEmptyOrNull && getStringAsync(USER_TYPE) == DELIVERY_MAN)) {
-                  VerificationListScreen(
-                    isSignIn: true,
-                  ).launch(context);
-                } else if (v.data!.countryId != null && v.data!.cityId != null) {
-                  await getCountryDetailApiCall(v.data!.countryId.validate());
-                  getCityDetailApiCall(v.data!.cityId.validate());
-                } else {
-                  UserCitySelectScreen().launch(context, isNewTask: true);
-                }
-              } else {
-                toast(language.userNotApproveMsg);
-                await logout(context, isDeleteAccount: true);
-              }
-            }
-            updateStoreCheckerData().then((source) async {
-              await getUserDetail(getIntAsync(USER_ID)).then((value) async {
-                appStore.setAvrgRating(value.averageRating ?? 0);
-                if (value.deliverymanVehicleHistory != null) {
-                  setValue(VEHICLE, value.deliverymanVehicleHistory![0].toJson());
-                }
-                appStore.setReferralCode(value.referralCode.validate());
-                if (value.app_source.isEmptyOrNull || value.app_source != source) {
-                  await updateUserStatus({"id": getIntAsync(USER_ID), "app_source": source}).then((data) {});
-                }
-              }).catchError((e) {
-                log("error---------$e");
-              });
+          appStore.setLoading(false);
+          try {
+            authService.signInWithEmailPassword(context, email: emailController.text, password: passController.text).catchError((e) {
+              log("Firebase auth error: $e");
             });
-          });
+          } catch (e) {
+            log("Firebase auth exception: $e");
+          }
+
+          if (v.data!.userType == DELIVERY_MAN) {
+            isSosVisible.value = true;
+            print("KB----------------isSos-------${isSosVisible.value}");
+          } else {
+            isSosVisible.value = false;
+          }
+          if (v.data!.userType != CLIENT && v.data!.userType != DELIVERY_MAN) {
+            showConfirmDialogCustom(
+              context,
+              title: language.logoutConfirmationMsg,
+              positiveText: language.yes,
+              primaryColor: ColorUtils.colorPrimary,
+              showCancelButton: false,
+              onAccept: (v) async {
+                await logout(context, isFromLogin: true);
+              },
+            );
+          } else {
+            appStore.setUserType(v.data!.userType.toString());
+            if (getIntAsync(STATUS) == 1) {
+              updateUserStatus({
+                "id": getIntAsync(USER_ID),
+                "uid": getStringAsync(UID),
+              }).then((value) {
+                log("value...." + value.toString());
+              }).catchError((e) {});
+              log('v.data!.emailVerifiedAt ${v.data!.emailVerifiedAt}');
+              log('v.data!.otp ${v.data!.otpVerifyAt}');
+              if (v.data!.emailVerifiedAt.isEmptyOrNull || v.data!.otpVerifyAt.isEmptyOrNull || (v.data!.documentVerifiedAt.isEmptyOrNull && getStringAsync(USER_TYPE) == DELIVERY_MAN)) {
+                VerificationListScreen(
+                  isSignIn: true,
+                ).launch(context);
+              } else if (v.data!.countryId != null && v.data!.cityId != null) {
+                await getCountryDetailApiCall(v.data!.countryId.validate());
+                getCityDetailApiCall(v.data!.cityId.validate());
+              } else {
+                UserCitySelectScreen().launch(context, isNewTask: true);
+              }
+            } else {
+              toast(language.userNotApproveMsg);
+              await logout(context, isDeleteAccount: true);
+            }
+          }
+          updateStoreCheckerData().then((source) async {
+            await getUserDetail(getIntAsync(USER_ID)).then((value) async {
+              appStore.setAvrgRating(value.averageRating ?? 0);
+              if (value.deliverymanVehicleHistory != null) {
+                setValue(VEHICLE, value.deliverymanVehicleHistory![0].toJson());
+              }
+              appStore.setReferralCode(value.referralCode.validate());
+              if (value.app_source.isEmptyOrNull || value.app_source != source) {
+                await updateUserStatus({"id": getIntAsync(USER_ID), "app_source": source}).then((data) {});
+              }
+            }).catchError((e) {
+              log("error---------$e");
+            });
+          }).catchError((e) {});
         }).catchError((e) {
           appStore.setLoading(false);
           toast(e.toString());
