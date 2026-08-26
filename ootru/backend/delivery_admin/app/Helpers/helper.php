@@ -182,37 +182,42 @@ function getSingleMediaSettingImage($model = null, $collection_name = null, $che
         return $image->getFullUrl();
     } else {
         switch ($collection_name) {
-            // case 'app_logo_image':
-            //     $image = asset('frontend-website/assets/website/dummy_images/45x45.png');
-            //     break;
-            // case 'delivery_man_image':
-            //     $image = asset('frontend-website/assets/website/dummy_images/ic_delivery_man.jpg');
-            //     break;
-            // case 'download_app_logo':
-            //     $image = asset('frontend-website/assets/website/dummy_images/ic_mobile.jpg');
-            //     break;
-            // case 'about_us_app_ss':
-            //     $image = asset('frontend-website/assets/website/dummy_images/ic_aboutUs.jpg');
-            //     break;
-            // case 'contact_us_app_ss':
-            //     $image = asset('frontend-website/assets/website/dummy_images/ic_aboutUs.jpg');
-            //     break;
-            // case 'delivery_partner_image':
-            //     $image = asset('frontend-website/assets/website/dummy_images/ic_deliveryboy.jpg');
-            //     break;
-            // case 'frontend_data_image':
-            //     if ($check_collection_type == 'why_delivery_image') {
-            //         $image = asset('frontend-website/assets/website/dummy_images/245x330.png');
-            //     }
-            //     if ($check_collection_type == 'client_review_image') {
-            //         $image = asset('frontend-website/assets/website/dummy_images/150x150.png');
-            //     }
-            //     if ($check_collection_type == 'walkthrough_image') {
-            //         $image = asset('frontend-website/assets/website/dummy_images/slider.png');
-            //     }
-            //     break;
+            case 'app_logo_image':
+            case 'company_logo':
+                $image = asset('frontend-website/assets/website/app.png');
+                break;
+            case 'delivery_man_image':
+                $image = asset('frontend-website/assets/website/ic_delivery_man.png');
+                break;
+            case 'download_app_logo':
+                $image = asset('frontend-website/assets/website/ic_mobile.png');
+                break;
+            case 'playstore_image':
+                $image = asset('frontend-website/assets/website/ic_play_store.png');
+                break;
+            case 'appstore_image':
+                $image = asset('frontend-website/assets/website/ic_app_store.png');
+                break;
+            case 'about_us_app_ss':
+            case 'contact_us_app_ss':
+                $image = asset('frontend-website/assets/website/ic_aboutUs.png');
+                break;
+            case 'delivery_partner_image':
+                $image = asset('frontend-website/assets/website/ic_deliveryboy.png');
+                break;
+            case 'frontend_data_image':
+                if ($check_collection_type == 'why_delivery_image') {
+                    $image = asset('frontend-website/assets/website/ic_why_delivery1.jpg');
+                } elseif ($check_collection_type == 'client_review_image') {
+                    $image = asset('frontend-website/assets/website/dummy_images/150x150.png');
+                } elseif ($check_collection_type == 'walkthrough_image') {
+                    $image = asset('frontend-website/assets/website/dummy_images/slider.png');
+                } else {
+                    $image = asset('frontend-website/assets/website/dummy_images/245x330.png');
+                }
+                break;
             default:
-                $image = asset('images/default.png');
+                $image = asset('frontend-website/assets/website/app.png');
                 break;
         }
         return $image;
