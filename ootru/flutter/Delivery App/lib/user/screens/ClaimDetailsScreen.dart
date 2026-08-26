@@ -67,13 +67,13 @@ class _ClaimDetailstDetailsScreenState extends State<ClaimDetailstDetailsScreen>
     return CommonScaffoldComponent(
       appBarTitle: widget.item.trakingNo,
       body: SingleChildScrollView(
-        padding: .only(left: 16, right: 16, top: 16, bottom: 100),
+        padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
         child: Column(
-          mainAxisAlignment: .start,
-          crossAxisAlignment: .start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: .only(
+              padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
                 top: 16,
@@ -83,11 +83,11 @@ class _ClaimDetailstDetailsScreenState extends State<ClaimDetailstDetailsScreen>
                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                   backgroundColor: Colors.transparent),
               child: Column(
-                crossAxisAlignment: .start,
-                mainAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: .spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('${DateFormat('dd MMM yyyy').format(DateTime.parse("${widget.item.createdAt!}").toLocal())} ',
                               style: primaryTextStyle(size: 14))
@@ -99,10 +99,10 @@ class _ClaimDetailstDetailsScreenState extends State<ClaimDetailstDetailsScreen>
                   ),
                   8.height,
                   Row(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
@@ -129,12 +129,12 @@ class _ClaimDetailstDetailsScreenState extends State<ClaimDetailstDetailsScreen>
                     border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                     backgroundColor: Colors.transparent),
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: context.width(),
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                      padding: .all(12),
+                      padding: EdgeInsets.all(12),
                       child: Text(widget.item.profValue!, style: primaryTextStyle()),
                     ),
                   ],
@@ -151,12 +151,12 @@ class _ClaimDetailstDetailsScreenState extends State<ClaimDetailstDetailsScreen>
                     border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                     backgroundColor: Colors.transparent),
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: context.width(),
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                      padding: .all(12),
+                      padding: EdgeInsets.all(12),
                       child: Text(
                         widget.item.profValue!,
                         style: primaryTextStyle(),
@@ -195,12 +195,12 @@ class _ClaimDetailstDetailsScreenState extends State<ClaimDetailstDetailsScreen>
                       border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                       backgroundColor: Colors.transparent),
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         width: context.width(),
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                        padding: .all(12),
+                        padding: EdgeInsets.all(12),
                         child: Text(widget.item.claimsHistory![0].amount.validate().toString(), style: primaryTextStyle()),
                       ),
                     ],
@@ -217,12 +217,12 @@ class _ClaimDetailstDetailsScreenState extends State<ClaimDetailstDetailsScreen>
                       border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                       backgroundColor: Colors.transparent),
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         width: context.width(),
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                        padding: .all(12),
+                        padding: EdgeInsets.all(12),
                         child: Text(widget.item.claimsHistory![0].description.validate().toString(), style: primaryTextStyle()),
                       ),
                     ],

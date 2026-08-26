@@ -21,8 +21,8 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        crossAxisAlignment: .center,
-        mainAxisAlignment: .center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.wifi_off, size: 100, color: context.iconColor),
           16.height,

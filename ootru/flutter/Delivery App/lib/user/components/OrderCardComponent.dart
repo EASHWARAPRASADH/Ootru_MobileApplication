@@ -47,26 +47,26 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
         OrderDetailScreen(orderId: widget.item.id.validate()).launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop, duration: 400.milliseconds);
       },
       child: Container(
-        margin: .only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16),
         decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-        padding: .all(12),
+        padding: EdgeInsets.all(12),
         child: Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 widget.item.date != null ? Text(DateFormat('dd MMM yyyy').format(DateTime.parse("${widget.item.date!}")) + " ${language.at.toLowerCase()} " + DateFormat('hh:mm a').format(DateTime.parse("${widget.item.date!}")), style: primaryTextStyle(size: 14)).expand() : SizedBox(),
                 Container(
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), border: Border.all(color: statusColor(widget.item.status.validate()).withOpacity(0.08))),
-                  padding: .symmetric(horizontal: 3, vertical: 3),
+                  padding: EdgeInsets.symmetric(horizontal: 3, vertical: 3),
                   child: Icon(Icons.navigation_outlined, color: ColorUtils.colorPrimary).center(),
                 ).paddingRight(10).onTap(() {
                   openMap(double.parse(widget.item.pickupPoint!.latitude.validate()), double.parse(widget.item.pickupPoint!.longitude.validate()), double.parse(widget.item.deliveryPoint!.latitude.validate()), double.parse(widget.item.deliveryPoint!.longitude.validate()));
                 }).visible(widget.item.status != ORDER_DELIVERED),
                 Container(
                   decoration: BoxDecoration(color: statusColor(widget.item.status.validate()).withOpacity(0.08), borderRadius: BorderRadius.circular(6)),
-                  padding: .symmetric(horizontal: 8, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   child: Row(
                     children: [
                       Text(orderStatus(widget.item.status!), style: primaryTextStyle(size: 14, color: statusColor(widget.item.status.validate()))),
@@ -78,16 +78,16 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
             Text('${widget.item.orderTrackingId}', style: boldTextStyle(size: 12, color: ColorUtils.colorPrimary)),
             8.height,
             Row(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(8), border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1), backgroundColor: context.cardColor),
-                  padding: .all(8),
+                  padding: EdgeInsets.all(8),
                   child: Image.asset(parcelTypeIcon(widget.item.parcelType.validate()), height: 24, width: 24, color: ColorUtils.colorPrimary),
                 ),
                 8.width,
                 Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.item.parcelType.validate(), style: boldTextStyle(), maxLines: 1, overflow: TextOverflow.ellipsis),
                     4.height,
@@ -103,17 +103,17 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
             ),
             8.height,
             Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Column(
-                      crossAxisAlignment: .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (widget.item.pickupDatetime != null)
                           Column(
-                            crossAxisAlignment: .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(language.picked, style: secondaryTextStyle(size: 12)),
                               4.height,
@@ -161,20 +161,20 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
             ),
             16.height,
             Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Column(
-                      crossAxisAlignment: .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (widget.item.deliveryDatetime != null)
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(language.delivered, style: secondaryTextStyle(size: 12)),
                                   4.height,
@@ -214,11 +214,11 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
             ),
             if (widget.item.status != ORDER_CANCELLED || (widget.item.status == ORDER_DEPARTED || widget.item.status == ORDER_ACCEPTED)) 16.height,
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (widget.item.status == ORDER_DELIVERED)
                   Container(
-                    padding: .symmetric(horizontal: 12, vertical: 4),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: boxDecorationWithRoundedCorners(backgroundColor: ColorUtils.colorPrimary),
                     child: Row(
                       children: [
@@ -239,7 +239,7 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
                   elevation: 0,
                   height: 35,
                   color: Colors.transparent,
-                  padding: .symmetric(horizontal: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 8),
                   shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(defaultRadius),
                     side: BorderSide(color: ColorUtils.colorPrimary),

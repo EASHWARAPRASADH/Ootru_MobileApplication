@@ -107,7 +107,7 @@ class DProfileFragmentState extends State<DProfileFragment> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-            contentPadding: .symmetric(horizontal: 16, vertical: 2),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 2),
             minLeadingWidth: 14,
             dense: true,
             leading: Image.asset(img.validate(), height: 18, fit: BoxFit.fill, width: 18, color: textPrimaryColorGlobal),
@@ -142,12 +142,12 @@ class DProfileFragmentState extends State<DProfileFragment> {
                             Container(
                                 decoration: boxDecorationWithRoundedCorners(boxShape: BoxShape.circle, border: Border.all(width: 2, color: ColorUtils.colorPrimary)),
                                 child: commonCachedNetworkImage(appStore.userProfile.validate(), height: 65, width: 65, fit: BoxFit.cover, alignment: Alignment.center).cornerRadiusWithClipRRect(50)),
-                            Container(decoration: boxDecorationWithRoundedCorners(boxShape: BoxShape.circle, border: Border.all(width: 1, color: white), backgroundColor: ColorUtils.colorPrimary), padding: .all(4), child: Image.asset(ic_edit, color: white, height: 14, width: 14))
+                            Container(decoration: boxDecorationWithRoundedCorners(boxShape: BoxShape.circle, border: Border.all(width: 1, color: white), backgroundColor: ColorUtils.colorPrimary), padding: EdgeInsets.all(4), child: Image.asset(ic_edit, color: white, height: 14, width: 14))
                           ],
                         ),
                         10.width,
                         Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(getStringAsync(NAME).validate(), style: boldTextStyle(size: 20)),
                             6.height,
@@ -163,19 +163,19 @@ class DProfileFragmentState extends State<DProfileFragment> {
                       EditProfileScreen().launch(context);
                     }).paddingOnly(top: 12, right: 12, left: 12),
                     ListView(
-                      padding: .zero,
+                      padding: EdgeInsets.zero,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       children: [
                         mTitle(language.ordersWalletMore),
                         Container(
                           decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                          padding: .symmetric(horizontal: 16, vertical: 4),
-                          margin: .symmetric(horizontal: 15, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
                           child: Row(
                             children: [
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     vehicle != null ? language.yourVehicle : language.noVehicleAdded,
@@ -190,7 +190,7 @@ class DProfileFragmentState extends State<DProfileFragment> {
                               Spacer(),
                               Container(
                                 decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), backgroundColor: ColorUtils.colorPrimary),
-                                padding: .symmetric(horizontal: 15, vertical: 5),
+                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                                 child: Text(
                                   vehicle != null ? language.update : language.add,
                                   style: TextStyle(color: Colors.white),
@@ -239,7 +239,7 @@ class DProfileFragmentState extends State<DProfileFragment> {
                           LanguageScreen().launch(context);
                         }),
                         accountSettingItemWidget(ic_dark_mode, language.theme, () async {
-                          await showInDialog(context, shape: RoundedRectangleBorder(borderRadius: radius()), builder: (_) => ThemeSelectionDialog(), contentPadding: .zero);
+                          await showInDialog(context, shape: RoundedRectangleBorder(borderRadius: radius()), builder: (_) => ThemeSelectionDialog(), contentPadding: EdgeInsets.zero);
                         }),
                         accountSettingItemWidget(ic_change_password, language.customerSupport, () {
                           CustomerSupportScreen().launch(context);
@@ -287,7 +287,7 @@ class DProfileFragmentState extends State<DProfileFragment> {
                         ],
                         Container(
                           decoration: boxDecorationWithRoundedCorners(border: Border.all(color: ColorUtils.colorPrimary, width: 1), backgroundColor: Colors.transparent),
-                          padding: .all(16),
+                          padding: EdgeInsets.all(16),
                           width: context.width(),
                           child: Text(language.logout, style: boldTextStyle(size: 18, color: ColorUtils.colorPrimary), textAlign: TextAlign.center),
                         ).onTap(() async {

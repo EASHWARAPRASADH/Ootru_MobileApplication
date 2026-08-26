@@ -83,8 +83,8 @@ class _ClaimListScreenState extends State<ClaimListScreen> {
                     itemBuilder: (context, index) {
                       ClaimItem item = claimList[index];
                       return Container(
-                        margin: .only(bottom: 16),
-                        padding: .all(8),
+                        margin: EdgeInsets.only(bottom: 16),
+                        padding: EdgeInsets.all(8),
                         decoration: boxDecorationWithRoundedCorners(
                             borderRadius: BorderRadius.circular(defaultRadius),
                             border: Border.all(
@@ -93,10 +93,10 @@ class _ClaimListScreenState extends State<ClaimListScreen> {
                         child: Row(
                           children: [
                             Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [

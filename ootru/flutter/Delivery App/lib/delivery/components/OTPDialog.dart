@@ -74,7 +74,7 @@ class OTPDialogState extends State<OTPDialog> {
                 width: MediaQuery.of(context).size.width,
                 fieldWidth: 35,
                 style: primaryTextStyle(),
-                textFieldAlignment: .spaceAround,
+                textFieldAlignment: MainAxisAlignment.spaceAround,
                 fieldStyle: FieldStyle.box,
                 onChanged: (s) {
                   //

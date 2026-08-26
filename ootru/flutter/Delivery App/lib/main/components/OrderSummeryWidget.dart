@@ -93,18 +93,18 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: context.width(),
-      padding: .all(16),
+      padding: EdgeInsets.all(16),
       decoration: boxDecorationWithRoundedCorners(
         borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.2)),
         backgroundColor: Colors.transparent,
       ),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (widget.isInsuranceChargeDisplay!)
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(language.insuranceCharge, style: secondaryTextStyle()),
                 16.width,
@@ -112,7 +112,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
               ],
             ).paddingBottom(8).visible(widget.isInsuranceChargeDisplay!),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("${language.vehicle} ${language.price.toLowerCase()}", style: secondaryTextStyle()),
               16.width,
@@ -120,7 +120,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
             ],
           ).paddingBottom(8).visible(widget.vehiclePrice.validate() != 0),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.deliveryCharge, style: secondaryTextStyle()),
               16.width,
@@ -132,7 +132,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
               Text(language.distanceCharge, style: secondaryTextStyle()),
               4.width,
               Row(
-                crossAxisAlignment: .end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('(${(widget.totalDistance - minDistance).toStringAsFixed(digitAfterDecimal)}', style: secondaryTextStyle()),
                   Icon(Icons.close, color: Colors.grey, size: 12),
@@ -148,7 +148,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
               Text(language.weightCharge, style: secondaryTextStyle()),
               4.width,
               Row(
-                crossAxisAlignment: .end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('(${widget.totalWeight - minWeight} x ', style: secondaryTextStyle()),
                   Text('$perWeightCharges)', style: secondaryTextStyle()),
@@ -159,7 +159,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
             ],
           ).paddingBottom(8).visible(widget.weightCharge != 0),
           Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               8.height,
               Text(language.extraCharges, style: boldTextStyle(size: 14)),
@@ -168,7 +168,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
                   children: List.generate(extraList.length, (index) {
                 ExtraChargeRequestModel mData = extraList.elementAt(index);
                 return Padding(
-                  padding: .only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
                       Text(mData.key!.replaceAll("_", " "), style: primaryTextStyle()),
@@ -189,7 +189,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
           ).visible(extraList.length != 0),
           Divider(color: context.dividerColor),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.total,
                   style: boldTextStyle(
@@ -212,7 +212,7 @@ class OrderSummeryWidgetState extends State<OrderSummeryWidget> {
           if (widget.status.validate() == ORDER_CANCELLED && widget.payment != null && widget.payment!.deliveryManFee == 0) ...[
             5.height,
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(language.orderCancelCharge,
                     style: boldTextStyle(

@@ -80,18 +80,18 @@ class _RewardListScreenState extends State<RewardListScreen> {
                     itemBuilder: (context, index) {
                       RewardsModel item = rewardsList[index];
                       return Container(
-                        margin: .only(bottom: 16),
-                        padding: .all(8),
+                        margin: EdgeInsets.only(bottom: 16),
+                        padding: EdgeInsets.all(8),
                         decoration: boxDecorationWithRoundedCorners(
                             borderRadius: BorderRadius.circular(defaultRadius),
                             border: Border.all(
                                 color: appStore.isDarkMode ? Colors.grey.withOpacity(0.3) : ColorUtils.colorPrimary.withOpacity(0.4)),
                             backgroundColor: Colors.transparent),
                         child: Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("# ${item.orderId.validate().toString()}", style: boldTextStyle()),
                                 Text('${item.currency}${item.amount}', style: boldTextStyle(color: Colors.green)),
@@ -99,7 +99,7 @@ class _RewardListScreenState extends State<RewardListScreen> {
                             ),
                             8.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${language.walletBalance} : ', style: secondaryTextStyle()),
                                 Text('${item.currency}${item.walletBalance}', style: primaryTextStyle(weight: FontWeight.w500)),
@@ -107,7 +107,7 @@ class _RewardListScreenState extends State<RewardListScreen> {
                             ),
                             8.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${language.date} :', style: secondaryTextStyle()),
                                 Text("${DateFormat('dd MMM yyyy hh:mm a').format(DateTime.parse(item.createdAt.toString()).toLocal())}",

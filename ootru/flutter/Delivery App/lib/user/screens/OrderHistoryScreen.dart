@@ -33,7 +33,7 @@ class OrderHistoryScreenState extends State<OrderHistoryScreen> {
     return Scaffold(
       appBar: commonAppBarWidget(language.orderHistory),
       body: ListView.builder(
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
         itemCount: widget.orderHistory.length,
         itemBuilder: (context, index) {
           OrderHistory mData = widget.orderHistory[index];
@@ -50,7 +50,7 @@ class OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 ImageIcon(AssetImage(statusTypeIcon(type: mData.historyType)), color: ColorUtils.colorPrimary.withOpacity(0.8), size: 20),
                 12.width,
                 Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(orderStatus('${mData.historyType!}'), style: boldTextStyle()),
                     2.height,

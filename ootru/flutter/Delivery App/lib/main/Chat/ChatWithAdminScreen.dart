@@ -85,14 +85,14 @@ class _ChatWithAdminScreenState extends State<ChatWithAdminScreen> {
                     return Container(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: item.sendBy != ADMIN ? .end : .start,
-                        mainAxisAlignment: item.sendBy != ADMIN ? .end : .start,
+                        crossAxisAlignment: item.sendBy != ADMIN ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        mainAxisAlignment: item.sendBy != ADMIN ? MainAxisAlignment.end : MainAxisAlignment.start,
                         children: [
                           Container(
                             margin: item.sendBy != ADMIN
-                                ? .only(top: 0.0, bottom: 0.0, left: isRTL ? 0 : context.width() * 0.25, right: 8)
-                                : .only(top: 2.0, bottom: 2.0, left: 8, right: isRTL ? 0 : context.width() * 0.25),
-                            padding: .all(8),
+                                ? EdgeInsets.only(top: 0.0, bottom: 0.0, left: isRTL ? 0 : context.width() * 0.25, right: 8)
+                                : EdgeInsets.only(top: 2.0, bottom: 2.0, left: 8, right: isRTL ? 0 : context.width() * 0.25),
+                            padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               boxShadow: appStore.isDarkMode ? null : defaultBoxShadow(),
                               color: item.sendBy != ADMIN ? ColorUtils.colorPrimary : context.cardColor,
@@ -102,7 +102,7 @@ class _ChatWithAdminScreenState extends State<ChatWithAdminScreen> {
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: item.sendBy != ADMIN ? .end : .start,
+                              crossAxisAlignment: item.sendBy != ADMIN ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                               children: [
                                 Text(item.message!,
                                     style: primaryTextStyle(color: item.sendBy != ADMIN ? Colors.white : textPrimaryColorGlobal),
@@ -124,7 +124,7 @@ class _ChatWithAdminScreenState extends State<ChatWithAdminScreen> {
                           ),
                         ],
                       ),
-                      margin: .only(top: 2, bottom: 2),
+                      margin: EdgeInsets.only(top: 2, bottom: 2),
                     );
                   },
                 )).paddingBottom(76),
@@ -139,7 +139,7 @@ class _ChatWithAdminScreenState extends State<ChatWithAdminScreen> {
                   blurRadius: 1,
                   backgroundColor: context.cardColor,
                 ),
-                padding: .only(left: 8, right: 8),
+                padding: EdgeInsets.only(left: 8, right: 8),
                 child: Row(
                   children: [
                     TextField(
@@ -148,7 +148,7 @@ class _ChatWithAdminScreenState extends State<ChatWithAdminScreen> {
                         border: InputBorder.none,
                         hintText: language.writeAMessage,
                         hintStyle: secondaryTextStyle(),
-                        contentPadding: .symmetric(vertical: 18, horizontal: 4),
+                        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 4),
                       ),
                       cursorColor: appStore.isDarkMode ? Colors.white : Colors.black,
                       focusNode: messageFocus,

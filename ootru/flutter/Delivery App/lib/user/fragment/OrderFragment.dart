@@ -119,7 +119,7 @@ class OrderFragmentState extends State<OrderFragment> {
       shrinkWrap: true,
       physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       listAnimationType: ListAnimationType.Slide,
-      padding: .only(left: 16, right: 16, top: 16, bottom: 60),
+      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 60),
       flipConfiguration: FlipConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
       fadeInConfiguration: FadeInConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
       onNextPage: () {

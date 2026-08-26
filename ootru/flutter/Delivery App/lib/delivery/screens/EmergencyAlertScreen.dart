@@ -157,11 +157,11 @@ class _EmergencyAlertScreenState extends State<EmergencyAlertScreen> {
       appBarTitle: 'Alert',
       body: SafeArea(
         child: Container(
-          padding: const .all(16),
+          padding: const EdgeInsets.all(16),
           width: double.infinity,
           child: Column(
-            mainAxisAlignment: .start,
-            crossAxisAlignment: .center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               20.height,
               if (_showCancelButton == false)

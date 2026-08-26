@@ -26,7 +26,7 @@ class AboutUsScreenState extends State<AboutUsScreen> {
     return Scaffold(
       appBar: commonAppBarWidget(language.aboutUs),
       body: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           16.height,
           Text(language.appName, style: boldTextStyle(size: 20, letterSpacing: 0.5)),

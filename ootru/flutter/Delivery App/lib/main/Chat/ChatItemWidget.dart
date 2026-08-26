@@ -47,7 +47,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         case TEXT:
           return Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: widget.data!.isMe! ? .end : .start,
+            crossAxisAlignment: widget.data!.isMe! ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               Text(widget.data!.message!,
                   style: primaryTextStyle(color: widget.data!.isMe! ? Colors.white : textPrimaryColorGlobal), maxLines: null),
@@ -145,13 +145,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       child: Container(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: widget.data!.isMe.validate() ? .end : .start,
-          mainAxisAlignment: widget.data!.isMe! ? .end : .start,
+          crossAxisAlignment: widget.data!.isMe.validate() ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          mainAxisAlignment: widget.data!.isMe! ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
             Container(
               margin: widget.data!.isMe.validate()
-                  ? .only(top: 0.0, bottom: 0.0, left: isRTL ? 0 : context.width() * 0.25, right: 8)
-                  : .only(top: 2.0, bottom: 2.0, left: 8, right: isRTL ? 0 : context.width() * 0.25),
+                  ? EdgeInsets.only(top: 0.0, bottom: 0.0, left: isRTL ? 0 : context.width() * 0.25, right: 8)
+                  : EdgeInsets.only(top: 2.0, bottom: 2.0, left: 8, right: isRTL ? 0 : context.width() * 0.25),
               padding: customPadding(widget.data!.messageType),
               decoration: BoxDecoration(
                 boxShadow: appStore.isDarkMode ? null : defaultBoxShadow(),
@@ -164,7 +164,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           ],
         ),
-        margin: .only(top: 2, bottom: 2),
+        margin: EdgeInsets.only(top: 2, bottom: 2),
       ),
     );
   }

@@ -174,14 +174,14 @@ class _BidlistscreenState extends State<Bidlistscreen> with SingleTickerProvider
   Widget buildBidListView() {
     return Container(
       width: context.width(),
-      margin: .all(16),
+      margin: EdgeInsets.all(16),
       decoration: boxDecorationWithRoundedCorners(
           borderRadius: BorderRadius.circular(defaultRadius),
           border: Border.all(color: Colors.transparent),
           backgroundColor: ColorUtils.colorPrimary.withOpacity(0.1)),
-      padding: .all(12),
+      padding: EdgeInsets.all(12),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(language.bidRequest, style: boldTextStyle(size: 16)),
           16.height,
@@ -201,13 +201,13 @@ class _BidlistscreenState extends State<Bidlistscreen> with SingleTickerProvider
             shrinkWrap: true,
             physics: BouncingScrollPhysics(),
             listAnimationType: ListAnimationType.Slide,
-            padding: const .all(0),
+            padding: const EdgeInsets.all(0),
             itemBuilder: (context, index) {
               var orderDetail = OrderBidData[index];
               return ListTile(
-                contentPadding: const .all(4),
+                contentPadding: const EdgeInsets.all(4),
                 leading: Column(
-                  mainAxisAlignment: .start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     commonCachedNetworkImage(
                       orderDetail.deliveryManImage,
@@ -221,7 +221,7 @@ class _BidlistscreenState extends State<Bidlistscreen> with SingleTickerProvider
                   style: boldTextStyle(size: 24),
                 ),
                 subtitle: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       orderDetail.deliveryManName!.validate().capitalizeFirstLetter(),
@@ -332,7 +332,7 @@ class _BidlistscreenState extends State<Bidlistscreen> with SingleTickerProvider
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(language.close),
                 style: ElevatedButton.styleFrom(
-                  padding: const .symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
               ),
             ],

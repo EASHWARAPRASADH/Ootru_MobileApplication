@@ -66,9 +66,9 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
           Form(
             key: formKey,
             child: SingleChildScrollView(
-              padding: .only(left: 16, top: 16, right: 16),
+              padding: EdgeInsets.only(left: 16, top: 16, right: 16),
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(language.oldPassword, style: primaryTextStyle()),
                   8.height,
@@ -117,7 +117,7 @@ class ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
         child: commonButton(language.saveChanges, () {
           if (formKey.currentState!.validate()) {
             submit();

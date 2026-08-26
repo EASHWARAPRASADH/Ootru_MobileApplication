@@ -79,18 +79,18 @@ class _ReferralHistoryScreenState extends State<ReferralHistoryScreen> {
                     itemBuilder: (context, index) {
                       UserData item = referralList[index];
                       return Container(
-                        margin: .only(bottom: 16),
-                        padding: .all(8),
+                        margin: EdgeInsets.only(bottom: 16),
+                        padding: EdgeInsets.all(8),
                         decoration: boxDecorationWithRoundedCorners(
                             borderRadius: BorderRadius.circular(defaultRadius),
                             border: Border.all(
                                 color: appStore.isDarkMode ? Colors.grey.withOpacity(0.3) : ColorUtils.colorPrimary.withOpacity(0.4)),
                             backgroundColor: Colors.transparent),
                         child: Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${language.name} :', style: secondaryTextStyle()).expand(),
                                 Text(item.name.toString(), style: primaryTextStyle(weight: FontWeight.w500)),
@@ -98,7 +98,7 @@ class _ReferralHistoryScreenState extends State<ReferralHistoryScreen> {
                             ),
                             8.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${language.email} :', style: secondaryTextStyle()).expand(),
                                 Text(item.email.toString(), style: secondaryTextStyle()),
@@ -106,7 +106,7 @@ class _ReferralHistoryScreenState extends State<ReferralHistoryScreen> {
                             ),
                             8.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${language.country} :', style: secondaryTextStyle()).expand(),
                                 Text(item.countryName.toString(), style: secondaryTextStyle()),
@@ -114,7 +114,7 @@ class _ReferralHistoryScreenState extends State<ReferralHistoryScreen> {
                             ),
                             8.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${language.userType} :', style: secondaryTextStyle()).expand(),
                                 Text(item.userType.toString(), style: secondaryTextStyle()),

@@ -838,9 +838,9 @@ class PaymentScreenState extends State<PaymentScreen> {
                 ? Stack(
                     children: [
                       SingleChildScrollView(
-                        padding: .all(16),
+                        padding: EdgeInsets.all(16),
                         child: Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(language.paymentMethod,
                                 style: boldTextStyle()),
@@ -852,7 +852,7 @@ class PaymentScreenState extends State<PaymentScreen> {
                                 return GestureDetector(
                                   child: Container(
                                     width: (context.width() - 50) * 0.5,
-                                    padding: .symmetric(
+                                    padding: EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 16),
                                     alignment: Alignment.center,
                                     decoration: boxDecorationWithRoundedCorners(

@@ -48,7 +48,7 @@ class LoaderState extends State<Loader> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: .all(10),
+      padding: EdgeInsets.all(10),
       height: widget.size.validate(value: 40).toDouble(),
       width: widget.size.validate(value: 40).toDouble(),
       decoration: widget.decoration ??

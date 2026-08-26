@@ -139,7 +139,7 @@ Widget? getCenteredImage(
           color: getDialogPrimaryColor(context, dialogType, primaryColor),
           size: 40,
         ),
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
       );
       break;
     case DialogType.DELETE:
@@ -149,7 +149,7 @@ Widget? getCenteredImage(
           shape: BoxShape.circle,
         ),
         child: Icon(Icons.close, color: getDialogPrimaryColor(context, dialogType, primaryColor), size: 40),
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
       );
       break;
     case DialogType.UPDATE:
@@ -163,7 +163,7 @@ Widget? getCenteredImage(
           color: getDialogPrimaryColor(context, dialogType, primaryColor),
           size: 40,
         ),
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
       );
       break;
     case DialogType.ADD:
@@ -178,7 +178,7 @@ Widget? getCenteredImage(
           color: getDialogPrimaryColor(context, dialogType, primaryColor),
           size: 40,
         ),
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
       );
       break;
     case DialogType.RETRY:
@@ -198,7 +198,7 @@ Widget? getCenteredImage(
               primaryColor,
             ),
             size: 40),
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
       );
       break;
   }
@@ -337,7 +337,7 @@ Future<bool?> showConfirmDialogCustom(
         curve: curve,
         child: AlertDialog(
           shape: shape ?? dialogShape(),
-          titlePadding: .zero,
+          titlePadding: EdgeInsets.zero,
           backgroundColor: Theme.of(context).cardColor,
           elevation: defaultElevation.toDouble(),
           title: buildTitleWidget(
@@ -354,7 +354,7 @@ Future<bool?> showConfirmDialogCustom(
             width: width ?? customDialogWidth,
             color: Colors.transparent,
             child: Column(
-              crossAxisAlignment: .center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(

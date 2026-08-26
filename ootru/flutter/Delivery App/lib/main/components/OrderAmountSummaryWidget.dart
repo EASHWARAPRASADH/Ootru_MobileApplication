@@ -116,14 +116,14 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: context.width(),
-      padding: .all(16),
+      padding: EdgeInsets.all(16),
       decoration: boxDecorationWithRoundedCorners(
         borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.2)),
         backgroundColor: Colors.transparent,
       ),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (appStore.isVehicleOrder == 1)
             Row(
@@ -131,7 +131,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
                 Text("${language.vehicle} ${language.price.toLowerCase()}", style: secondaryTextStyle()),
                 4.width,
                 Row(
-                  crossAxisAlignment: .end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('(${widget.diffDistance!.toStringAsFixed(digitAfterDecimal)} x ', style: secondaryTextStyle()),
                     Text('${widget.perkmVehiclePrice!.toStringAsFixed(digitAfterDecimal)})', style: secondaryTextStyle()),
@@ -147,7 +147,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
               Text(language.weightCharge, style: secondaryTextStyle()),
               4.width,
               Row(
-                crossAxisAlignment: .end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('(${widget.diffWeight} x ', style: secondaryTextStyle()),
                   Text('${widget.perWeightCharge})', style: secondaryTextStyle()),
@@ -158,7 +158,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
             ],
           ).paddingBottom(8).visible(widget.weightAmount != 0),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.deliveryCharge, style: secondaryTextStyle()),
               16.width,
@@ -167,7 +167,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
           ).paddingBottom(8).visible(widget.fixedAmount.validate() != 0),
           if (appStore.isInsuranceAllowed == "1" && widget.insuranceAmount != 0)
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(language.insuranceCharge, style: secondaryTextStyle()),
                 16.width,
@@ -179,7 +179,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
               Text(language.distanceCharge, style: secondaryTextStyle()),
               4.width,
               Row(
-                crossAxisAlignment: .end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('(${widget.diffDistance!.toStringAsFixed(digitAfterDecimal)}', style: secondaryTextStyle()),
                   Icon(Icons.close, color: Colors.grey, size: 12),
@@ -191,7 +191,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
             ],
           ).paddingBottom(8).visible(widget.distanceAmount != 0),
           Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(language.extraCharges, style: boldTextStyle(size: 14)),
               8.height,
@@ -200,7 +200,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
                 ExtraCharges mData = widget.extraCharges!.elementAt(index);
                 print("-----------${mData.charges}");
                 return Padding(
-                  padding: .only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
                       Text(mData.title!.replaceAll("_", " ").capitalizeFirstLetter(), style: secondaryTextStyle()),
@@ -220,8 +220,8 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
           ).visible(widget.extraCharges!.length != 0),
           widget.coupon != null
               ? Row(
-                  crossAxisAlignment: .start,
-                  mainAxisAlignment: .spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(language.couponApplied, style: boldTextStyle(color: darkRed)),
                     Text(printAmount((widget.totalAmount! - calculateTotalAmount()) ?? 0), style: boldTextStyle(color: darkRed))
@@ -230,7 +230,7 @@ class OrderAmountDataWidgetState extends State<OrderAmountDataWidget> {
               : SizedBox.shrink(),
           Divider(color: context.dividerColor),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.total,
                   style: boldTextStyle(

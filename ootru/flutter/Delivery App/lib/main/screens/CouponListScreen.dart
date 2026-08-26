@@ -117,14 +117,14 @@ class _CouponListScreenState extends State<CouponListScreen> {
                                 borderRadius: BorderRadius.circular(defaultRadius),
                               ),
                               child: Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: .center,
-                                    mainAxisAlignment: .spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             "${item.couponCode}",
@@ -160,8 +160,8 @@ class _CouponListScreenState extends State<CouponListScreen> {
                                   ),
                                   2.height,
                                   Row(
-                                    crossAxisAlignment: .center,
-                                    mainAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
                                         "${language.expiresIn} ",

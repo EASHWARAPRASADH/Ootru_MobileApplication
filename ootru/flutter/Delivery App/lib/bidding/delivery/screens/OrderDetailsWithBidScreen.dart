@@ -218,7 +218,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Container(
-              padding: .all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.scaffoldColorLight,
                 borderRadius: BorderRadius.only(
@@ -228,15 +228,15 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
               ),
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: .only(
+                  padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).viewInsets.bottom,
                   ),
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
-                        mainAxisAlignment: .spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(language.placeYourBid, style: boldTextStyle(size: 20)),
                           IconButton(
@@ -247,7 +247,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                       ),
                       24.height,
                       Row(
-                        mainAxisAlignment: .center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
                             decoration: boxDecorationWithRoundedCorners(
@@ -418,7 +418,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
           return AlertDialog(
             title: Column(
               children: [
-                Row(mainAxisAlignment: .spaceBetween, children: [
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Text(language.details, style: boldTextStyle()),
                   Icon(Icons.close, size: 20).onTap(() {
                     pop();
@@ -432,7 +432,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       "${language.contactPersonName} :",
@@ -448,7 +448,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                 ),
                 4.height,
                 Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("${language.instruction} :", style: secondaryTextStyle()).expand(),
                     Text(
@@ -471,12 +471,12 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
       appBar: commonAppBarWidget(
         '',
         titleWidget: Row(
-          mainAxisAlignment: .start,
-          crossAxisAlignment: .start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Column(
-              mainAxisAlignment: .start,
-              crossAxisAlignment: .start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${orderData?.clientName ?? ''}'.capitalizeFirstLetter(), style: secondaryTextStyle(size: 16, color: whiteColor)),
                 4.height,
@@ -492,22 +492,22 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
               ? Stack(
                   children: [
                     AnimatedScrollView(
-                      padding: .only(left: 16, right: 16, top: 16, bottom: 100),
+                      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
                       children: [
                         Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
                               decoration: boxDecorationWithRoundedCorners(
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       orderData!.date != null
                                           ? Text(
@@ -521,7 +521,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(6),
                                             border: Border.all(color: statusColor(orderData!.status.validate()).withOpacity(0.08))),
-                                        //  padding: .symmetric(horizontal: 3, vertical: 3),
+                                        //  padding: EdgeInsets.symmetric(horizontal: 3, vertical: 3),
                                         child: Icon(Icons.navigation_outlined, color: ColorUtils.colorPrimary).center(),
                                       ).onTap(() {
                                         openMap(
@@ -534,10 +534,10 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Column(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(orderData!.parcelType.validate(),
                                               style: boldTextStyle(), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -554,7 +554,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                               style: boldTextStyle(size: 12, color: ColorUtils.colorPrimary)),
                                           4.height,
                                           Row(
-                                            mainAxisAlignment: .spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Row(
                                                 children: [
@@ -582,17 +582,17 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   ),
                                   8.height,
                                   Column(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Column(
-                                            crossAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               if (orderData!.pickupDatetime != null)
                                                 Column(
-                                                  crossAxisAlignment: .start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(language.picked, style: secondaryTextStyle(size: 12)),
                                                     4.height,
@@ -633,21 +633,21 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   ),
                                   16.height,
                                   Column(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        crossAxisAlignment: .start,
-                                        mainAxisAlignment: .spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Column(
-                                            crossAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Column(
-                                                crossAxisAlignment: .start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   if (orderData!.deliveryDatetime != null)
                                                     Column(
-                                                      crossAxisAlignment: .start,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
                                                         Text(language.delivered, style: secondaryTextStyle(size: 12)),
                                                         4.height,
@@ -706,25 +706,25 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         decoration: boxDecorationWithRoundedCorners(
                                             borderRadius: BorderRadius.circular(8),
                                             border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1),
                                             backgroundColor: Colors.transparent),
-                                        padding: .all(8),
+                                        padding: EdgeInsets.all(8),
                                         child: Image.asset(parcelTypeIcon(orderData!.parcelType.validate()),
                                             height: 24, width: 24, color: Colors.grey),
                                       ),
                                       8.width,
                                       Column(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(orderData!.parcelType.validate(), style: boldTextStyle()),
                                           4.height,
@@ -736,7 +736,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.numberOfParcels, style: secondaryTextStyle()),
                                       Text('${orderData!.totalParcel ?? 1}', style: boldTextStyle(size: 14)),
@@ -748,7 +748,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                             ),
                             16.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(language.labels, style: boldTextStyle(size: 16)).visible(packagingSymbols.isNotEmpty),
                                 Icon(Icons.info, color: appStore.isDarkMode ? Colors.white.withOpacity(0.7) : ColorUtils.colorPrimary)
@@ -764,9 +764,9 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
-                                crossAxisAlignment: .center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Wrap(
                                     spacing: 8,
@@ -806,13 +806,13 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                     borderRadius: BorderRadius.circular(defaultRadius),
                                     border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                     backgroundColor: Colors.transparent),
-                                padding: .all(12),
+                                padding: EdgeInsets.all(12),
                                 child: Column(
-                                  mainAxisAlignment: .center,
-                                  crossAxisAlignment: .center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Row(
-                                      crossAxisAlignment: .center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Image.asset(ic_no_data, height: 30, width: 30, fit: BoxFit.cover, alignment: Alignment.center)
                                             .center(),
@@ -823,7 +823,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                             elevation: 0,
                                             height: 20,
                                             color: Colors.transparent,
-                                            padding: .symmetric(vertical: 4),
+                                            padding: EdgeInsets.symmetric(vertical: 4),
                                             shapeBorder: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(defaultRadius),
                                               side: BorderSide(color: ColorUtils.colorPrimary),
@@ -846,11 +846,11 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.paymentType, style: secondaryTextStyle()),
                                       Text('${paymentType(orderData!.paymentType.validate(value: PAYMENT_TYPE_CASH))}',
@@ -859,7 +859,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.paymentStatus, style: secondaryTextStyle()),
                                       Text('${paymentStatus(orderData!.paymentStatus.validate(value: PAYMENT_PENDING))}',
@@ -868,7 +868,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.paymentCollectFrom, style: secondaryTextStyle()),
                                       Text('${paymentCollectForm(orderData!.paymentCollectFrom!)}', style: boldTextStyle(size: 14)),
@@ -879,7 +879,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                             ),
                             if (!orderData!.pickupPoint!.description.isEmptyOrNull) 16.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(language.pickupInformation, style: boldTextStyle(size: 16))
                                     .visible(!orderData!.pickupPoint!.description.isEmptyOrNull),
@@ -896,9 +896,9 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                     borderRadius: BorderRadius.circular(defaultRadius),
                                     border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                     backgroundColor: Colors.transparent),
-                                padding: .all(12),
+                                padding: EdgeInsets.all(12),
                                 child: Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(orderData!.pickupPoint!.description.toString(),
                                             style: boldTextStyle(size: 14), maxLines: 3, overflow: TextOverflow.ellipsis)
@@ -907,7 +907,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                 )).visible(!orderData!.pickupPoint!.description.isEmptyOrNull),
                             if (!orderData!.deliveryPoint!.description.isEmptyOrNull) 16.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(language.deliveryInformation, style: boldTextStyle(size: 16))
                                     .visible(!orderData!.deliveryPoint!.description.isEmptyOrNull),
@@ -924,9 +924,9 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                     borderRadius: BorderRadius.circular(defaultRadius),
                                     border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                     backgroundColor: Colors.transparent),
-                                padding: .all(12),
+                                padding: EdgeInsets.all(12),
                                 child: Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(orderData!.deliveryPoint!.description.toString(),
                                             style: boldTextStyle(size: 14), maxLines: 3, overflow: TextOverflow.ellipsis)
@@ -943,14 +943,14 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                     border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                     backgroundColor: Colors.transparent),
                                 child: Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     commonCachedNetworkImage(orderData!.vehicleData!.vehicleImage.validate(), height: 40, width: 40),
                                     SizedBox(width: 16),
                                     Expanded(
                                       // Wrapping the Column with Expanded to prevent overflow
                                       child: Column(
-                                        crossAxisAlignment: .start, // Align to start
+                                        crossAxisAlignment: CrossAxisAlignment.start, // Align to start
                                         children: [
                                           if (vehicleDataitle != "")
                                             Container(
@@ -970,7 +970,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                               ),
                             if (userData != null && (orderData!.status != ORDER_CREATED && orderData!.status != ORDER_DRAFT))
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   16.height,
                                   Text('${getStringAsync(USER_TYPE) == CLIENT ? language.aboutDeliveryMan : language.aboutUser}',
@@ -981,13 +981,13 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                         borderRadius: BorderRadius.circular(defaultRadius),
                                         border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                         backgroundColor: Colors.transparent),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Column(
-                                      mainAxisAlignment: .start,
-                                      crossAxisAlignment: .start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          crossAxisAlignment: .start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Image.network(userData!.profileImage.validate(),
                                                     height: 60, width: 60, fit: BoxFit.cover, alignment: Alignment.center)
@@ -999,11 +999,11 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                                 .visible(userData!.profileImage.isEmptyOrNull),
                                             8.width,
                                             Column(
-                                              crossAxisAlignment: .start,
-                                              mainAxisAlignment: .start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: .spaceBetween,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     Row(
                                                       children: [
@@ -1019,7 +1019,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                                 4.height,
                                                 userData!.contactNumber != null
                                                     ? Row(
-                                                        mainAxisAlignment: .spaceBetween,
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
                                                           Text('${userData!.contactNumber}', style: secondaryTextStyle())
                                                               .paddingOnly(top: 4)
@@ -1046,7 +1046,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                               ),
                             if (orderData!.reason.validate().isNotEmpty && orderData!.status != ORDER_CANCELLED)
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   24.height,
                                   Text(language.returnReason, style: boldTextStyle()),
@@ -1054,14 +1054,14 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   Container(
                                     width: context.width(),
                                     decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Text('${orderData!.reason.validate(value: "-")}', style: primaryTextStyle(color: Colors.red)),
                                   ),
                                 ],
                               ),
                             if (orderData!.status == ORDER_CANCELLED)
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   24.height,
                                   Text(language.cancelledReason, style: boldTextStyle()),
@@ -1069,7 +1069,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                   Container(
                                     width: context.width(),
                                     decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Text('${orderData!.reason.validate(value: "-")}', style: primaryTextStyle(color: Colors.red)),
                                   ),
                                 ],
@@ -1092,18 +1092,18 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                     baseTotal: orderData!.baseTotal)
                                 : Container(
                                     width: context.width(),
-                                    padding: .all(16),
+                                    padding: EdgeInsets.all(16),
                                     decoration: boxDecorationWithRoundedCorners(
                                       borderRadius: BorderRadius.circular(defaultRadius),
                                       border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.2)),
                                       backgroundColor: Colors.transparent,
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: .start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         if (orderData!.vehicleData != null)
                                           Row(
-                                            mainAxisAlignment: .spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text("${language.vehicle} ${language.price.toLowerCase()}", style: primaryTextStyle()),
                                               16.width,
@@ -1111,7 +1111,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                             ],
                                           ),
                                         Row(
-                                          mainAxisAlignment: .spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(language.deliveryCharge, style: primaryTextStyle()),
                                             16.width,
@@ -1120,7 +1120,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                         ),
                                         if (orderData!.insuranceCharge != 0)
                                           Row(
-                                            mainAxisAlignment: .spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(language.insuranceCharge, style: primaryTextStyle()),
                                               16.width,
@@ -1132,7 +1132,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                             children: [
                                               8.height,
                                               Row(
-                                                mainAxisAlignment: .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text(language.distanceCharge, style: primaryTextStyle()),
                                                   16.width,
@@ -1146,7 +1146,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                             children: [
                                               8.height,
                                               Row(
-                                                mainAxisAlignment: .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text(language.weightCharge, style: primaryTextStyle()),
                                                   16.width,
@@ -1157,7 +1157,7 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                           ),
                                         if (orderData!.extraCharges != null)
                                           Column(
-                                            crossAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               16.height,
                                               Text(language.extraCharges, style: boldTextStyle()),
@@ -1165,9 +1165,9 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
                                               Column(
                                                   children: List.generate(orderData!.extraCharges!.keys.length, (index) {
                                                 return Padding(
-                                                  padding: .only(bottom: 8),
+                                                  padding: EdgeInsets.only(bottom: 8),
                                                   child: Row(
-                                                    mainAxisAlignment: .spaceBetween,
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Text(orderData!.extraCharges.keys.elementAt(index).replaceAll("_", " "),
                                                           style: primaryTextStyle()),
@@ -1198,12 +1198,12 @@ class OrderDetailWithBidScreenState extends State<OrderDetailWithBidScreen> {
         elevation: 4,
         child: Container(
           height: 80,
-          padding: .all(16),
+          padding: EdgeInsets.all(16),
           child: Row(
             children: [
               Expanded(
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (widget.bidData!.bidAmount! > 0) ...[
                       Text(

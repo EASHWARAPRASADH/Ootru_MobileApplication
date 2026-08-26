@@ -110,11 +110,11 @@ class _AddSupportTicketScreenState extends State<AddSupportTicketScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Form(
               key: formKey,
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   8.height,
                   Text(language.message, style: primaryTextStyle()),
@@ -172,7 +172,7 @@ class _AddSupportTicketScreenState extends State<AddSupportTicketScreen> {
                   Text(language.uploadDetails, style: primaryTextStyle()),
                   8.height,
                   Row(
-                    mainAxisAlignment: .start,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Container(
                           height: 38,

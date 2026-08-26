@@ -39,8 +39,8 @@ class HtmlWidget extends StatelessWidget {
       style: {
         "table": Style(backgroundColor: color ?? transparentColor),
         "tr": Style(border: Border(bottom: BorderSide(color: Colors.black45.withOpacity(0.5)))),
-        "th": Style(padding: .all(6), backgroundColor: Colors.black45.withOpacity(0.5)),
-        "td": Style(padding: .all(6), alignment: Alignment.center),
+        "th": Style(padding: EdgeInsets.all(6), backgroundColor: Colors.black45.withOpacity(0.5)),
+        "td": Style(padding: EdgeInsets.all(6), alignment: Alignment.center),
         'embed': Style(
             color: color ?? transparentColor,
             fontStyle: FontStyle.italic,
@@ -56,8 +56,8 @@ class HtmlWidget extends StatelessWidget {
         'figure': Style(
             color: color ?? textPrimaryColorGlobal,
             fontSize: FontSize(getIntAsync(FONT_SIZE_PREF, defaultValue: 16).toDouble()),
-            padding: .zero,
-            margin: .zero),
+            padding: EdgeInsets.zero,
+            margin: EdgeInsets.zero),
         'h1': Style(color: color ?? textPrimaryColorGlobal, fontSize: FontSize(getIntAsync(FONT_SIZE_PREF, defaultValue: 16).toDouble())),
         'h2': Style(color: color ?? textPrimaryColorGlobal, fontSize: FontSize(getIntAsync(FONT_SIZE_PREF, defaultValue: 16).toDouble())),
         'h3': Style(color: color ?? textPrimaryColorGlobal, fontSize: FontSize(getIntAsync(FONT_SIZE_PREF, defaultValue: 16).toDouble())),
@@ -84,7 +84,7 @@ class HtmlWidget extends StatelessWidget {
             Style(color: color ?? textPrimaryColorGlobal, fontSize: FontSize(getIntAsync(FONT_SIZE_PREF, defaultValue: 16).toDouble())),
         'img': Style(
             width: context.width(),
-            padding: .only(bottom: 8),
+            padding: EdgeInsets.only(bottom: 8),
             fontSize: FontSize(getIntAsync(FONT_SIZE_PREF, defaultValue: 16).toDouble())),
         'li': Style(
           color: color ?? textPrimaryColorGlobal,

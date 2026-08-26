@@ -172,19 +172,19 @@ class TrackingScreenState extends State<TrackingScreen> {
                   height: 200,
                   color: context.scaffoldBackgroundColor,
                   child: ListView.separated(
-                      padding: .symmetric(vertical: 16),
+                      padding: EdgeInsets.symmetric(vertical: 16),
                       shrinkWrap: true,
                       itemCount: widget.order.length,
                       itemBuilder: (_, index) {
                         OrderData data = widget.order[index];
                         return Container(
                           color: orderId == data.id ? ColorUtils.colorPrimary.withOpacity(0.1) : Colors.transparent,
-                          padding: .symmetric(horizontal: 16, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           child: Column(
-                            crossAxisAlignment: .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: .spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('${language.order}# ${data.id}', style: boldTextStyle()),
                                   Row(
@@ -193,7 +193,7 @@ class TrackingScreenState extends State<TrackingScreen> {
                                         child: Image.asset(ic_google_map, height: 30, width: 30),
                                         decoration: boxDecorationWithRoundedCorners(
                                             borderRadius: radius(defaultRadius), backgroundColor: context.cardColor),
-                                        padding: .all(2),
+                                        padding: EdgeInsets.all(2),
                                       ).onTap(
                                         () {
                                           if (data.status == ORDER_ACCEPTED) {
@@ -207,7 +207,7 @@ class TrackingScreenState extends State<TrackingScreen> {
                                       ),
                                       16.width,
                                       AppButton(
-                                        padding: .zero,
+                                        padding: EdgeInsets.zero,
                                         color: ColorUtils.colorPrimary,
                                         text: language.track,
                                         textStyle: primaryTextStyle(color: Colors.white),
@@ -225,8 +225,8 @@ class TrackingScreenState extends State<TrackingScreen> {
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment: .start,
-                                crossAxisAlignment: .start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Icon(Icons.location_on, color: ColorUtils.colorPrimary),
                                   Text(

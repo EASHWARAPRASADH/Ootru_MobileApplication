@@ -55,9 +55,9 @@ class DeleteAccountScreenState extends State<DeleteAccountScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(language.confirmAccountDeletion, style: boldTextStyle(size: 18)),
                 Divider(color: context.dividerColor),

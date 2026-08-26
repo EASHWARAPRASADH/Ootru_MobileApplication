@@ -39,7 +39,7 @@ class _DottedBorderWidgetState extends State<DottedBorderWidget> {
         radius: widget.radius,
       ),
       child: Container(
-        padding: widget.padding ?? .all(2),
+        padding: widget.padding ?? EdgeInsets.all(2),
         child: widget.child,
       ),
     );

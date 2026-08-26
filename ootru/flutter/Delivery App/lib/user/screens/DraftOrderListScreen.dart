@@ -91,22 +91,22 @@ class DraftOrderListScreenState extends State<DraftOrderListScreen> {
                 ? ListView(
                     shrinkWrap: true,
                     controller: scrollController,
-                    padding: .all(16),
+                    padding: EdgeInsets.all(16),
                     children: orderList.map((item) {
                       return Container(
-                        margin: .only(bottom: 8),
-                        padding: .all(12),
+                        margin: EdgeInsets.only(bottom: 8),
+                        padding: EdgeInsets.all(12),
                         decoration: boxDecorationWithRoundedCorners(
                             borderRadius: BorderRadius.circular(defaultRadius),
                             border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                             backgroundColor: Colors.transparent),
                         child: Column(
-                          crossAxisAlignment: .start,
-                          mainAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             item.date != null
                                 ? Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(DateFormat('dd MMM yyyy').format(DateTime.parse("${item.date!}Z").toLocal()),
                                           style: secondaryTextStyle()),
@@ -117,7 +117,7 @@ class DraftOrderListScreenState extends State<DraftOrderListScreen> {
                                 : SizedBox(),
                             8.height,
                             Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 item.parcelType != null
                                     ? Row(
@@ -127,13 +127,13 @@ class DraftOrderListScreenState extends State<DraftOrderListScreen> {
                                                 borderRadius: BorderRadius.circular(8),
                                                 border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1),
                                                 backgroundColor: context.cardColor),
-                                            padding: .all(8),
+                                            padding: EdgeInsets.all(8),
                                             child: Image.asset(parcelTypeIcon(item.parcelType.validate()),
                                                 height: 24, width: 24, color: ColorUtils.colorPrimary),
                                           ),
                                           8.width,
                                           Column(
-                                            crossAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Row(
                                                 children: [

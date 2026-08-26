@@ -313,7 +313,7 @@ class _AppTextFieldState extends State<AppTextField> {
       maxLength: widget.maxLength,
       enableSuggestions: widget.enableSuggestions.validate(value: true),
       autofillHints: widget.autoFillHints ?? applyAutofillHints(),
-      scrollPadding: widget.scrollPadding ?? .all(20),
+      scrollPadding: widget.scrollPadding ?? EdgeInsets.all(20),
       cursorWidth: widget.cursorWidth.validate(value: 2.0),
       cursorHeight: widget.cursorHeight,
       cursorRadius: radiusCircular(8),

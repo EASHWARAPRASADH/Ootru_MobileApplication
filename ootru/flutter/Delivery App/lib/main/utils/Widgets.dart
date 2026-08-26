@@ -16,7 +16,7 @@ Widget commonButton(String title, Function() onTap, {double? width, Color? color
   return SizedBox(
     width: width,
     child: AppButton(
-      padding: .symmetric(vertical: 14, horizontal: 16),
+      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(defaultRadius)),
       elevation: 0,
       child: Text(
@@ -42,7 +42,7 @@ Widget outlineButton(String title, Function() onTap, {double? width, Color? colo
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultRadius), side: BorderSide(color: color ?? ColorUtils.borderColor)),
         elevation: 0,
-        padding: .symmetric(vertical: 14, horizontal: 16),
+        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         backgroundColor: Colors.transparent,
       ),
     ),
@@ -51,7 +51,7 @@ Widget outlineButton(String title, Function() onTap, {double? width, Color? colo
 
 Widget scheduleOptionWidget(BuildContext context, bool isSelected, String imagePath, String title) {
   return Container(
-    padding: .all(16),
+    padding: EdgeInsets.all(16),
     alignment: Alignment.center,
     decoration: boxDecorationWithRoundedCorners(
         border: Border.all(
@@ -62,8 +62,8 @@ Widget scheduleOptionWidget(BuildContext context, bool isSelected, String imageP
                     : ColorUtils.borderColor),
         backgroundColor: isSelected ? ColorUtils.colorPrimary : context.cardColor),
     child: Row(
-      crossAxisAlignment: .center,
-      mainAxisAlignment: .center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(title == language.schedule ? Feather.calendar : Feather.clock, size: 18, color: isSelected ? Colors.white : context.iconColor),
         // ImageIcon(AssetImage(imagePath), size: 20, color: isSelected ? colorPrimary : Colors.grey),
@@ -76,7 +76,7 @@ Widget scheduleOptionWidget(BuildContext context, bool isSelected, String imageP
 
 Widget enableBidOptionWidget(BuildContext context, bool isSelected, IconData icon, String title) {
   return Container(
-    padding: .all(16),
+    padding: EdgeInsets.all(16),
     alignment: Alignment.center,
     decoration: boxDecorationWithRoundedCorners(
         border: Border.all(
@@ -87,8 +87,8 @@ Widget enableBidOptionWidget(BuildContext context, bool isSelected, IconData ico
                     : ColorUtils.borderColor),
         backgroundColor: isSelected ? ColorUtils.colorPrimary : context.cardColor),
     child: Row(
-      crossAxisAlignment: .center,
-      mainAxisAlignment: .center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(
           icon,

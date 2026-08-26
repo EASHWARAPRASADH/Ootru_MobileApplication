@@ -46,12 +46,12 @@ class ThemeSelectionDialogState extends State<ThemeSelectionDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: .all(8),
+            padding: EdgeInsets.all(8),
             alignment: Alignment.topLeft,
             decoration: boxDecorationWithShadow(
                 backgroundColor: ColorUtils.colorPrimary, borderRadius: radiusOnly(topRight: defaultRadius, topLeft: defaultRadius)),
             child: Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(language.theme, style: boldTextStyle(size: 20, color: Colors.white)).paddingLeft(12),
                 CloseButton(color: Colors.white),
@@ -60,7 +60,7 @@ class ThemeSelectionDialogState extends State<ThemeSelectionDialog> {
           ),
           ListView(
             shrinkWrap: true,
-            padding: .symmetric(horizontal: 4, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             children: List.generate(
               themeModeList.length,
               (index) {
@@ -73,7 +73,7 @@ class ThemeSelectionDialogState extends State<ThemeSelectionDialog> {
                   child: RadioListTile(
                     value: index,
                     dense: true,
-                    contentPadding: .symmetric(horizontal: 8),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
                     groupValue: currentIndex,
                     activeColor: ColorUtils.colorPrimary,
                     title: Text(themeModeList[index]!, style: primaryTextStyle()),

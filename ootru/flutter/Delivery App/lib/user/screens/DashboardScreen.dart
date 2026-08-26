@@ -205,8 +205,8 @@ class DashboardScreenState extends State<DashboardScreen> with WidgetsBindingObs
         child: commonAppBarWidget(getTitle(),
             actions: [
               Container(
-                margin: .symmetric(vertical: 12, horizontal: 12),
-                padding: .symmetric(horizontal: 8, vertical: 4),
+                margin: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.white24),
                 child: Row(
                   children: [

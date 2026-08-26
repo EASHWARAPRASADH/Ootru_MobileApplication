@@ -108,7 +108,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
 
   Widget buildButton() {
     return Padding(
-      padding: widget.margin ?? .zero,
+      padding: widget.margin ?? EdgeInsets.zero,
       child: MaterialButton(
         minWidth: widget.width,
         padding: widget.padding ?? dynamicAppButtonPadding(context),

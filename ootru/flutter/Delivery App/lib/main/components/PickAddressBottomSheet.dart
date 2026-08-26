@@ -82,13 +82,13 @@ class PickAddressBottomSheetState extends State<PickAddressBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             color: ColorUtils.colorPrimary.withOpacity(0.1),
             child: Column(
-              crossAxisAlignment: .stretch,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(widget.isPickup ? language.choosePickupAddress : language.chooseDeliveryAddress, style: boldTextStyle()),
                 8.height,
@@ -122,7 +122,7 @@ class PickAddressBottomSheetState extends State<PickAddressBottomSheet> {
                       Icon(Icons.location_on_outlined),
                       10.width,
                       Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('${mData.addressType}', style: secondaryTextStyle(size: 12), maxLines: 1),
                           Container(width: context.width() * 0.82, child: Text('${mData.address}', style: primaryTextStyle(), maxLines: 2)),

@@ -61,7 +61,7 @@ class _DeliveryBidListScreenState extends State<DeliveryBidListScreen> {
         shrinkWrap: true,
         physics: BouncingScrollPhysics(),
         listAnimationType: ListAnimationType.Slide,
-        padding: .only(left: 16, right: 16, top: 16, bottom: 60),
+        padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 60),
         flipConfiguration: FlipConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
         fadeInConfiguration: FadeInConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
         onNextPage: () {},
@@ -94,18 +94,18 @@ class _DeliveryBidListScreenState extends State<DeliveryBidListScreen> {
           }
 
           return Container(
-            margin: .only(bottom: 16),
+            margin: EdgeInsets.only(bottom: 16),
             decoration: boxDecorationWithRoundedCorners(
               borderRadius: BorderRadius.circular(defaultRadius),
               border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
               backgroundColor: Colors.transparent,
             ),
-            padding: .all(12),
+            padding: EdgeInsets.all(12),
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
@@ -116,7 +116,7 @@ class _DeliveryBidListScreenState extends State<DeliveryBidListScreen> {
                     ),
                     8.width,
                     Container(
-                      padding: .only(left: 8, right: 8),
+                      padding: EdgeInsets.only(left: 8, right: 8),
                       decoration: boxDecorationWithRoundedCorners(
                         borderRadius: BorderRadius.circular(4),
                         backgroundColor: statusColor.withOpacity(0.1),

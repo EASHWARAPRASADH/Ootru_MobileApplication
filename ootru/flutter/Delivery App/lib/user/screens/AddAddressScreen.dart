@@ -107,11 +107,11 @@ class AddAddressScreenState extends State<AddAddressScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             child: Form(
               key: formKey,
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(language.address, style: primaryTextStyle()),
                   8.height,
@@ -282,7 +282,7 @@ class AddAddressScreenState extends State<AddAddressScreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
         child: commonButton(language.save, () {
           if (formKey.currentState!.validate()) {
             saveAddressApiCall();

@@ -331,10 +331,10 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            //   contentPadding: .all(8),
+            //   contentPadding: EdgeInsets.all(8),
             title: Column(
               children: [
-                Row(mainAxisAlignment: .spaceBetween, children: [
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Text(language.details, style: boldTextStyle()),
                   Icon(Icons.close, size: 20).onTap(() {
                     pop();
@@ -348,7 +348,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       "${language.contactPersonName} :",
@@ -364,7 +364,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                 ),
                 4.height,
                 Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("${language.instruction} :", style: secondaryTextStyle()).expand(),
                     Text(
@@ -388,12 +388,12 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
       appBar: commonAppBarWidget(
         '',
         titleWidget: Row(
-          mainAxisAlignment: .start,
-          crossAxisAlignment: .center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Column(
-              mainAxisAlignment: .start,
-              crossAxisAlignment: .start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${orderData != null ? orderStatus(orderData!.status.validate()) : ''}', style: secondaryTextStyle(size: 16, color: whiteColor)),
                 4.height,
@@ -415,17 +415,17 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
               ? Stack(
                   children: [
                     AnimatedScrollView(
-                      padding: .only(left: 16, right: 16, top: 16, bottom: 100),
+                      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
                       children: [
                         Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppButton(
                               elevation: 0,
                               height: 35,
                               width: double.infinity,
                               color: Colors.transparent,
-                              padding: .symmetric(horizontal: 8),
+                              padding: EdgeInsets.symmetric(horizontal: 8),
                               shapeBorder: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(defaultRadius),
                                 side: BorderSide(color: ColorUtils.colorPrimary),
@@ -439,27 +439,27 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                               },
                             ).visible(orderData!.status == ORDER_DELIVERED && (orderData!.ratingDetail == null || orderData!.ratingDetail!.rating == null)),
                             Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(language.rating, style: boldTextStyle(size: 16)),
                                 12.height,
                                 Container(
                                     decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Column(children: [
                                       Row(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Image.network(userData!.profileImage.validate(), height: 60, width: 60, fit: BoxFit.cover, alignment: Alignment.center).cornerRadiusWithClipRRect(60).visible(!userData!.profileImage.isEmptyOrNull),
                                           commonCachedNetworkImage(ic_profile, height: 60, width: 60, fit: BoxFit.cover, alignment: Alignment.center).cornerRadiusWithClipRRect(60).visible(userData!.profileImage.isEmptyOrNull),
                                           8.width,
                                           Column(
-                                            crossAxisAlignment: .start,
-                                            mainAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.start,
                                             children: [
                                               8.height,
                                               Row(
-                                                mainAxisAlignment: .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Row(
                                                     children: [
@@ -471,7 +471,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                                 ],
                                               ),
                                               Row(
-                                                mainAxisAlignment: .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text('${userData!.email}', style: secondaryTextStyle()).paddingOnly(top: 0),
                                                   Text(
@@ -492,12 +492,12 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             16.height,
                             Container(
                               decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       orderData!.date != null
                                           ? Text('${DateFormat('dd MMM yyyy').format(DateTime.parse("${orderData!.date!}").toLocal())} ' + ' ${language.at.toLowerCase()} ' + ' ${DateFormat('hh:mm a').format(DateTime.parse("${orderData!.date!}").toLocal())}', style: primaryTextStyle(size: 14))
@@ -505,7 +505,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                           : SizedBox(),
                                       Container(
                                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), border: Border.all(color: statusColor(orderData!.status.validate()).withOpacity(0.08))),
-                                        //  padding: .symmetric(horizontal: 3, vertical: 3),
+                                        //  padding: EdgeInsets.symmetric(horizontal: 3, vertical: 3),
                                         child: Icon(Icons.navigation_outlined, color: ColorUtils.colorPrimary).center(),
                                       ).onTap(() {
                                         openMap(double.parse(orderData!.pickupPoint!.latitude.validate()), double.parse(orderData!.pickupPoint!.longitude.validate()), double.parse(orderData!.deliveryPoint!.latitude.validate()), double.parse(orderData!.deliveryPoint!.longitude.validate()));
@@ -514,10 +514,10 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Column(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(orderData!.parcelType.validate(), style: boldTextStyle(), maxLines: 1, overflow: TextOverflow.ellipsis),
                                           4.height,
@@ -531,7 +531,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                           Text('${orderData!.orderTrackingId}', style: boldTextStyle(size: 12, color: ColorUtils.colorPrimary)),
                                           4.height,
                                           Row(
-                                            mainAxisAlignment: .spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Row(
                                                 children: [
@@ -555,17 +555,17 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   ),
                                   8.height,
                                   Column(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Column(
-                                            crossAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               if (orderData!.pickupDatetime != null)
                                                 Column(
-                                                  crossAxisAlignment: .start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(language.picked, style: secondaryTextStyle(size: 12)),
                                                     4.height,
@@ -603,21 +603,21 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   ),
                                   16.height,
                                   Column(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        crossAxisAlignment: .start,
-                                        mainAxisAlignment: .spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Column(
-                                            crossAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Column(
-                                                crossAxisAlignment: .start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   if (orderData!.deliveryDatetime != null)
                                                     Column(
-                                                      crossAxisAlignment: .start,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
                                                         Text(language.delivered, style: secondaryTextStyle(size: 12)),
                                                         4.height,
@@ -659,13 +659,13 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   ),
                                   if (orderData!.status != ORDER_CANCELLED || (orderData!.status == ORDER_DEPARTED || orderData!.status == ORDER_ACCEPTED)) 16.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       AppButton(
                                         elevation: 0,
                                         height: 35,
                                         color: Colors.transparent,
-                                        padding: .symmetric(horizontal: 8),
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
                                         shapeBorder: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(defaultRadius),
                                           side: BorderSide(color: ColorUtils.colorPrimary),
@@ -686,7 +686,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                           elevation: 0,
                                           height: 35,
                                           color: Colors.transparent,
-                                          padding: .symmetric(horizontal: 8),
+                                          padding: EdgeInsets.symmetric(horizontal: 8),
                                           shapeBorder: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(defaultRadius),
                                             side: BorderSide(color: ColorUtils.colorPrimary),
@@ -716,21 +716,21 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             12.height,
                             Container(
                               decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(8), border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1), backgroundColor: Colors.transparent),
-                                        padding: .all(8),
+                                        padding: EdgeInsets.all(8),
                                         child: Image.asset(parcelTypeIcon(orderData!.parcelType.validate()), height: 24, width: 24, color: Colors.grey),
                                       ),
                                       8.width,
                                       Column(
-                                        crossAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(orderData!.parcelType.validate(), style: boldTextStyle()),
                                           4.height,
@@ -741,7 +741,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.numberOfParcels, style: secondaryTextStyle()),
                                       Text('${orderData!.totalParcel ?? 1}', style: boldTextStyle(size: 14)),
@@ -753,7 +753,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             ),
                             16.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(language.labels, style: boldTextStyle(size: 16)).visible(packagingSymbols.isNotEmpty),
                                 Icon(Icons.info, color: appStore.isDarkMode ? Colors.white.withOpacity(0.7) : ColorUtils.colorPrimary).onTap(() {
@@ -768,9 +768,9 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             Container(
                               width: context.width(),
                               decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
-                                crossAxisAlignment: .center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Wrap(
                                     spacing: 8,
@@ -805,13 +805,13 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             if (courierDetails != null && orderData!.status != ORDER_DELIVERED && orderData!.status != ORDER_CREATED)
                               Container(
                                 decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                                padding: .all(12),
+                                padding: EdgeInsets.all(12),
                                 child: Column(
-                                  mainAxisAlignment: .center,
-                                  crossAxisAlignment: .center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Row(
-                                      crossAxisAlignment: .center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Image.asset(ic_no_data, height: 30, width: 30, fit: BoxFit.cover, alignment: Alignment.center).center(),
                                         8.width,
@@ -821,7 +821,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                             elevation: 0,
                                             height: 20,
                                             color: Colors.transparent,
-                                            padding: .symmetric(vertical: 4),
+                                            padding: EdgeInsets.symmetric(vertical: 4),
                                             shapeBorder: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(defaultRadius),
                                               side: BorderSide(color: ColorUtils.colorPrimary),
@@ -843,11 +843,11 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             12.height,
                             Container(
                               decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.paymentType, style: secondaryTextStyle()),
                                       Text('${paymentType(orderData!.paymentType.validate(value: PAYMENT_TYPE_CASH))}', style: boldTextStyle(size: 14)),
@@ -855,7 +855,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.paymentStatus, style: secondaryTextStyle()),
                                       Text('${paymentStatus(orderData!.paymentStatus.validate(value: PAYMENT_PENDING))}', style: boldTextStyle(size: 14)),
@@ -863,7 +863,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.paymentCollectFrom, style: secondaryTextStyle()),
                                       Text('${paymentCollectForm(orderData!.paymentCollectFrom!)}', style: boldTextStyle(size: 14)),
@@ -874,7 +874,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             ),
                             if (!orderData!.pickupPoint!.description.isEmptyOrNull) 16.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(language.pickupInformation, style: boldTextStyle(size: 16)).visible(!orderData!.pickupPoint!.description.isEmptyOrNull),
                                 Text(language.viewMore, style: secondaryTextStyle(size: 12)).onTap(() {
@@ -885,16 +885,16 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             12.height,
                             Container(
                                 decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                                padding: .all(12),
+                                padding: EdgeInsets.all(12),
                                 child: Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(orderData!.pickupPoint!.description.toString(), style: boldTextStyle(size: 14), maxLines: 3, overflow: TextOverflow.ellipsis).expand(),
                                   ],
                                 )).visible(!orderData!.pickupPoint!.description.isEmptyOrNull),
                             if (!orderData!.deliveryPoint!.description.isEmptyOrNull) 16.height,
                             Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(language.deliveryInformation, style: boldTextStyle(size: 16)).visible(!orderData!.deliveryPoint!.description.isEmptyOrNull),
                                 Text(language.viewMore, style: secondaryTextStyle(size: 12)).onTap(() {
@@ -905,9 +905,9 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                             12.height,
                             Container(
                                 decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                                padding: .all(12),
+                                padding: EdgeInsets.all(12),
                                 child: Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(orderData!.deliveryPoint!.description.toString(), style: boldTextStyle(size: 14), maxLines: 3, overflow: TextOverflow.ellipsis).expand(),
                                   ],
@@ -919,14 +919,14 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                               Container(
                                 decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
                                 child: Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     commonCachedNetworkImage(orderData!.vehicleImage.validate(), height: 40, width: 40),
                                     SizedBox(width: 16),
                                     Expanded(
                                       // Wrapping the Column with Expanded to prevent overflow
                                       child: Column(
-                                        crossAxisAlignment: .start, // Align to start
+                                        crossAxisAlignment: CrossAxisAlignment.start, // Align to start
                                         children: [
                                           if (vehicleDataitle != "")
                                             Container(
@@ -946,31 +946,31 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                               ),
                             if (userData != null && (orderData!.status != ORDER_CREATED && orderData!.status != ORDER_DRAFT))
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   16.height,
                                   Text('${getStringAsync(USER_TYPE) == CLIENT ? language.aboutDeliveryMan : language.aboutUser}', style: boldTextStyle(size: 16)),
                                   12.height,
                                   Container(
                                     decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Column(
-                                      mainAxisAlignment: .start,
-                                      crossAxisAlignment: .start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          crossAxisAlignment: .start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Image.network(userData!.profileImage.validate(), height: 60, width: 60, fit: BoxFit.cover, alignment: Alignment.center).cornerRadiusWithClipRRect(60).visible(!userData!.profileImage.isEmptyOrNull),
 
                                             commonCachedNetworkImage(ic_profile, height: 60, width: 60, fit: BoxFit.cover, alignment: Alignment.center).cornerRadiusWithClipRRect(60).visible(userData!.profileImage.isEmptyOrNull),
                                             8.width,
                                             Column(
-                                              crossAxisAlignment: .start,
-                                              mainAxisAlignment: .start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: .spaceBetween,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     Row(
                                                       children: [
@@ -984,7 +984,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                                 4.height,
                                                 userData!.contactNumber != null
                                                     ? Row(
-                                                        mainAxisAlignment: .spaceBetween,
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
                                                           Text('${userData!.contactNumber}', style: secondaryTextStyle()).paddingOnly(top: 4).onTap(() {
                                                             if (orderData!.status != COMPLETED) {
@@ -1016,7 +1016,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                               ),
                             if (orderData!.reason.validate().isNotEmpty && orderData!.status != ORDER_CANCELLED)
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   24.height,
                                   Text(language.returnReason, style: boldTextStyle()),
@@ -1024,14 +1024,14 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   Container(
                                     width: context.width(),
                                     decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Text('${orderData!.reason.validate(value: "-")}', style: primaryTextStyle(color: Colors.red)),
                                   ),
                                 ],
                               ),
                             if (orderData!.status == ORDER_CANCELLED)
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   24.height,
                                   Text(language.cancelledReason, style: boldTextStyle()),
@@ -1039,7 +1039,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   Container(
                                     width: context.width(),
                                     decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Text('${orderData!.reason.validate(value: "-")}', style: primaryTextStyle(color: Colors.red)),
                                   ),
                                 ],
@@ -1064,18 +1064,18 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                     baseTotal: orderData!.baseTotal)
                                 : Container(
                                     width: context.width(),
-                                    padding: .all(16),
+                                    padding: EdgeInsets.all(16),
                                     decoration: boxDecorationWithRoundedCorners(
                                       borderRadius: BorderRadius.circular(defaultRadius),
                                       border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.2)),
                                       backgroundColor: Colors.transparent,
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: .start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         if (orderData!.vehicleData != null)
                                           Row(
-                                            mainAxisAlignment: .spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text("${language.vehicle} ${language.price.toLowerCase()}", style: primaryTextStyle()),
                                               16.width,
@@ -1083,7 +1083,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                             ],
                                           ),
                                         Row(
-                                          mainAxisAlignment: .spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(language.deliveryCharge, style: primaryTextStyle()),
                                             16.width,
@@ -1092,7 +1092,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                         ),
                                         if (orderData!.insuranceCharge != 0)
                                           Row(
-                                            mainAxisAlignment: .spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(language.insuranceCharge, style: primaryTextStyle()),
                                               16.width,
@@ -1104,7 +1104,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                             children: [
                                               8.height,
                                               Row(
-                                                mainAxisAlignment: .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text(language.distanceCharge, style: primaryTextStyle()),
                                                   16.width,
@@ -1118,7 +1118,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                             children: [
                                               8.height,
                                               Row(
-                                                mainAxisAlignment: .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text(language.weightCharge, style: primaryTextStyle()),
                                                   16.width,
@@ -1129,7 +1129,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                           ),
                                         if (orderData!.extraCharges != null)
                                           Column(
-                                            crossAxisAlignment: .start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               16.height,
                                               Text(language.extraCharges, style: boldTextStyle()),
@@ -1137,9 +1137,9 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                               Column(
                                                   children: List.generate(orderData!.extraCharges!.keys.length, (index) {
                                                 return Padding(
-                                                  padding: .only(bottom: 8),
+                                                  padding: EdgeInsets.only(bottom: 8),
                                                   child: Row(
-                                                    mainAxisAlignment: .spaceBetween,
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Text(orderData!.extraCharges.keys.elementAt(index).replaceAll("_", " "), style: primaryTextStyle()),
                                                       16.width,
@@ -1152,7 +1152,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                           ).visible(orderData!.extraCharges.keys.length != 0),
                                         16.height,
                                         Row(
-                                          mainAxisAlignment: .spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(language.total, style: boldTextStyle(size: 20)),
                                             (orderData!.status == ORDER_CANCELLED && payment != null && payment!.deliveryManFee == 0)
@@ -1212,7 +1212,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                               Container(
                                 width: context.width(),
                                 decoration: BoxDecoration(color: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                padding: .all(12),
+                                padding: EdgeInsets.all(12),
                                 child: Text('${language.note} ${payment!.deliveryManFee == 0 ? language.cancelBeforePickMsg : language.cancelAfterPickMsg}', style: secondaryTextStyle(color: Colors.red)),
                               ),
                             Align(
@@ -1246,7 +1246,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                     showInDialog(
                                       context,
                                       backgroundColor: ColorUtils.colorPrimaryLight,
-                                      contentPadding: .all(16),
+                                      contentPadding: EdgeInsets.all(16),
                                       builder: (p0) {
                                         return CancelOrderDialog(
                                             orderId: orderData!.id.validate(),
@@ -1263,7 +1263,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                   Container(
                                     width: context.width(),
                                     decoration: BoxDecoration(color: appStore.isDarkMode ? scaffoldSecondaryDark : ColorUtils.colorPrimary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                    padding: .all(12),
+                                    padding: EdgeInsets.all(12),
                                     child: Text(language.cancelNote, style: secondaryTextStyle()),
                                   ),
                                 ],
@@ -1316,7 +1316,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                         child: Container(
                             width: 60,
                             height: 60,
-                            margin: .only(bottom: 20),
+                            margin: EdgeInsets.only(bottom: 20),
                             decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(40), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: ColorUtils.colorPrimary),
                             child: Stack(
                               children: [
@@ -1393,7 +1393,7 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
     return showInDialog(
       barrierDismissible: false,
       getContext,
-      //    contentPadding: .all(16),
+      //    contentPadding: EdgeInsets.all(16),
       builder: (p0) {
         return StatefulBuilder(builder: (context, selectedImagesUpdate) {
           return Form(
@@ -1406,8 +1406,8 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                 child: !appStore.isLoading
                     ? Column(
                         mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: .start,
-                        crossAxisAlignment: .start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(language.fillTheDetailsForClaim, style: boldTextStyle(), textAlign: TextAlign.start),
                           8.height,

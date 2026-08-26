@@ -20,14 +20,14 @@ class DeleteConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      actionsPadding: .all(16),
+      actionsPadding: EdgeInsets.all(16),
       shape: RoundedRectangleBorder(borderRadius: radius(defaultRadius)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             decoration: BoxDecoration(color: Colors.red.withOpacity(0.2), shape: BoxShape.circle),
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             child: Icon(Icons.delete, color: Colors.red),
           ),
           SizedBox(height: 30),

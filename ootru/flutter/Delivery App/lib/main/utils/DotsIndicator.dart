@@ -85,7 +85,7 @@ class DotIndicatorState extends State<DotIndicator> {
                 ? (widget.currentDotWidth ?? widget.currentDotSize.validate(value: 14))
                 : widget.dotSize.validate(value: 8),
             width: selectedIndex == idx ? widget.currentDotSize.validate(value: 14) : widget.dotSize.validate(value: 8),
-            margin: .all(4),
+            margin: EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: selectedIndex == idx ? widget.currentBoxShape ?? BoxShape.circle : widget.boxShape ?? BoxShape.circle,
               color: selectedIndex == idx ? widget.indicatorColor ?? white : widget.unselectedIndicatorColor ?? Colors.black26,

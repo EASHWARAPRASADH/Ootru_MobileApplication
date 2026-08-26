@@ -43,18 +43,18 @@ class LanguageScreenState extends State<LanguageScreen> {
     return CommonScaffoldComponent(
       appBarTitle: language.language,
       body: AnimatedScrollView(
-        padding: .all(8),
+        padding: EdgeInsets.all(8),
         children: List.generate(defaultServerLanguageData!.length, (index) {
           LanguageJsonData data = defaultServerLanguageData![index];
           return Container(
-            margin: .all(8),
+            margin: EdgeInsets.all(8),
             decoration: boxDecorationWithRoundedCorners(
                 backgroundColor: Colors.transparent,
                 border: Border.all(
                     color: getStringAsync(SELECTED_LANGUAGE_COUNTRY_CODE, defaultValue: defaultCountryCode) == data.countryCode
                         ? ColorUtils.colorPrimary
                         : ColorUtils.dividerColor)),
-            padding: .symmetric(horizontal: 16, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               children: [
                 commonCachedNetworkImage(data.languageImage.validate(), width: 34, height: 34).cornerRadiusWithClipRRect(4),

@@ -64,7 +64,7 @@ void snackBar(
         onVisible: onVisible?.call(),
         content: content ??
             Padding(
-              padding: padding ?? .symmetric(vertical: 4),
+              padding: padding ?? EdgeInsets.symmetric(vertical: 4),
               child: Text(
                 title,
                 style: primaryTextStyle(color: textColor ?? Colors.white),
@@ -326,15 +326,15 @@ Uri mailTo({
 //   return SizedBox(
 //     height: 16,
 //     child: Row(
-//       crossAxisAlignment: .center,
-//       mainAxisAlignment: .center,
+//       crossAxisAlignment: CrossAxisAlignment.center,
+//       mainAxisAlignment: MainAxisAlignment.center,
 //       children: List.generate(
 //         list.length,
 //         (ind) {
 //           return Container(
 //             height: 4,
 //             width: i == ind ? 30 : 12,
-//             margin: .all(4),
+//             margin: EdgeInsets.all(4),
 //             decoration: BoxDecoration(
 //                 color: i == ind
 //                     ? appStore.isDarkMode == true
@@ -353,8 +353,8 @@ Uri mailTo({
 //   return SizedBox(
 //     height: 16,
 //     child: Row(
-//       crossAxisAlignment: .center,
-//       mainAxisAlignment: .center,
+//       crossAxisAlignment: CrossAxisAlignment.center,
+//       mainAxisAlignment: MainAxisAlignment.center,
 //       children: List.generate(
 //         5,
 //         //  list.length,
@@ -363,7 +363,7 @@ Uri mailTo({
 //             height: 4,
 //             width: 50,
 //             // width: i == ind ? 30 : 12,
-//             margin: .all(4),
+//             margin: EdgeInsets.all(4),
 //             decoration: BoxDecoration(
 //                 color: i == ind
 //                     ? appStore.isDarkMode == true
@@ -441,7 +441,7 @@ void toast(
 // Widget emptyWidget() {
 //   return Center(
 //       child: Column(
-//     mainAxisAlignment: .center,
+//     mainAxisAlignment: MainAxisAlignment.center,
 //     children: [
 //       Image.asset(
 //         no_data,

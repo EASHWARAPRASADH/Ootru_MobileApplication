@@ -168,11 +168,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .only(left: 16, top: 16, right: 16, bottom: 16),
+            padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16),
             child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Stack(
                     children: [
@@ -180,8 +180,8 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
-                          margin: .only(top: 60, left: 80),
-                          padding: .all(6),
+                          margin: EdgeInsets.only(top: 60, left: 80),
+                          padding: EdgeInsets.all(6),
                           decoration: boxDecorationWithRoundedCorners(
                               backgroundColor: ColorUtils.colorPrimary,
                               border: Border.all(width: 1, color: Colors.white),
@@ -303,7 +303,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
         child: commonButton(language.saveChanges, () {
           if (_formKey.currentState!.validate()) {
             if (getStringAsync(USER_EMAIL) == 'jose@gmail.com' || getStringAsync(USER_EMAIL) == 'mark@gmail.com') {

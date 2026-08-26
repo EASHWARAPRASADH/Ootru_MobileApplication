@@ -20,17 +20,17 @@ class TopBarAddressComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: context.width(),
-      margin: .all(16),
+      margin: EdgeInsets.all(16),
       decoration: boxDecorationWithRoundedCorners(
           borderRadius: BorderRadius.circular(defaultRadius),
           border: Border.all(color: Colors.transparent),
           backgroundColor: ColorUtils.colorPrimary.withOpacity(0.1)),
-      padding: .all(12),
+      padding: EdgeInsets.all(12),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: .end,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Icon(Icons.near_me_outlined, color: ColorUtils.colorPrimary).paddingAll(0),
               Text("...", style: boldTextStyle(color: Colors.grey)).paddingRight(2),
@@ -40,7 +40,7 @@ class TopBarAddressComponent extends StatelessWidget {
           ).animate().fade().scale(),
           16.height,
           Row(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text("...", style: boldTextStyle(size: 16, color: Colors.grey)).paddingRight(0),
               Icon(Icons.location_on_outlined, color: ColorUtils.colorPrimary).paddingAll(0),
@@ -53,8 +53,8 @@ class TopBarAddressComponent extends StatelessWidget {
           ),
           16.height,
           Row(
-            mainAxisAlignment: .spaceBetween,
-            crossAxisAlignment: .center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // RichText
               RichText(

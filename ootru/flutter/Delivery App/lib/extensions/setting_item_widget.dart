@@ -53,14 +53,14 @@ class SettingItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      padding: padding ?? .symmetric(horizontal: 16, vertical: 14),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: decoration ?? BoxDecoration(),
       child: Row(
         children: [
           leading ?? SizedBox(),
           if (leading != null) paddingAfterLeading.width,
           Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title.validate(),

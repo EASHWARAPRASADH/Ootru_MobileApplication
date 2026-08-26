@@ -69,7 +69,7 @@ class _AddsoscontactsscreenState extends State<Addsoscontactsscreen> {
       body: Stack(
         children: [
           Padding(
-              padding: const .all(16),
+              padding: const EdgeInsets.all(16),
               child: Stack(
                 children: [
                   Column(
@@ -82,7 +82,7 @@ class _AddsoscontactsscreenState extends State<Addsoscontactsscreen> {
                                 Form(
                                   key: formKey,
                                   child: Column(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(language.contactPersonName, style: primaryTextStyle()),
                                       8.height,
@@ -178,7 +178,7 @@ class _AddsoscontactsscreenState extends State<Addsoscontactsscreen> {
                                   itemBuilder: (context, index) {
                                     return Container(
                                       //  color: Colors.white10,
-                                      margin: const .symmetric(vertical: 6),
+                                      margin: const EdgeInsets.symmetric(vertical: 6),
                                       decoration: boxDecorationWithRoundedCorners(border: Border.all(color: ColorUtils.colorPrimary), backgroundColor: Colors.white10),
                                       child: ListTile(
                                         // leading: Icon(Icons.warning, color: Colors.redAccent),

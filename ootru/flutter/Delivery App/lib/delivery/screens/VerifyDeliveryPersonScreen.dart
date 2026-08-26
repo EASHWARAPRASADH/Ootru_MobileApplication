@@ -202,7 +202,7 @@ class VerifyDeliveryPersonScreenState extends State<VerifyDeliveryPersonScreen> 
         builder: (_) => Stack(
           children: [
             SingleChildScrollView(
-              padding: .all(16),
+              padding: EdgeInsets.all(16),
               child: Column(
                 children: [
                   Row(
@@ -236,8 +236,8 @@ class VerifyDeliveryPersonScreenState extends State<VerifyDeliveryPersonScreen> 
                         ).expand(),
                       if (docId != 0)
                         Container(
-                          padding: .all(10),
-                          margin: .only(left: 16),
+                          padding: EdgeInsets.all(10),
+                          margin: EdgeInsets.only(left: 16),
                           decoration: boxDecorationWithRoundedCorners(
                               backgroundColor: ColorUtils.colorPrimary, borderRadius: BorderRadius.circular(defaultRadius)),
                           child: Row(
@@ -261,11 +261,11 @@ class VerifyDeliveryPersonScreenState extends State<VerifyDeliveryPersonScreen> 
                     physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       return Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            crossAxisAlignment: .center,
-                            mainAxisAlignment: .spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(deliveryPersonDocuments[index].documentName!, style: boldTextStyle()).expand(),
                               Text(
@@ -307,7 +307,7 @@ class VerifyDeliveryPersonScreenState extends State<VerifyDeliveryPersonScreen> 
                           12.height,
                           deliveryPersonDocuments[index].deliveryManDocument!.contains('.pdf')
                               ? Container(
-                                  padding: .all(8),
+                                  padding: EdgeInsets.all(8),
                                   decoration: boxDecorationWithRoundedCorners(backgroundColor: Colors.grey.withOpacity(0.2)),
                                   child:
                                       Text(deliveryPersonDocuments[index].deliveryManDocument!.split('/').last, style: primaryTextStyle()),

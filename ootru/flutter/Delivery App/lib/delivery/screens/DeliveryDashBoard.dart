@@ -308,8 +308,8 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
           showBack: false,
           actions: [
             Container(
-              margin: .symmetric(vertical: 12, horizontal: 8),
-              padding: .symmetric(horizontal: 8, vertical: 4),
+              margin: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.white24),
               child: Row(children: [
                 Icon(Ionicons.ios_location_outline, color: Colors.white, size: 18),
@@ -354,7 +354,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
               icon: Icon(Ionicons.stats_chart_outline, color: Colors.white),
             ),
             IconButton(
-              padding: .only(right: 8),
+              padding: EdgeInsets.only(right: 8),
               onPressed: () async {
                 DProfileFragment().launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
               },
@@ -415,7 +415,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
                     listAnimationType: ListAnimationType.Slide,
-                    padding: .only(left: 16, right: 16, top: 16, bottom: 60),
+                    padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 60),
                     flipConfiguration: FlipConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
                     fadeInConfiguration: FadeInConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
                     onNextPage: () {
@@ -538,20 +538,20 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
   Widget orderCard(OrderData data) {
     return GestureDetector(
       child: Container(
-        margin: .only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16),
         decoration: boxDecorationWithRoundedCorners(
             borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary), backgroundColor: Colors.transparent),
-        padding: .all(12),
+        padding: EdgeInsets.all(12),
         child: Column(
-          mainAxisAlignment: .start,
-          crossAxisAlignment: .start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
                   height: 50,
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${language.order}# ${data.id}', style: boldTextStyle(size: 14)).expand(),
                       Text('${data.orderTrackingId}', style: boldTextStyle(size: 12, color: ColorUtils.colorPrimary)).expand(),
@@ -563,7 +563,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                       backgroundColor: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimaryLight,
                       borderRadius: BorderRadius.circular(defaultRadius),
                       border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.5))),
-                  padding: .symmetric(horizontal: 4, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                   child: Icon(
                     Icons.navigation_outlined,
                     color: ColorUtils.colorPrimary,
@@ -592,7 +592,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                 Container(
                   decoration: boxDecorationWithRoundedCorners(
                       borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: Colors.red), backgroundColor: Colors.red.withOpacity(0.2)),
-                  padding: .symmetric(horizontal: 4, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                   child: Icon(
                     Icons.close,
                     color: Colors.red,
@@ -615,7 +615,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                     ? Container(
                         decoration: boxDecorationWithRoundedCorners(
                             borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary), backgroundColor: ColorUtils.colorPrimary),
-                        padding: .symmetric(horizontal: 4, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                         child: Icon(Icons.check, color: Colors.white, size: 28),
                       ).onTap(() {
                         FlutterRingtonePlayer().stop();
@@ -638,7 +638,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                     ? AppButton(
                         elevation: 0,
                         text: buttonText(statusList[selectedStatusIndex]),
-                        padding: .symmetric(vertical: 4, horizontal: 8),
+                        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                         textStyle: boldTextStyle(color: Colors.white, size: 14),
                         color: ColorUtils.colorPrimary,
                         onTap: () {
@@ -662,8 +662,8 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                                         child: !appStore.isLoading
                                             ? Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: .start,
-                                                crossAxisAlignment: .start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Row(
                                                     children: [
@@ -693,8 +693,8 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
 
                                                   // Reschedule form (only visible when val == 1)
                                                   Column(
-                                                    mainAxisAlignment: .start,
-                                                    crossAxisAlignment: .start,
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       Text(language.rescheduleTitle, style: boldTextStyle(), textAlign: TextAlign.start),
                                                       10.height,
@@ -801,11 +801,11 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
             ),
             8.height,
             Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (data.pickupDatetime != null)
                   Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(language.picked, style: secondaryTextStyle(size: 12)),
                       4.height,
@@ -850,11 +850,11 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
             ),
             16.height,
             Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (data.deliveryDatetime != null)
                   Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(language.delivered, style: secondaryTextStyle(size: 12)),
                       4.height,
@@ -901,12 +901,12 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1),
                       backgroundColor: context.cardColor),
-                  padding: .all(8),
+                  padding: EdgeInsets.all(8),
                   child: Image.asset(parcelTypeIcon(data.parcelType.validate()), height: 24, width: 24, color: Colors.grey),
                 ),
                 8.width,
                 Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(data.parcelType.validate(), style: boldTextStyle()),
                     4.height,
@@ -921,14 +921,14 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
               ],
             ),
             Row(
-              mainAxisAlignment: .end,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Align(
                   alignment: Alignment.topRight,
                   child: AppButton(
                     elevation: 0,
                     color: Colors.transparent,
-                    padding: .symmetric(vertical: 8, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(defaultRadius), side: BorderSide(color: ColorUtils.colorPrimary)),
                     child: Text(language.notifyUser, style: primaryTextStyle(color: ColorUtils.colorPrimary)),
                     onTap: () {

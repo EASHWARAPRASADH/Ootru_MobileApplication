@@ -61,7 +61,7 @@
 //             },
 //             text: retryText ?? 'Try again',
 //             textColor: white,
-//             padding: .zero,
+//             padding: EdgeInsets.zero,
 //             color: context.primaryColor,
 //           ),
 //       ],

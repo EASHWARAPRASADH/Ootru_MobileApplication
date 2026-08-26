@@ -676,11 +676,11 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
   Widget createOrderWidget1() {
     return Observer(builder: (context) {
       return Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: .center,
-            mainAxisAlignment: .spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               scheduleOptionWidget(
                       context, isDeliverNow, ic_clock, language.deliveryNow)
@@ -699,8 +699,8 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
           16.height,
           Row(
-            crossAxisAlignment: .center,
-            mainAxisAlignment: .spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               enableBidOptionWidget(context, biddingSelectedOption,
                       Icons.handshake_outlined, language.bids)
@@ -713,12 +713,12 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           ).visible(appStore.isBiddingEnabled == "1"),
           16.height,
           Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(language.pickTime, style: boldTextStyle()),
               16.height,
               Container(
-                padding: .all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                     border: Border.all(
                         color: ColorUtils.borderColor,
@@ -850,7 +850,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
               Text(language.deliverTime, style: boldTextStyle()),
               16.height,
               Container(
-                padding: .all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   border: Border.all(
                       color: ColorUtils.borderColor,
@@ -1130,8 +1130,8 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                 label: Text(item.label!, style: secondaryTextStyle()),
                 elevation: 0,
                 labelStyle: primaryTextStyle(color: Colors.grey),
-                padding: .zero,
-                labelPadding: .symmetric(horizontal: 10, vertical: 0),
+                padding: EdgeInsets.zero,
+                labelPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(defaultRadius),
                   side: BorderSide(
@@ -1146,7 +1146,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
           16.height,
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.labels, style: primaryTextStyle()),
               Icon(Icons.info,
@@ -1209,10 +1209,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
 
   Widget createOrderWidget2() {
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(language.location, style: primaryTextStyle()),
             8.height,
@@ -1377,10 +1377,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
 
   Widget createOrderWidget3() {
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(language.deliveryLocation, style: primaryTextStyle()),
             8.height,
@@ -1589,12 +1589,12 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
   Widget createOrderWidget5() {
     return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(language.packageInformation, style: boldTextStyle()),
           8.height,
           Container(
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             decoration: boxDecorationWithRoundedCorners(
               borderRadius: BorderRadius.circular(defaultRadius),
               border:
@@ -1602,7 +1602,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
               backgroundColor: Colors.transparent,
             ),
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 rowWidget(
                     title: language.parcelType, value: parcelTypeCont.text),
@@ -1646,7 +1646,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           Visibility(
             visible: appStore.isVehicleOrder != 0,
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 16.height,
                 Text(language.selectVehicle, style: boldTextStyle()),
@@ -1668,7 +1668,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                       value: item.id,
                       child: Container(
                         child: Row(
-                          mainAxisAlignment: .start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             commonCachedNetworkImage(
                                 item.vehicleImage.validate(),
@@ -1676,7 +1676,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                                 width: 40),
                             SizedBox(width: 16),
                             Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               // Align to start
                               children: [
                                 Container(
@@ -1754,7 +1754,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           16.height,
           //insurance start
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.insurance, style: boldTextStyle()),
               Icon(Icons.info, color: ColorUtils.themeColor).onTap(() {
@@ -1815,7 +1815,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           // insurance end
           //Coupon start
           Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text("${language.offersAndBenefits}", style: boldTextStyle()),
               8.height,
@@ -1831,11 +1831,11 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
@@ -1891,7 +1891,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     Divider(color: Colors.grey.withOpacity(0.3), height: 0.5)
                         .visible(selectedCoupon == null ? false : true),
                     Row(
-                      mainAxisAlignment: .center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("${language.moreCoupons}",
                             style: primaryTextStyle(size: 16)),
@@ -1954,7 +1954,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
             children: mPaymentList.map((mData) {
               return Container(
                 width: (context.width() - 48) / 3,
-                padding: .all(8),
+                padding: EdgeInsets.all(8),
                 alignment: Alignment.center,
                 decoration: boxDecorationWithRoundedCorners(
                     border: Border.all(
@@ -1964,8 +1964,8 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     backgroundColor: Colors.transparent),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: .center,
-                  mainAxisAlignment: .center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ImageIcon(AssetImage(mData.image.validate()),
                         size: 20,
@@ -1988,7 +1988,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
           16.height,
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.paymentCollectFrom, style: boldTextStyle()),
               16.width,
@@ -2069,7 +2069,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
           SizedBox(width: 8),
           Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 text,
@@ -2114,7 +2114,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
 
   Widget rowWidget({required String title, required String value}) {
     return Row(
-      mainAxisAlignment: .spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: secondaryTextStyle()),
         16.width,
@@ -2137,10 +2137,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
     required String information,
   }) {
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: .spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title, style: boldTextStyle()),
             Text(language.viewMore, style: secondaryTextStyle(size: 12))
@@ -2149,11 +2149,11 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      //   contentPadding: .all(8),
+                      //   contentPadding: EdgeInsets.all(8),
                       title: Column(
                         children: [
                           Row(
-                              mainAxisAlignment: .spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(language.details, style: boldTextStyle()),
                                 Icon(Icons.close, size: 20).onTap(() {
@@ -2171,7 +2171,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
-                            mainAxisAlignment: .spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text("${language.contactPersonName} :",
                                   style: secondaryTextStyle()),
@@ -2180,7 +2180,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                           ),
                           4.height,
                           Row(
-                            mainAxisAlignment: .spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text("${language.information} :",
                                   style: secondaryTextStyle()),
@@ -2189,7 +2189,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                           ),
                           4.height,
                           Row(
-                            mainAxisAlignment: .spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text("${language.instruction}",
                                   style: secondaryTextStyle()),
@@ -2206,14 +2206,14 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
         8.height,
         Container(
           width: context.width(),
-          padding: .all(16),
+          padding: EdgeInsets.all(16),
           decoration: boxDecorationWithRoundedCorners(
             borderRadius: BorderRadius.circular(defaultRadius),
             border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.2)),
             backgroundColor: Colors.transparent,
           ),
           child: Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(address, style: primaryTextStyle()),
               8.height.visible(address.isNotEmpty),
@@ -2253,7 +2253,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
         if (selectedTabIndex == 0) {
           await showInDialog(
             context,
-            contentPadding: .all(16),
+            contentPadding: EdgeInsets.all(16),
             builder: (p0) {
               return CreateOrderConfirmationDialog(
                 onCancel: () {
@@ -2296,11 +2296,11 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           children: [
             SingleChildScrollView(
               padding:
-                  .only(left: 16, top: 20, right: 16, bottom: 16),
+                  EdgeInsets.only(left: 16, top: 20, right: 16, bottom: 16),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (selectedTabIndex == 0) createOrderWidget1(),
                     if (selectedTabIndex == 1) createOrderWidget2(),
@@ -2317,7 +2317,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           ],
         ),
         bottomNavigationBar: Container(
-          padding: .all(16),
+          padding: EdgeInsets.all(16),
           child: Row(
             children: [
               if (selectedTabIndex != 0)
@@ -2404,7 +2404,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                               insuranceAmount))) {
                     showInDialog(
                       getContext,
-                      contentPadding: .all(16),
+                      contentPadding: EdgeInsets.all(16),
                       builder: (p0) {
                         return Column(
                           mainAxisSize: MainAxisSize.min,

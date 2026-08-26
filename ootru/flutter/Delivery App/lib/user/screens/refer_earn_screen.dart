@@ -33,8 +33,8 @@ class _ReferEarnScreenState extends State<ReferEarnScreen> {
       body: Stack(
         children: [
           Column(
-            crossAxisAlignment: .center,
-            mainAxisAlignment: .center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Lottie.asset(ic_refer_earn, width: 200),
               10.height,

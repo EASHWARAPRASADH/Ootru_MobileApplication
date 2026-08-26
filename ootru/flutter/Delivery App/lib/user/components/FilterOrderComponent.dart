@@ -78,20 +78,20 @@ class FilterOrderComponentState extends State<FilterOrderComponent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: .all(16),
+      padding: EdgeInsets.all(16),
       child: Form(
         key: _formKey,
         child: Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   alignment: Alignment.center,
-                  margin: .only(right: 16),
-                  padding: .all(4),
+                  margin: EdgeInsets.only(right: 16),
+                  padding: EdgeInsets.all(4),
                   decoration:
                       boxDecorationWithRoundedCorners(boxShape: BoxShape.circle, backgroundColor: Colors.transparent, border: Border.all()),
                   child: Icon(
@@ -128,8 +128,8 @@ class FilterOrderComponentState extends State<FilterOrderComponent> {
                   label: Text(orderStatus(item)),
                   elevation: 0,
                   labelStyle: primaryTextStyle(size: 14, color: selectedStatus == item ? white : textPrimaryColorGlobal),
-                  padding: .zero,
-                  labelPadding: .symmetric(horizontal: 8, vertical: 2),
+                  padding: EdgeInsets.zero,
+                  labelPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(defaultRadius),
                     side: BorderSide(

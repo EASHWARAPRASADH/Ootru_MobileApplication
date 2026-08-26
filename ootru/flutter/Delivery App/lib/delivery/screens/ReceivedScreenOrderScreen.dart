@@ -175,9 +175,9 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
           child: Stack(
             children: [
               SingleChildScrollView(
-                padding: .only(left: 16, top: 30, right: 16, bottom: 16),
+                padding: EdgeInsets.only(left: 16, top: 30, right: 16, bottom: 16),
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (widget.isShowPayment.validate()) ...[
                       Text('${language.collectedAmount} : ${printAmount(widget.orderData!.totalAmount ?? 0)}', style: boldTextStyle()),
@@ -198,11 +198,11 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                                     bottomLeft: Radius.circular(defaultRadius),
                                   ),
                                 ),
-                                padding: .all(8),
+                                padding: EdgeInsets.all(8),
                                 child: Icon(Icons.info_outlined)),
                             16.width,
                             Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(language.info, style: boldTextStyle()),
                                 4.height,
@@ -224,7 +224,7 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                     8.height,
                     if (widget.orderData!.status == ORDER_DEPARTED)
                       Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(language.deliveryDatetime, style: boldTextStyle()),
                           8.height,
@@ -259,7 +259,7 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Row(
-                          mainAxisAlignment: .end,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             8.width,
                             TextButton(
@@ -292,7 +292,7 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Row(
-                          mainAxisAlignment: .end,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             8.width,
                             TextButton(
@@ -306,7 +306,7 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                       ).visible(widget.orderData!.status == ORDER_DEPARTED || widget.orderData!.status == ORDER_DELIVERED),
                     CheckboxListTile(
                       dense: true,
-                      contentPadding: .zero,
+                      contentPadding: EdgeInsets.zero,
                       value: mIsCheck,
                       activeColor: ColorUtils.colorPrimary,
                       checkColor: Colors.white,
@@ -319,7 +319,7 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                     Text(language.proof, style: boldTextStyle()),
                     16.height,
                     Row(
-                      crossAxisAlignment: .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         8.width,
                         Container(
@@ -407,7 +407,7 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                               showInDialog(
                                 context,
                                 barrierDismissible: false,
-                                contentPadding: .all(16),
+                                contentPadding: EdgeInsets.all(16),
                                 builder: (p0) {
                                   return CancelOrderDialog(
                                     orderId: widget.orderData!.id.validate(),

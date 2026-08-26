@@ -80,10 +80,10 @@ class _ResolveEmergencyScreenState extends State<ResolveEmergencyScreen> {
                   itemBuilder: (context, index) {
                     return Container(
                       decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultBlurRadius), border: Border.all(color: ColorUtils.colorPrimary, width: 1)),
-                      margin: .symmetric(vertical: 8, horizontal: 8),
-                      padding: .all(8),
+                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                      padding: EdgeInsets.all(8),
                       child: Row(
-                        mainAxisAlignment: .spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(data[index].emrgencyReason.toString()),
                           TextButton(

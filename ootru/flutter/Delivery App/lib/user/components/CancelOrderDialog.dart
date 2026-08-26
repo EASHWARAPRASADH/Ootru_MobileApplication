@@ -85,10 +85,10 @@ class CancelOrderDialogState extends State<CancelOrderDialog> {
       key: formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.cancelOrder, style: boldTextStyle(size: 18)),
               Icon(

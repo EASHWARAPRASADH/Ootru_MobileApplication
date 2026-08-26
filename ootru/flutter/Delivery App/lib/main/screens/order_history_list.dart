@@ -94,13 +94,13 @@ class OrderHistoryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         width: context.width(),
-        margin: .only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16),
         decoration: boxDecorationWithRoundedCorners(
             borderRadius: BorderRadius.circular(defaultRadius),
             border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
             backgroundColor: Colors.transparent),
-        padding: .all(12),
-        child: Column(crossAxisAlignment: .start, children: [
+        padding: EdgeInsets.all(12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (orderData.date != null)
             Row(
               children: [
@@ -115,19 +115,19 @@ class OrderHistoryItem extends StatelessWidget {
             ),
           8.height,
           Row(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 decoration: boxDecorationWithRoundedCorners(
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1),
                     backgroundColor: context.cardColor),
-                padding: .all(8),
+                padding: EdgeInsets.all(8),
                 child: Image.asset(parcelTypeIcon(orderData.parcelType.validate()), height: 24, width: 24, color: ColorUtils.colorPrimary),
               ),
               8.width,
               Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(orderData.parcelType.validate(), style: boldTextStyle(), maxLines: 1, overflow: TextOverflow.ellipsis),
                   4.height,
@@ -143,7 +143,7 @@ class OrderHistoryItem extends StatelessWidget {
           8.height,
           if (orderData.pickupDatetime != null)
             Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(language.picked, style: secondaryTextStyle(size: 12)),
                 4.height,
@@ -160,7 +160,7 @@ class OrderHistoryItem extends StatelessWidget {
           8.height,
           if (orderData.deliveryDatetime != null)
             Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(language.delivered, style: secondaryTextStyle(size: 12)),
                 4.height,
@@ -179,7 +179,7 @@ class OrderHistoryItem extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: .symmetric(horizontal: 12, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: boxDecorationWithRoundedCorners(backgroundColor: ColorUtils.colorPrimary),
                   child: Row(
                     children: [

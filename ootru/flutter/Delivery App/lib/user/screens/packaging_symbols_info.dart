@@ -31,8 +31,8 @@ class _PackagingSymbolsInfoState extends State<PackagingSymbolsInfo> {
           itemCount: list.length,
           itemBuilder: (context, index) {
             return Container(
-                margin: .all(8),
-                padding: .symmetric(vertical: 10, horizontal: 8),
+                margin: EdgeInsets.all(8),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
                 decoration: boxDecorationWithRoundedCorners(border: Border.all(color: ColorUtils.borderColor)),
                 child: Row(
                   children: [
@@ -43,7 +43,7 @@ class _PackagingSymbolsInfoState extends State<PackagingSymbolsInfo> {
                       color: appStore.isDarkMode ? Colors.white.withOpacity(0.7) : ColorUtils.colorPrimary,
                     ),
                     Column(
-                      crossAxisAlignment: .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           list[index]['title'].toString(),

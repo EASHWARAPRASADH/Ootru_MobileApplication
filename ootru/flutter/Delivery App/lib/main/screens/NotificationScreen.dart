@@ -77,7 +77,7 @@ class NotificationScreenState extends State<NotificationScreen> {
         return Stack(
           children: [
             AnimatedListView(
-              padding: .all(16),
+              padding: EdgeInsets.all(16),
               emptyWidget: Stack(
                 children: [
                   loaderWidget().visible(appStore.isLoading),
@@ -110,10 +110,10 @@ class NotificationScreenState extends State<NotificationScreen> {
 
   Widget notificationCard(NotificationData data) {
     return Container(
-      margin: .only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 8),
       decoration: boxDecorationWithRoundedCorners(
           borderRadius: BorderRadius.circular(defaultRadius), backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08)),
-      padding: .all(12),
+      padding: EdgeInsets.all(12),
       child: Row(
         children: [
           Container(
@@ -129,10 +129,10 @@ class NotificationScreenState extends State<NotificationScreen> {
           ),
           8.width,
           Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${data.data!.subject}', style: secondaryTextStyle()).expand(),
                   8.width,

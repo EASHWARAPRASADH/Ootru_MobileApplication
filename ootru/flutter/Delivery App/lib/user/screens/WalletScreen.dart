@@ -116,12 +116,12 @@ class WalletScreenState extends State<WalletScreen> {
             bottom: PreferredSize(
               preferredSize: Size(context.width(), 80),
               child: Container(
-                padding: .symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
-                      crossAxisAlignment: .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(language.availableBalance, style: secondaryTextStyle(size: 16, color: Colors.white)),
                         6.height,
@@ -136,9 +136,9 @@ class WalletScreenState extends State<WalletScreen> {
                           context: context,
                           builder: (context) {
                             return Dialog(
-                              insetPadding: .all(16),
+                              insetPadding: EdgeInsets.all(16),
                               child: Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(language.addMoney, style: boldTextStyle(size: 18)),
@@ -191,7 +191,7 @@ class WalletScreenState extends State<WalletScreen> {
         body: Stack(
           children: [
             AnimatedListView(
-              padding: .all(16),
+              padding: EdgeInsets.all(16),
               itemCount: walletData.length,
               emptyWidget: Stack(
                 children: [
@@ -243,21 +243,21 @@ class WalletScreenState extends State<WalletScreen> {
 
   Widget walletCard(WalletModel data) {
     return Container(
-      margin: .only(bottom: 16),
-      padding: .all(8),
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(8),
       decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.transparent, border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.08))),
       child: Row(
         children: [
           Container(
             decoration: boxDecorationWithRoundedCorners(backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08)),
-            padding: .all(6),
+            padding: EdgeInsets.all(6),
             child: Icon(data.type == CREDIT ? Icons.add : Icons.remove, color: ColorUtils.colorPrimary),
           ),
           10.width,
           Expanded(
             flex: 2,
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(transactionType(data.transactionType!), style: secondaryTextStyle(color: textPrimaryColorGlobal)),
                 SizedBox(height: 8),

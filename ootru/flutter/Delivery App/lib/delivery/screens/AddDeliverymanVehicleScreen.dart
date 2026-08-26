@@ -162,11 +162,11 @@ class AddDeliverymanVehicleScreenState extends State<AddDeliverymanVehicleScreen
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Form(
                 key: formKey,
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     16.height,
                     Text(language.selectVehicle, style: primaryTextStyle()),

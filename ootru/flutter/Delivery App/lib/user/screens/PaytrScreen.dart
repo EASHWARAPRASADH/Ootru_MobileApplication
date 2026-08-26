@@ -54,12 +54,12 @@ class _PaytrscreenState extends State<Paytrscreen> {
     return CommonScaffoldComponent(
       appBarTitle: language.payment,
       body: Padding(
-        padding: const .all(20),
+        padding: const EdgeInsets.all(20),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CreditCardWidget(
                   cardNumber: cardNumberController.text,
@@ -101,14 +101,14 @@ class CreditCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const .all(20),
+      padding: const EdgeInsets.all(20),
       decoration: boxDecorationWithRoundedCorners(backgroundColor: ColorUtils.colorPrimary),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           10.height,
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 (cardNumber != null && cardNumber != "") ? formatCardNumber(cardNumber!) : "XXXX XXXX XXXX XXXX",
@@ -118,11 +118,11 @@ class CreditCardWidget extends StatelessWidget {
           ),
           10.height,
           Row(
-            mainAxisAlignment: .spaceBetween,
-            crossAxisAlignment: .end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     language.cardHolder,
@@ -136,7 +136,7 @@ class CreditCardWidget extends StatelessWidget {
                 ],
               ),
               Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     language.expires,
@@ -215,7 +215,7 @@ class _PaymentFormState extends State<PaymentForm> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //buildTextField("CREDIT CARD NUMBER", "1234 5678 0000", cardNumberController!,),
         Text(
@@ -262,7 +262,7 @@ class _PaymentFormState extends State<PaymentForm> {
             Expanded(
                 flex: 1,
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       language.expiry,
@@ -298,7 +298,7 @@ class _PaymentFormState extends State<PaymentForm> {
             Expanded(
                 flex: 1,
                 child: Column(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       language.cvv,
@@ -343,7 +343,7 @@ class _PaymentFormState extends State<PaymentForm> {
               elevation: 0,
               height: 15,
               color: Colors.transparent,
-              padding: .symmetric(vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: 4),
               shapeBorder: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(defaultRadius),
                 side: BorderSide(color: ColorUtils.colorPrimary),
@@ -383,7 +383,7 @@ class _PaymentFormState extends State<PaymentForm> {
 
   // Widget buildTextField(String label, String hintText, TextEditingController controller) {
   //   return Column(
-  //     crossAxisAlignment: .start,
+  //     crossAxisAlignment: CrossAxisAlignment.start,
   //     children: [
   //       Text(
   //         label,

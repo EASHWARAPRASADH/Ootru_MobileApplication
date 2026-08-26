@@ -38,7 +38,7 @@ import 'Widgets.dart';
 InputDecoration commonInputDecoration({String? hintText, IconData? suffixIcon, Function()? suffixOnTap, Widget? dateTime, Widget? prefixIcon, bool? isFill = true}) {
   return InputDecoration(
     errorMaxLines: 3,
-    contentPadding: .all(16),
+    contentPadding: EdgeInsets.all(16),
     filled: true,
     prefixIcon: prefixIcon,
     isDense: true,
@@ -440,7 +440,7 @@ Future<void> commonLaunchUrl(String url, {bool forceWebView = false}) async {
 cashConfirmDialog() {
   showInDialog(
     getContext,
-    contentPadding: .all(16),
+    contentPadding: EdgeInsets.all(16),
     builder: (p0) {
       return Column(
         mainAxisSize: MainAxisSize.min,

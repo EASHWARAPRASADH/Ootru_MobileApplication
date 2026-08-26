@@ -145,17 +145,17 @@ class WithDrawScreenState extends State<WithDrawScreen> {
           child: Stack(
             children: [
               Column(
-                mainAxisAlignment: .start,
-                crossAxisAlignment: .start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Align(
                     alignment: Alignment.center,
                     child: Container(
-                      padding: .all(16),
-                      margin: .only(bottom: 16),
+                      padding: EdgeInsets.all(16),
+                      margin: EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(color: ColorUtils.colorPrimary, borderRadius: BorderRadius.circular(defaultRadius)),
                       child: Column(
-                        crossAxisAlignment: .center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(language.availableBalance, style: secondaryTextStyle(color: Colors.white)),
@@ -176,15 +176,15 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                       WithDrawModel data = withDrawData[index];
 
                       return Container(
-                        margin: .only(top: 8, bottom: 8),
-                        padding: .all(12),
+                        margin: EdgeInsets.only(top: 8, bottom: 8),
+                        padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey.withOpacity(0.4)), borderRadius: BorderRadius.circular(defaultRadius)),
                         child: Row(
                           children: [
                             Expanded(
                               child: Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(printStatus(data.status!), style: boldTextStyle(color: withdrawStatusColor(data.status!))),
                                   SizedBox(height: 8),
@@ -205,13 +205,13 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                                     context: context,
                                     builder: (context) {
                                       return Dialog(
-                                        insetPadding: .all(16),
+                                        insetPadding: EdgeInsets.all(16),
                                         child: Column(
-                                          crossAxisAlignment: .start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Row(
-                                              mainAxisAlignment: .spaceBetween,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 Text(language.withdrawDetails, style: boldTextStyle(size: 18)),
                                                 Icon(Icons.close, size: 20).onTap(() {
@@ -224,8 +224,8 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                                             Column(
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: .spaceBetween,
-                                                  crossAxisAlignment: .start,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(language.transactionId, style: secondaryTextStyle()),
                                                     Text(data.withdrawDetails!.transactionId.toString(), style: primaryTextStyle()),
@@ -237,8 +237,8 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                                             Column(
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: .spaceBetween,
-                                                  crossAxisAlignment: .start,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(language.via, style: secondaryTextStyle()),
                                                     Text(data.withdrawDetails!.via.toString(), style: primaryTextStyle()),
@@ -250,8 +250,8 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                                             Column(
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: .spaceBetween,
-                                                  crossAxisAlignment: .start,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(language.createdDate, style: secondaryTextStyle()),
                                                     Text(
@@ -266,8 +266,8 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                                             Column(
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: .spaceBetween,
-                                                  crossAxisAlignment: .start,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(language.otherDetails, style: secondaryTextStyle()),
                                                     Text(data.withdrawDetails!.otherDetail.toString()),
@@ -280,8 +280,8 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                                               Column(
                                                 children: [
                                                   Row(
-                                                    mainAxisAlignment: .spaceBetween,
-                                                    crossAxisAlignment: .start,
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       Text(language.image, style: secondaryTextStyle()),
                                                       Container(
@@ -320,7 +320,7 @@ class WithDrawScreenState extends State<WithDrawScreen> {
       bottomNavigationBar: Visibility(
         visible: totalAmount > 0,
         child: Padding(
-          padding: .all(16),
+          padding: EdgeInsets.all(16),
           child: commonButton(
             "${language.create} ${language.withdraw.toLowerCase()} ${language.request.toLowerCase()}",
             () {
@@ -329,9 +329,9 @@ class WithDrawScreenState extends State<WithDrawScreen> {
                 context: context,
                 builder: (context) {
                   return Dialog(
-                      insetPadding: .all(16),
+                      insetPadding: EdgeInsets.all(16),
                       child: Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(language.withdrawMoney, style: boldTextStyle(size: 18)),

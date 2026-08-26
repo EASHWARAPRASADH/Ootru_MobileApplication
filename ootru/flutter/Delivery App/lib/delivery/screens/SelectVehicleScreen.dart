@@ -94,16 +94,16 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                     itemBuilder: (context, index) {
                       DeliverymanVehicle item = vehicleHistoryList[index];
                       return Container(
-                        margin: .only(bottom: 16),
-                        padding: .all(8),
+                        margin: EdgeInsets.only(bottom: 16),
+                        padding: EdgeInsets.all(8),
                         decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: appStore.isDarkMode ? Colors.grey.withOpacity(0.3) : ColorUtils.colorPrimary.withOpacity(0.4)), backgroundColor: Colors.transparent),
                         child: Row(
                           children: [
                             Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [

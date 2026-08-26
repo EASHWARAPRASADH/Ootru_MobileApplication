@@ -31,7 +31,7 @@ class CreateOrderConfirmationDialogState extends State<CreateOrderConfirmationDi
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
-          mainAxisAlignment: .spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(language.confirmation, style: boldTextStyle(size: 18)),
             CloseButton(),
@@ -41,7 +41,7 @@ class CreateOrderConfirmationDialogState extends State<CreateOrderConfirmationDi
         Text(widget.message!, style: primaryTextStyle(size: 16)),
         30.height,
         Row(
-          mainAxisAlignment: .end,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             commonButton(language.cancel, () {
               widget.onCancel != null ? widget.onCancel!.call() : finish(context);

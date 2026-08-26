@@ -389,12 +389,12 @@ class LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             physics: BouncingScrollPhysics(),
             child: Form(
               key: formKey,
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   16.height,
                   Text(language.email, style: primaryTextStyle()),
@@ -421,7 +421,7 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                   16.height,
                   Row(
-                    mainAxisAlignment: .spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
@@ -510,7 +510,7 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                   32.height,
                   Row(
-                    mainAxisAlignment: .center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(language.doNotHaveAccount, style: primaryTextStyle()),
                       4.width,
@@ -535,13 +535,13 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                   20.height,
                   Row(
-                    crossAxisAlignment: .center,
-                    mainAxisAlignment: .center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       OutlinedButton(
                         child: Image.asset(ic_google, height: 30, width: 30),
                         style: OutlinedButton.styleFrom(
-                          padding: .all(12),
+                          padding: EdgeInsets.all(12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(defaultRadius)),
                           elevation: 0,
                         ),
@@ -556,7 +556,7 @@ class LoginScreenState extends State<LoginScreen> {
                         OutlinedButton(
                           child: Image.asset(ic_apple, height: 30, width: 30),
                           style: OutlinedButton.styleFrom(
-                            padding: .all(12),
+                            padding: EdgeInsets.all(12),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(defaultRadius)),
                             elevation: 0,
                           ),
@@ -577,10 +577,10 @@ class LoginScreenState extends State<LoginScreen> {
       ),
       bottomNavigationBar: Container(
         color: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimaryLight,
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
         child: appStore.isAllowDeliveryMan
             ? Row(
-                mainAxisAlignment: .center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("${language.becomeADeliveryBoy}", style: primaryTextStyle()),
                   4.width,
@@ -602,10 +602,10 @@ class LoginScreenState extends State<LoginScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              actionsPadding: .all(16),
-              contentPadding: .zero,
+              actionsPadding: EdgeInsets.all(16),
+              contentPadding: EdgeInsets.zero,
               shape: RoundedRectangleBorder(borderRadius: radius(defaultRadius)),
-              title: Padding(padding: .only(bottom: 10), child: Text(language.selectUserType, style: boldTextStyle(size: 18))),
+              title: Padding(padding: EdgeInsets.only(bottom: 10), child: Text(language.selectUserType, style: boldTextStyle(size: 18))),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: userTypeList.where((item) {
@@ -621,7 +621,7 @@ class LoginScreenState extends State<LoginScreen> {
                       horizontal: VisualDensity.minimumDensity,
                       vertical: VisualDensity.minimumDensity,
                     ),
-                    contentPadding: .symmetric(horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
                     title: Text(
                       item == CLIENT
                           ? language.lblUser

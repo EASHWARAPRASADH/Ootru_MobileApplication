@@ -184,11 +184,11 @@ class ReturnOrderScreenState extends State<ReturnOrderScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             child: Form(
               key: formKey,
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -205,12 +205,12 @@ class ReturnOrderScreenState extends State<ReturnOrderScreen> {
                   ),
                   16.height,
                   Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(language.pickTime, style: primaryTextStyle()),
                       16.height,
                       Container(
-                        padding: .all(16),
+                        padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1),
                           borderRadius: BorderRadius.circular(defaultRadius),
@@ -283,7 +283,7 @@ class ReturnOrderScreenState extends State<ReturnOrderScreen> {
                       Text(language.deliverTime, style: primaryTextStyle()),
                       16.height,
                       Container(
-                        padding: .all(16),
+                        padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1),
                           borderRadius: BorderRadius.circular(defaultRadius),
@@ -362,7 +362,7 @@ class ReturnOrderScreenState extends State<ReturnOrderScreen> {
                     children: mPaymentList.map((mData) {
                       return Container(
                         width: 130,
-                        padding: .all(16),
+                        padding: EdgeInsets.all(16),
                         decoration: boxDecorationWithRoundedCorners(
                             border: Border.all(
                                 color: isSelected == mData.index
@@ -441,7 +441,7 @@ class ReturnOrderScreenState extends State<ReturnOrderScreen> {
                   ).visible(reason.validate().trim() == language.other.trim()),
                   16.height,
                   Row(
-                    mainAxisAlignment: .spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(language.total, style: boldTextStyle()),
                       16.width,
@@ -456,12 +456,12 @@ class ReturnOrderScreenState extends State<ReturnOrderScreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
         child: commonButton(language.lblReturn, () {
           if (isSelected == 3 && (appStore.availableBal < widget.orderData.totalAmount)) {
             showInDialog(
               getContext,
-              contentPadding: .all(16),
+              contentPadding: EdgeInsets.all(16),
               builder: (p0) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
@@ -469,7 +469,7 @@ class ReturnOrderScreenState extends State<ReturnOrderScreen> {
                     Text(language.balanceInsufficientCashPayment, style: primaryTextStyle(size: 16), textAlign: TextAlign.center),
                     30.height,
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         commonButton(language.cancel, () {
                           finish(getContext, 0);

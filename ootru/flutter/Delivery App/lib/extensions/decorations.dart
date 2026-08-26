@@ -18,7 +18,7 @@ import 'colors.dart';
 //   return InputDecoration(
 //     filled: true,
 //     fillColor: appStore.isDarkMode ? cardDarkColor : fillColor ?? colorPrimary,
-//     contentPadding: .symmetric(horizontal: 16, vertical: 14),
+//     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 //     floatingLabelBehavior: FloatingLabelBehavior.never,
 //     prefixIcon: mPrefix ?? null,
 //     border: OutlineInputBorder(

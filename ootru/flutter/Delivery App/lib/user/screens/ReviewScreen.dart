@@ -70,9 +70,9 @@ class _ReviewscreenState extends State<Reviewscreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .only(top: 20, left: 16, right: 16, bottom: 16),
+            padding: EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 16),
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   language.rateExp,
@@ -82,7 +82,7 @@ class _ReviewscreenState extends State<Reviewscreen> {
                 ),
                 16.height,
                 Row(
-                  crossAxisAlignment: .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(35),
@@ -90,7 +90,7 @@ class _ReviewscreenState extends State<Reviewscreen> {
                     ),
                     8.width,
                     Column(
-                      crossAxisAlignment: .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 8),
                         Text(
@@ -137,7 +137,7 @@ class _ReviewscreenState extends State<Reviewscreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: .all(16),
+        padding: EdgeInsets.all(16),
         child: commonButton(language.submit, () {
           saveReview();
         }),

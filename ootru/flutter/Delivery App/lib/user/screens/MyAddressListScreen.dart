@@ -117,8 +117,8 @@ class MyAddressListScreenState extends State<MyAddressListScreen> {
                           }
                         },
                         child: Container(
-                          margin: .only(bottom: 16),
-                          padding: .all(8),
+                          margin: EdgeInsets.only(bottom: 16),
+                          padding: EdgeInsets.all(8),
                           decoration: boxDecorationWithRoundedCorners(
                               borderRadius: BorderRadius.circular(defaultRadius),
                               border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.4)),
@@ -126,7 +126,7 @@ class MyAddressListScreenState extends State<MyAddressListScreen> {
                           child: Row(
                             children: [
                               Column(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(item.address.validate(), style: primaryTextStyle()),
                                   if (!item.addressType.isEmptyOrNull) 8.height,

@@ -153,7 +153,7 @@ class SplashScreenState extends State<SplashScreen> {
             return Center(
               child: Column(
                 // mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: .center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Spacer(),
                   40.height,

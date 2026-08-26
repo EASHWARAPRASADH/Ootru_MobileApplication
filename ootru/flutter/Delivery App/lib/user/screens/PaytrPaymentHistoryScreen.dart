@@ -55,7 +55,7 @@ class _PaytrPaymentHistoryscreenState extends State<PaytrPaymentHistoryscreen> {
         children: [
           paymentsListData != null
               ? AnimatedListView(
-                  padding: .all(16),
+                  padding: EdgeInsets.all(16),
                   itemCount: paymentsListData!.data!.length,
                   emptyWidget: Stack(
                     children: [
@@ -71,8 +71,8 @@ class _PaytrPaymentHistoryscreenState extends State<PaytrPaymentHistoryscreen> {
                   itemBuilder: (_, index) {
                     PaytrPaymentItem data = paymentsListData!.data![index];
                     return Container(
-                      margin: .only(bottom: 16),
-                      padding: .all(8),
+                      margin: EdgeInsets.only(bottom: 16),
+                      padding: EdgeInsets.all(8),
                       decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.transparent, border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.08))),
                       child: Row(
                         children: [
@@ -80,7 +80,7 @@ class _PaytrPaymentHistoryscreenState extends State<PaytrPaymentHistoryscreen> {
                           Expanded(
                             flex: 2,
                             child: Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(data.paymentStatus ?? "", style: boldTextStyle(color: textPrimaryColorGlobal)),
                                 SizedBox(height: 8),

@@ -149,13 +149,13 @@ class UserCitySelectScreenState extends State<UserCitySelectScreen> {
           return appStore.isLoading && countryData.isEmpty
               ? loaderWidget()
               : AnimatedScrollView(
-                  padding: .all(16),
+                  padding: EdgeInsets.all(16),
                   children: [
                     16.height,
                     Image.asset(ic_select_region, height: 180, fit: BoxFit.contain).center(),
                     30.height,
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(flex: 1, child: Text(language.country, style: boldTextStyle())),
                         16.width,
@@ -226,9 +226,9 @@ class UserCitySelectScreenState extends State<UserCitySelectScreen> {
                                   updateCountryCityApiCall();
                                 },
                                 child: Padding(
-                                  padding: .symmetric(vertical: 12),
+                                  padding: EdgeInsets.symmetric(vertical: 12),
                                   child: Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(mData.name!,
                                           style: selectedCity == mData.id

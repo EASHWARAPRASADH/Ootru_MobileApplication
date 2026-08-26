@@ -107,7 +107,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
           children: [
             widget.isSignIn == true && isEmailSend == false
                 ? Padding(
-                    padding: .all(16.0),
+                    padding: EdgeInsets.all(16.0),
                     child: Column(
                       children: [
                         16.height,
@@ -134,7 +134,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     ),
                   )
                 : Padding(
-                    padding: .all(16.0),
+                    padding: EdgeInsets.all(16.0),
                     child: Column(
                       children: [
                         16.height,
@@ -150,7 +150,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           fieldWidth: 35,
                           otpFieldStyle: o.OtpFieldStyle(borderColor: context.dividerColor, focusBorderColor: ColorUtils.colorPrimary),
                           style: primaryTextStyle(),
-                          textFieldAlignment: .spaceAround,
+                          textFieldAlignment: MainAxisAlignment.spaceAround,
                           fieldStyle: FieldStyle.box,
                           onChanged: (s) {
                             //

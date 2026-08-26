@@ -35,14 +35,14 @@ class _UpdateAvailableState extends State<UpdateAvailable> {
           runAlignment: WrapAlignment.center,
           children: [
             Container(
-              margin: .symmetric(
+              margin: EdgeInsets.symmetric(
                 horizontal: 45,
               ),
-              padding: .all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
               child: Stack(children: [
                 Column(
-                  mainAxisAlignment: .center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(width: context.width() * 0.40, child: Image.asset(ic_force_update)),
                     SizedBox(height: 16),
@@ -63,7 +63,7 @@ class _UpdateAvailableState extends State<UpdateAvailable> {
                       height: 32,
                     ),
                     Row(
-                      mainAxisAlignment: widget.force != true ? .spaceBetween : .center,
+                      mainAxisAlignment: widget.force != true ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         AppButton(

@@ -92,11 +92,11 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
           widget.userData != null
               ? Stack(children: [
                   AnimatedScrollView(
-                    padding: .only(left: 16, right: 16, top: 16, bottom: 100),
+                    padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
                     children: [
                       if (widget.userData != null)
                         Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             16.height,
                             Text(language.profile, style: boldTextStyle(size: 16)),
@@ -106,13 +106,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
-                                mainAxisAlignment: .start,
-                                crossAxisAlignment: .start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       GestureDetector(
                                           onTap: () {
@@ -123,8 +123,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                               .cornerRadiusWithClipRRect(60)),
                                       8.width,
                                       Column(
-                                        crossAxisAlignment: .start,
-                                        mainAxisAlignment: .start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           Text(widget.userData!.name.validate(), style: secondaryTextStyle(size: 14)),
                                           4.height,
@@ -148,11 +148,11 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.bankName, style: secondaryTextStyle()),
                                       Text(bankNameCon.validate(), style: primaryTextStyle(size: 14)),
@@ -160,7 +160,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.accountNumber, style: secondaryTextStyle()),
                                       Text(accNumberCon.validate(), style: primaryTextStyle(size: 14)),
@@ -168,7 +168,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.nameAsPerBank, style: secondaryTextStyle()),
                                       Text(nameCon.validate(), style: primaryTextStyle(size: 14)),
@@ -176,7 +176,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.ifscCode, style: secondaryTextStyle()),
                                       Text(ifscCCon.validate(), style: primaryTextStyle(size: 14)),
@@ -193,11 +193,11 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.availableBalance, style: secondaryTextStyle()),
                                       Text(totalAmount.validate(), style: primaryTextStyle(size: 14)),
@@ -205,7 +205,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.manualRecieved, style: secondaryTextStyle()),
                                       Text(manualReceived.toString().validate(), style: primaryTextStyle(size: 14)),
@@ -213,7 +213,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.totalWithdrawn, style: secondaryTextStyle()),
                                       Text(totalWithdrawn.validate(), style: primaryTextStyle(size: 14)),
@@ -221,7 +221,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.totalWithdrawn, style: secondaryTextStyle()),
                                       Text(totalWithdrawn.validate(), style: primaryTextStyle(size: 14)),
@@ -238,11 +238,11 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   borderRadius: BorderRadius.circular(defaultRadius),
                                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
                                   backgroundColor: Colors.transparent),
-                              padding: .all(12),
+                              padding: EdgeInsets.all(12),
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.latitude, style: secondaryTextStyle()),
                                       Text(widget.userData!.latitude.toString(), style: primaryTextStyle(size: 14)),
@@ -250,7 +250,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(language.longitude, style: secondaryTextStyle()),
                                       Text(widget.userData!.longitude.toString(), style: primaryTextStyle(size: 14)),
@@ -258,8 +258,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                   ),
                                   8.height,
                                   Row(
-                                    mainAxisAlignment: .spaceBetween,
-                                    //   crossAxisAlignment: .end,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    //   crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(language.address, style: secondaryTextStyle()),
                                       Container(

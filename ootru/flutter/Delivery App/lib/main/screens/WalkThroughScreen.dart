@@ -63,7 +63,7 @@ class WalkThroughScreenState extends State<WalkThroughScreen> {
               (index) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: .center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Center(
                         child: Image.asset(pages[index].image!, width: context.width(), height: context.height() * 0.4, fit: BoxFit.cover)),
@@ -88,7 +88,7 @@ class WalkThroughScreenState extends State<WalkThroughScreen> {
             child: Column(
               children: [
                 Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Icon(Icons.navigate_before, color: ColorUtils.colorPrimary, size: 30).onTap(() {
                       pageController.animateToPage(--currentPage, duration: Duration(milliseconds: 800), curve: Curves.easeInOut);

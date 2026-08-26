@@ -49,7 +49,7 @@ class _ThemeScreenState extends State<ThemeScreen> {
           themeModeList.length,
           (index) {
             return Padding(
-              padding: .symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
                   icons[index],

@@ -98,12 +98,12 @@ class EarningHistoryScreenState extends State<EarningHistoryScreen> {
                   borderRadius: radius(defaultRadius),
                   backgroundColor: Colors.transparent,
                   border: Border.all(color: ColorUtils.colorPrimary.withOpacity(appStore.isDarkMode ? 0.6 : 0.08))),
-              padding: .all(16),
+              padding: EdgeInsets.all(16),
               child: IntrinsicHeight(
                 child: Row(
                   children: [
                     Column(
-                      crossAxisAlignment: .center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(language.earning, style: primaryTextStyle(size: 16, color: Colors.white), textAlign: TextAlign.center),
                         6.height,
@@ -113,7 +113,7 @@ class EarningHistoryScreenState extends State<EarningHistoryScreen> {
                     ).expand(),
                     VerticalDivider(color: Colors.white),
                     Column(
-                      crossAxisAlignment: .center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(language.adminCommission, style: primaryTextStyle(size: 16, color: Colors.white), textAlign: TextAlign.center),
                         6.height,
@@ -131,7 +131,7 @@ class EarningHistoryScreenState extends State<EarningHistoryScreen> {
       body: Stack(
         children: [
           AnimatedListView(
-            padding: .symmetric(vertical: 16, horizontal: 16),
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             itemCount: earningList.length,
             shrinkWrap: true,
             emptyWidget: Stack(
@@ -163,14 +163,14 @@ class EarningHistoryScreenState extends State<EarningHistoryScreen> {
 
   Widget earningCardWidget(EarningData data) {
     return Container(
-      margin: .only(bottom: 16),
-      padding: .all(8),
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(8),
       decoration: boxDecorationWithRoundedCorners(
           borderRadius: radius(defaultRadius),
           backgroundColor: Colors.transparent,
           border: Border.all(color: ColorUtils.colorPrimary.withOpacity(appStore.isDarkMode ? 0.6 : 0.08))),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -183,7 +183,7 @@ class EarningHistoryScreenState extends State<EarningHistoryScreen> {
           Text(printDate(data.createdAt.validate()), style: secondaryTextStyle()),
           SizedBox(height: 8),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.earning, textAlign: TextAlign.center, style: secondaryTextStyle(size: 14)),
               Text('${printAmount(data.deliveryManCommission ?? 0)}', style: boldTextStyle(size: 16)),
@@ -191,7 +191,7 @@ class EarningHistoryScreenState extends State<EarningHistoryScreen> {
           ),
           SizedBox(height: 4),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(language.adminCommission, textAlign: TextAlign.center, style: secondaryTextStyle(size: 14)),
               Text('${printAmount(data.adminCommission ?? 0)}', style: boldTextStyle(size: 16)),

@@ -340,8 +340,8 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
         showBack: false,
         actions: [
           Container(
-            margin: .symmetric(vertical: 12, horizontal: 8),
-            padding: .symmetric(horizontal: 8, vertical: 4),
+            margin: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.white24),
             child: Row(children: [
               Icon(Ionicons.ios_location_outline, color: Colors.white, size: 18),
@@ -378,7 +378,7 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
             NotificationScreen().launch(context);
           }),
           IconButton(
-            padding: .only(right: 8),
+            padding: EdgeInsets.only(right: 8),
             onPressed: () async {
               DProfileFragment().launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
             },
@@ -393,7 +393,7 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
         child: Stack(
           children: [
             Padding(
-              padding: const .symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListView(
                 physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 children: [
@@ -411,7 +411,7 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
                         Icons.filter_list,
                         color: ColorUtils.colorPrimary,
                       ).onTap(() async {
-                        await showInDialog(context, shape: RoundedRectangleBorder(borderRadius: radius()), builder: (_) => FilterCountScreen(), contentPadding: .zero).then((value) {
+                        await showInDialog(context, shape: RoundedRectangleBorder(borderRadius: radius()), builder: (_) => FilterCountScreen(), contentPadding: EdgeInsets.zero).then((value) {
                           String startDate = DateFormat('yyyy-MM-dd').format(value[0]);
                           String endDate = DateFormat('yyyy-MM-dd').format(value[1]);
                           getDashboardCountDataApi(startDate: startDate, endDate: endDate);
@@ -447,12 +447,12 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: .only(left: 16, right: 16, bottom: 16),
+        padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
         child: Container(
-          padding: .symmetric(horizontal: 12, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: boxDecorationWithRoundedCorners(backgroundColor: ColorUtils.colorPrimary),
           child: Row(
-            mainAxisAlignment: .center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(language.viewAllOrders, style: boldTextStyle(color: Colors.white)),
             ],
@@ -475,10 +475,10 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
     // Color color =
     return Container(
       decoration: appStore.isDarkMode ? boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), backgroundColor: color) : boxDecorationRoundedWithShadow(defaultRadius.toInt(), backgroundColor: color),
-      padding: .symmetric(horizontal: 4, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Column(
-        crossAxisAlignment: .center,
-        mainAxisAlignment: .center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             '$value',

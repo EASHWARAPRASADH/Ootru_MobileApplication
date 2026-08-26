@@ -72,9 +72,9 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Form(
             key: formKey,
             child: SingleChildScrollView(
-              padding: .only(left: 16, top: 30, right: 16),
+              padding: EdgeInsets.only(left: 16, top: 30, right: 16),
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(language.email, style: primaryTextStyle()),
                   8.height,

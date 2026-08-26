@@ -20,27 +20,27 @@ extension WidgetExtension on Widget? {
 
   /// return padding top
   Padding paddingTop(double top) {
-    return Padding(padding: .only(top: top), child: this);
+    return Padding(padding: EdgeInsets.only(top: top), child: this);
   }
 
   /// return padding left
   Padding paddingLeft(double left) {
-    return Padding(padding: .only(left: left), child: this);
+    return Padding(padding: EdgeInsets.only(left: left), child: this);
   }
 
   /// return padding right
   Padding paddingRight(double right) {
-    return Padding(padding: .only(right: right), child: this);
+    return Padding(padding: EdgeInsets.only(right: right), child: this);
   }
 
   /// return padding bottom
   Padding paddingBottom(double bottom) {
-    return Padding(padding: .only(bottom: bottom), child: this);
+    return Padding(padding: EdgeInsets.only(bottom: bottom), child: this);
   }
 
   /// return padding all
   Padding paddingAll(double padding) {
-    return Padding(padding: .all(padding), child: this);
+    return Padding(padding: EdgeInsets.all(padding), child: this);
   }
 
   /// return custom padding from each side
@@ -59,7 +59,7 @@ extension WidgetExtension on Widget? {
   /// return padding symmetric
   Padding paddingSymmetric({double vertical = 0.0, double horizontal = 0.0}) {
     return Padding(
-      padding: .symmetric(vertical: vertical, horizontal: horizontal),
+      padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
       child: this,
     );
   }

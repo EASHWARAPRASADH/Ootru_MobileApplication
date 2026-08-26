@@ -149,7 +149,7 @@ class _VerificationListScreenState extends State<VerificationListScreen> {
       body: Stack(
         children: [
           Padding(
-            padding: const .all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
                 20.height,
@@ -165,7 +165,7 @@ class _VerificationListScreenState extends State<VerificationListScreen> {
                           style: boldTextStyle(),
                         ),
                         subtitle: Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [Text(step.description), getActionButton(step.status, step.fun)],
                         ),
                         // trailing: getActionButton(step.status, step.fun),
@@ -264,7 +264,7 @@ Widget commonAppButton(Widget child, Function() fn, {Color? borderColor}) {
     elevation: 0,
     height: 30,
     color: Colors.transparent,
-    padding: .symmetric(horizontal: 8),
+    padding: EdgeInsets.symmetric(horizontal: 8),
     shapeBorder: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(defaultRadius),
       side: BorderSide(color: borderColor ?? ColorUtils.colorPrimary),

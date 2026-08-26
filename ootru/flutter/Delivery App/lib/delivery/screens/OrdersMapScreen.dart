@@ -156,7 +156,7 @@ class _OrdersMapScreenState extends State<OrdersMapScreen> {
       body: Stack(
         children: [
           Column(
-            mainAxisAlignment: .center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               markers.isNotEmpty
                   ? GoogleMap(
@@ -201,7 +201,7 @@ class _OrdersMapScreenState extends State<OrdersMapScreen> {
   Widget _customInfoWindow() {
     return Container(
       width: context.width() * 0.5,
-      padding: .all(8.0),
+      padding: EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
@@ -214,15 +214,15 @@ class _OrdersMapScreenState extends State<OrdersMapScreen> {
         ],
       ),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 decoration: BoxDecoration(
                     color: statusColor(selectedInfoWindow!.status.validate()).withOpacity(0.08), borderRadius: BorderRadius.circular(6)),
-                padding: .symmetric(horizontal: 8, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Text(orderStatus(selectedInfoWindow!.status!),
                     style: primaryTextStyle(size: 14, color: statusColor(selectedInfoWindow!.status.validate()))),
               ),
@@ -230,7 +230,7 @@ class _OrdersMapScreenState extends State<OrdersMapScreen> {
               Container(
                 decoration: BoxDecoration(
                     color: statusColor(selectedInfoWindow!.title.validate()).withOpacity(0.08), borderRadius: BorderRadius.circular(6)),
-                padding: .symmetric(horizontal: 8, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Text(
                   selectedInfoWindow!.title!,
                   style: primaryTextStyle(size: 14),
@@ -242,7 +242,7 @@ class _OrdersMapScreenState extends State<OrdersMapScreen> {
           ),
           SizedBox(height: 8.0),
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 '#${selectedInfoWindow!.id.toString()}',
@@ -250,7 +250,7 @@ class _OrdersMapScreenState extends State<OrdersMapScreen> {
               ),
               Container(
                 decoration: BoxDecoration(color: ColorUtils.colorPrimary, borderRadius: BorderRadius.circular(6)),
-                padding: .symmetric(horizontal: 6, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 child: Text(language.view, style: primaryTextStyle(size: 14, color: white)).onTap(() {
                   OrderDetailScreen(
                     orderId: selectedInfoWindow!.id.toInt(),

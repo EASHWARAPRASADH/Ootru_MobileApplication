@@ -137,10 +137,10 @@
 //   }
 //
 //   static Widget buildHeader(Invoice invoice) {
-//     return Row(mainAxisAlignment: .spaceBetween, crossAxisAlignment: .start, children: [
+//     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.start, children: [
 //       Expanded(
 //         child: Column(
-//           crossAxisAlignment: .start,
+//           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
 //             Text(language.customerName, style: TextStyle(color: PdfColors.blue)),
 //             SizedBox(height: 4),
@@ -156,7 +156,7 @@
 //         ),
 //       ),
 //       Spacer(),
-//       Column(crossAxisAlignment: .start, children: [
+//       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //         Text('${language.invoiceNo} ${invoice.info.number}'),
 //         Text('${language.invoiceDate} ${Utils.formatDate(invoice.info.invoiceDate)}'),
 //         Text('${language.orderedDate} ${Utils.formatDate(invoice.info.orderedDate)}'),
@@ -166,11 +166,11 @@
 //
 //   static Widget buildTitle(Invoice invoice, netImage) {
 //     return Column(
-//       crossAxisAlignment: .end,
+//       crossAxisAlignment: CrossAxisAlignment.end,
 //       children: [
 //         Row(
-//           crossAxisAlignment: .start,
-//           mainAxisAlignment: .spaceBetween,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //           children: [
 //             Expanded(
 //               child: Row(
@@ -235,7 +235,7 @@
 //           Expanded(
 //             flex: 4,
 //             child: Column(
-//               crossAxisAlignment: .start,
+//               crossAxisAlignment: CrossAxisAlignment.start,
 //               children: [
 //                 buildText(
 //                   title: language.subTotal,
@@ -244,11 +244,11 @@
 //                 ),
 //                 SizedBox(height: 4),
 //                 Column(
-//                   crossAxisAlignment: .start,
+//                   crossAxisAlignment: CrossAxisAlignment.start,
 //                   children: List.generate(invoice.extraChargeList.length, (index) {
 //                     ExtraChargeRequestModel item = invoice.extraChargeList[index];
 //                     return Padding(
-//                       padding: .only(bottom: 4),
+//                       padding: EdgeInsets.only(bottom: 4),
 //                       child: buildText(
 //                         title: '${item.key!.replaceAll("_", " ")} (${item.valueType == CHARGE_TYPE_PERCENTAGE ? '${item.value}%' : '${printAmount(item.value.validate())}'})',
 //                         value: Utils.formatPrice(countExtraCharge(totalAmount: subTotal, chargesType: item.valueType!, charges: item.value!).toDouble()),
@@ -276,7 +276,7 @@
 //
 //   static Widget buildFooter(Invoice invoice) => Expanded(
 //           child: Column(
-//         crossAxisAlignment: .center,
+//         crossAxisAlignment: CrossAxisAlignment.center,
 //         children: [
 //           Divider(),
 //           SizedBox(height: 2 * PdfPageFormat.mm),

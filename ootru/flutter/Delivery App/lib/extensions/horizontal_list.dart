@@ -32,7 +32,7 @@ class HorizontalList extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       physics: physics,
-      padding: padding ?? .all(8),
+      padding: padding ?? EdgeInsets.all(8),
       scrollDirection: Axis.horizontal,
       reverse: reverse,
       controller: controller,

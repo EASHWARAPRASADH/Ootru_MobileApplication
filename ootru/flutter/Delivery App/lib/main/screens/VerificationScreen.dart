@@ -44,7 +44,7 @@ class VerificationScreenState extends State<VerificationScreen> {
         children: [
           isOtpSend == false
               ? Padding(
-                  padding: .all(16.0),
+                  padding: EdgeInsets.all(16.0),
                   child: Column(
                     children: [
                       16.height,
@@ -76,7 +76,7 @@ class VerificationScreenState extends State<VerificationScreen> {
                   ),
                 )
               : Padding(
-                  padding: .all(16.0),
+                  padding: EdgeInsets.all(16.0),
                   child: Column(
                     children: [
                       16.height,
@@ -94,7 +94,7 @@ class VerificationScreenState extends State<VerificationScreen> {
                         fieldWidth: 35,
                         otpFieldStyle: o.OtpFieldStyle(borderColor: context.dividerColor, focusBorderColor: ColorUtils.colorPrimary),
                         style: primaryTextStyle(),
-                        textFieldAlignment: .spaceAround,
+                        textFieldAlignment: MainAxisAlignment.spaceAround,
                         fieldStyle: FieldStyle.box,
                         onChanged: (s) {
                           //

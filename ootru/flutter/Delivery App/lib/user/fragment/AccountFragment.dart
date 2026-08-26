@@ -62,7 +62,7 @@ class AccountFragmentState extends State<AccountFragment> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-            contentPadding: .symmetric(horizontal: 16, vertical: 2),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 2),
             minLeadingWidth: 14,
             dense: true,
             leading: Image.asset(img.validate(), height: 18, fit: BoxFit.fill, width: 18, color: textPrimaryColorGlobal),
@@ -105,10 +105,10 @@ class AccountFragmentState extends State<AccountFragment> {
         children: [
           AnimatedScrollView(
             fadeInConfiguration: FadeInConfiguration(duration: Duration(seconds: 1)),
-            padding: .only(bottom: context.height() * 0.1, top: 16),
+            padding: EdgeInsets.only(bottom: context.height() * 0.1, top: 16),
             children: [
               Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -120,14 +120,14 @@ class AccountFragmentState extends State<AccountFragment> {
                               child: commonCachedNetworkImage(appStore.userProfile.validate(), height: 65, width: 65, fit: BoxFit.cover, alignment: Alignment.center).cornerRadiusWithClipRRect(50)),
                           Container(
                             decoration: boxDecorationWithRoundedCorners(boxShape: BoxShape.circle, border: Border.all(width: 1, color: white), backgroundColor: ColorUtils.colorPrimary),
-                            padding: .all(4),
+                            padding: EdgeInsets.all(4),
                             child: Image.asset(ic_edit, color: white, height: 14, width: 14),
                           )
                         ],
                       ),
                       10.width,
                       Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(getStringAsync(NAME).validate(), style: boldTextStyle(size: 20)),
                           6.height,
@@ -174,7 +174,7 @@ class AccountFragmentState extends State<AccountFragment> {
                     LanguageScreen().launch(context);
                   }),
                   accountSettingItemWidget(ic_dark_mode, language.theme, () async {
-                    await showInDialog(context, shape: RoundedRectangleBorder(borderRadius: radius()), builder: (_) => ThemeSelectionDialog(), contentPadding: .zero);
+                    await showInDialog(context, shape: RoundedRectangleBorder(borderRadius: radius()), builder: (_) => ThemeSelectionDialog(), contentPadding: EdgeInsets.zero);
                   }),
                   accountSettingItemWidget(
                     ic_bank_detail,
@@ -234,7 +234,7 @@ class AccountFragmentState extends State<AccountFragment> {
                   ],
                   Container(
                     decoration: boxDecorationWithRoundedCorners(border: Border.all(color: ColorUtils.colorPrimary, width: 1), backgroundColor: Colors.transparent),
-                    padding: .all(16),
+                    padding: EdgeInsets.all(16),
                     width: context.width(),
                     child: Text(language.logout, style: boldTextStyle(size: 18, color: ColorUtils.colorPrimary), textAlign: TextAlign.center),
                   ).onTap(() async {

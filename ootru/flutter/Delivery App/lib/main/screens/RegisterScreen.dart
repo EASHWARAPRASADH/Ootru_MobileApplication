@@ -144,12 +144,12 @@ class RegisterScreenState extends State<RegisterScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: .all(16),
+            padding: EdgeInsets.all(16),
             physics: BouncingScrollPhysics(),
             child: Form(
               key: formKey,
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ElevatedButton(
                   //   onPressed: generateRandomValues,
@@ -314,7 +314,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   }, width: context.width()),
                   30.height,
                   Row(
-                    mainAxisAlignment: .center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(language.alreadyHaveAnAccount,
                           style: primaryTextStyle()),

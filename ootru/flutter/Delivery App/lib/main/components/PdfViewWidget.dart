@@ -56,11 +56,11 @@ class PdfViewWidgetState extends State<PdfViewWidget> {
     final wv = WebViewWidget(controller: wbController);
     return Scaffold(
       body: Container(
-        margin: .only(top: 26),
+        margin: EdgeInsets.only(top: 26),
         width: context.width(),
         height: context.height(),
         child: Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             IconButton(onPressed: () => finish(context), icon: Icon(Icons.arrow_back)),
             SizedBox(

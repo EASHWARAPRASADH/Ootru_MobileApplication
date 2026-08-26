@@ -95,8 +95,8 @@ class _CustomerSupportScreenState extends State<CustomerSupportScreen> {
                     itemBuilder: (context, index) {
                       CustomerSupport item = supportList[index];
                       return Container(
-                        margin: .only(bottom: 16),
-                        padding: .all(8),
+                        margin: EdgeInsets.only(bottom: 16),
+                        padding: EdgeInsets.all(8),
                         decoration: boxDecorationWithRoundedCorners(
                             borderRadius: BorderRadius.circular(defaultRadius),
                             border: Border.all(
@@ -107,11 +107,11 @@ class _CustomerSupportScreenState extends State<CustomerSupportScreen> {
                         child: Row(
                           children: [
                             Column(
-                              crossAxisAlignment: .start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                      .spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
@@ -139,7 +139,7 @@ class _CustomerSupportScreenState extends State<CustomerSupportScreen> {
                                 ),
                                 8.height,
                                 Row(
-                                  crossAxisAlignment: .start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('${language.message} : ',
                                         style: primaryTextStyle()),
@@ -156,7 +156,7 @@ class _CustomerSupportScreenState extends State<CustomerSupportScreen> {
                                 8.height,
                                 if (item.video != null || item.image != null)
                                   Row(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text('${language.attachment} : ',
                                           style: primaryTextStyle()),

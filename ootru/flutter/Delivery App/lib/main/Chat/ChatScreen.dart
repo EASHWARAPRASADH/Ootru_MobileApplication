@@ -143,8 +143,8 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: commonAppBarWidget(
         '',
         titleWidget: Row(
-          mainAxisAlignment: .start,
-          crossAxisAlignment: .start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
               backgroundColor: context.cardColor,
@@ -153,7 +153,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             10.width,
             Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.userData!.name.validate(), style: secondaryTextStyle(size: 16, color: whiteColor)),
                 4.height,
@@ -169,7 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Stack(
           children: [
             PagedListView<DocumentSnapshot?, ChatMessageModel>.separated(
-              padding: .only(left: 8, top: 8, right: 8, bottom: 76),
+              padding: EdgeInsets.only(left: 8, top: 8, right: 8, bottom: 76),
               reverse: true,
               pagingController: _pagingController,
               physics: BouncingScrollPhysics(),
@@ -194,7 +194,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   blurRadius: 1,
                   backgroundColor: context.cardColor,
                 ),
-                padding: .only(left: 8, right: 8),
+                padding: EdgeInsets.only(left: 8, right: 8),
                 child: Row(
                   children: [
                     TextField(
@@ -203,7 +203,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         border: InputBorder.none,
                         hintText: language.writeAMessage,
                         hintStyle: secondaryTextStyle(),
-                        contentPadding: .symmetric(vertical: 18, horizontal: 4),
+                        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 4),
                       ),
                       cursorColor: appStore.isDarkMode ? Colors.white : Colors.black,
                       focusNode: messageFocus,
