@@ -3,11 +3,11 @@ import 'package:flutter/foundation.dart';
 class AppServerConfig {
   static String get baseUrl {
     if (kReleaseMode) {
-     return 'https://app.meetmighty.com/delivery-admin';
+      return 'http://192.168.31.248:8000';
     } else if (kProfileMode) {
-      return 'https://app.meetmighty.com/delivery-admin-dev';
+      return 'http://192.168.31.248:8000';
     } else {
-      return 'https://app.meetmighty.com/delivery-admin-dev';
+      return 'http://192.168.31.248:8000';
     }
   }
 }
