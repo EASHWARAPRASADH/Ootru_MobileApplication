@@ -125,8 +125,6 @@ Future<LoginResponse> logInApi(Map request, {bool isSocialLogin = false}) async 
         } else if (e.toString() == "User not found") {
           authService.registerUserWithDB(loginResponse.data!.email.validate(), request["password"], loginResponse);
         }
-      }).timeout(Duration(seconds: 2), onTimeout: () {
-        log("userService background timeout (non-fatal)");
       });
     } catch (e) {
       log("userService error: $e");
