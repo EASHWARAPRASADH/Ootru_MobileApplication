@@ -116,23 +116,21 @@ Future<LoginResponse> logInApi(Map request, {bool isSocialLogin = false}) async 
     await setValue(EMAIL_VERIFIED, loginResponse.data!.emailVerifiedAt != null);
 
     appStore.setUserProfile(loginResponse.data!.profileImage.validate());
-    await userService.getUser(email: loginResponse.data!.email.validate()).then((value) async {
-      log(value.toString());
-      //  await setValue(UID, value.uid.validate());
-    }).catchError((e) {
-      log(e.toString());
-      print("---------------${loginResponse.data!.loginType}");
-      if (loginResponse.data!.loginType == LoginTypeGoogle || loginResponse.data!.loginType == LoginTypeApple) {
-      } else if (e.toString() == "User not found") {
-        // toast("-----------------user not found");
-
-        log("request[password]    ${request["password"]}");
-
-        // if(loginResponse.data!.loginType == )
-        authService.registerUserWithDB(loginResponse.data!.email.validate(), request["password"], loginResponse);
-        // toast(language.userNotFound);
-      }
-    });
+    try {
+      userService.getUser(email: loginResponse.data!.email.validate()).then((value) async {
+        log(value.toString());
+      }).catchError((e) {
+        log(e.toString());
+        if (loginResponse.data!.loginType == LoginTypeGoogle || loginResponse.data!.loginType == LoginTypeApple) {
+        } else if (e.toString() == "User not found") {
+          authService.registerUserWithDB(loginResponse.data!.email.validate(), request["password"], loginResponse);
+        }
+      }).timeout(Duration(seconds: 2), onTimeout: () {
+        log("userService background timeout (non-fatal)");
+      });
+    } catch (e) {
+      log("userService error: $e");
+    }
     await setValue(IS_VERIFIED_DELIVERY_MAN, !loginResponse.data!.documentVerifiedAt.isEmptyOrNull);
     await appStore.setUserEmail(loginResponse.data!.email.validate());
     if (getIntAsync(STATUS) == 1) {
