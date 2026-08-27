@@ -125,7 +125,7 @@ class SplashScreenState extends State<SplashScreen> {
             log(e);
           });
         } else {
-          if (getBoolAsync(IS_FIRST_TIME, defaultValue: true)) {
+          if (getBoolAsync(IS_FIRST_TIME, defaultValue: false)) {
             WalkThroughScreen().launch(context, isNewTask: true);
           } else {
             LoginScreen().launch(context, isNewTask: true);
