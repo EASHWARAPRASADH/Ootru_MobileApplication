@@ -72,6 +72,9 @@ class LoginScreenState extends State<LoginScreen> {
     if (mIsCheck) {
       emailController.text = getStringAsync(USER_EMAIL);
       passController.text = getStringAsync(USER_PASSWORD);
+    } else {
+      emailController.text = "client@client.com";
+      passController.text = "12345678";
     }
   }
 
@@ -506,7 +509,45 @@ class LoginScreenState extends State<LoginScreen> {
                       ).expand()
                     ],
                   ),
-                  30.height,
+                  16.height,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: ColorUtils.colorPrimary),
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () {
+                            emailController.text = "client@client.com";
+                            passController.text = "12345678";
+                            setState(() {});
+                            loginApiCall();
+                          },
+                          child: Text("Demo Customer", style: boldTextStyle(color: ColorUtils.colorPrimary, size: 12)),
+                        ),
+                      ),
+                      12.width,
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: ColorUtils.colorPrimary),
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () {
+                            emailController.text = "delivery@delivery.com";
+                            passController.text = "12345678";
+                            setState(() {});
+                            loginApiCall();
+                          },
+                          child: Text("Demo Driver", style: boldTextStyle(color: ColorUtils.colorPrimary, size: 12)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  20.height,
                   commonButton(
                     language.signIn,
                     () {
