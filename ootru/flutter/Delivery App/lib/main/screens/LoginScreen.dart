@@ -52,7 +52,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   bool mIsCheck = false;
 
-  bool isAcceptedTc = false;
+  bool isAcceptedTc = true;
   String userType = CLIENT;
   int? isDemoSelected;
 
