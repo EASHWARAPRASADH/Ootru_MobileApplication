@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Mighty Delivery</string>
+	<string>Freeleft</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Mighty Delivery</string>
+	<string>Freeleft</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,17 +45,17 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Mighty Delivery app requires access to the Camera to upload your Profile photo.</string>
+	<string>Freeleft app requires access to the Camera to upload your Profile photo.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Mighty Delivery uses your location to provide accurate parcel tracking and timely delivery updates. By accessing your address, we ensure that you receive real-time information about your parcels&apos; status and estimated delivery times.</string>
+	<string>Freeleft uses your location to provide accurate parcel tracking and timely delivery updates. By accessing your address, we ensure that you receive real-time information about your parcels&apos; status and estimated delivery times.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Mighty Delivery uses your location to provide accurate parcel tracking and timely delivery updates. By accessing your address, we ensure that you receive real-time information about your parcels&apos; status and estimated delivery times.</string>
+	<string>Freeleft uses your location to provide accurate parcel tracking and timely delivery updates. By accessing your address, we ensure that you receive real-time information about your parcels&apos; status and estimated delivery times.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Mighty Delivery uses your location to provide accurate parcel tracking and timely delivery updates. By accessing your address, we ensure that you receive real-time information about your parcels&apos; status and estimated delivery times.</string>
+	<string>Freeleft uses your location to provide accurate parcel tracking and timely delivery updates. By accessing your address, we ensure that you receive real-time information about your parcels&apos; status and estimated delivery times.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Mighty Delivery requires access to the photo library to upload your Profile photo.</string>
+	<string>Freeleft requires access to the photo library to upload your Profile photo.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Mighty Delivery requires access to the photo library to upload your Profile photo.</string>
+	<string>Freeleft requires access to the photo library to upload your Profile photo.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

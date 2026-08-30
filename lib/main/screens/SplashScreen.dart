@@ -84,7 +84,7 @@ class SplashScreenState extends State<SplashScreen> {
                   ),
                   10.height,
                   Text(
-                    "Please turn on your device location services to continue using Mighty Delivery. Location is required to process your deliveries.",
+                    "Please turn on your device location services to continue using Freeleft. Location is required to process your deliveries.",
                     style: secondaryTextStyle(size: 14),
                     textAlign: TextAlign.center,
                   ),

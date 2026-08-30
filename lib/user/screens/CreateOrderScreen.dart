@@ -396,7 +396,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       try {
         var response = await http.get(
           Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng'),
-          headers: {'User-Agent': 'MightyDelivery/1.0'},
+          headers: {'User-Agent': 'Freeleft/1.0'},
         ).timeout(Duration(seconds: 2));
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body);
@@ -719,7 +719,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       try {
         final res = await http.get(
           Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(pickAddressCont.text.trim())}&format=json&limit=1'),
-          headers: {'User-Agent': 'MightyDeliveryApp/1.0'},
+          headers: {'User-Agent': 'FreeleftApp/1.0'},
         ).timeout(Duration(seconds: 3));
         if (res.statusCode == 200) {
           var data = jsonDecode(res.body);
@@ -738,7 +738,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       try {
         final res = await http.get(
           Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(deliverAddressCont.text.trim())}&format=json&limit=1'),
-          headers: {'User-Agent': 'MightyDeliveryApp/1.0'},
+          headers: {'User-Agent': 'FreeleftApp/1.0'},
         ).timeout(Duration(seconds: 3));
         if (res.statusCode == 200) {
           var data = jsonDecode(res.body);

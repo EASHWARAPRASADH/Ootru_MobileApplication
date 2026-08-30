@@ -12,7 +12,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:label="mDelivery"
+        android:label="Freeleft"
         tools:replace="android:label"
         android:enableOnBackInvokedCallback="false">
 

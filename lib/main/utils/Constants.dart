@@ -6,7 +6,7 @@ import '../../extensions/extension_util/int_extensions.dart';
 import '../../extensions/colors.dart';
 import '../../extensions/common.dart';
 
-const mAppName = 'Mighty Delivery';
+const mAppName = 'Freeleft';
 //endregion
 
 //region Baseurl
