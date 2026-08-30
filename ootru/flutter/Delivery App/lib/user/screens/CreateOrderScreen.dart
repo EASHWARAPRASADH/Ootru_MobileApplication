@@ -713,11 +713,53 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
     }
   }
 
+  Future<void> ensureGeocodedCoordinates() async {
+    // Geocode pickup if needed
+    if (pickAddressCont.text.trim().isNotEmpty && (pickLat == null || pickLong == null || pickLat == "40.7128" || pickLat == "0.0")) {
+      try {
+        final res = await http.get(
+          Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(pickAddressCont.text.trim())}&format=json&limit=1'),
+          headers: {'User-Agent': 'MightyDeliveryApp/1.0'},
+        ).timeout(Duration(seconds: 3));
+        if (res.statusCode == 200) {
+          var data = jsonDecode(res.body);
+          if (data is List && data.isNotEmpty) {
+            pickLat = data[0]['lat'].toString();
+            pickLong = data[0]['lon'].toString();
+          }
+        }
+      } catch (e) {
+        log("Geocode pickup error: $e");
+      }
+    }
+
+    // Geocode delivery if needed
+    if (deliverAddressCont.text.trim().isNotEmpty && (deliverLat == null || deliverLong == null || deliverLat == "40.7306" || deliverLat == "0.0")) {
+      try {
+        final res = await http.get(
+          Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(deliverAddressCont.text.trim())}&format=json&limit=1'),
+          headers: {'User-Agent': 'MightyDeliveryApp/1.0'},
+        ).timeout(Duration(seconds: 3));
+        if (res.statusCode == 200) {
+          var data = jsonDecode(res.body);
+          if (data is List && data.isNotEmpty) {
+            deliverLat = data[0]['lat'].toString();
+            deliverLong = data[0]['lon'].toString();
+          }
+        }
+      } catch (e) {
+        log("Geocode delivery error: $e");
+      }
+    }
+  }
+
   Future<void> setPolylines() async {
-    double pLat = double.tryParse(pickLat ?? '') ?? 40.7128;
-    double pLong = double.tryParse(pickLong ?? '') ?? -74.0060;
-    double dLat = double.tryParse(deliverLat ?? '') ?? 40.7306;
-    double dLong = double.tryParse(deliverLong ?? '') ?? -73.9352;
+    await ensureGeocodedCoordinates();
+
+    double pLat = double.tryParse(pickLat ?? '') ?? 11.9338;
+    double pLong = double.tryParse(pickLong ?? '') ?? 79.8297;
+    double dLat = double.tryParse(deliverLat ?? '') ?? 13.0827;
+    double dLong = double.tryParse(deliverLong ?? '') ?? 80.2707;
 
     polylineCoordinates.clear();
     bool hasValidGoogleMapsKey = googleMapAPIKey.isNotEmpty && googleMapAPIKey != 'GOOGLE_MAPS_API_KEY';
@@ -737,6 +779,24 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
         }
       } catch (e) {
         log("polyline error: $e");
+      }
+    }
+
+    if (polylineCoordinates.isEmpty) {
+      try {
+        final osrmRouteUrl = Uri.parse('https://router.project-osrm.org/route/v1/driving/$pLong,$pLat;$dLong,$dLat?overview=full&geometries=geojson');
+        final response = await http.get(osrmRouteUrl).timeout(Duration(seconds: 3));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['routes'] != null && (data['routes'] as List).isNotEmpty) {
+            List coordinates = data['routes'][0]['geometry']['coordinates'];
+            for (var coord in coordinates) {
+              polylineCoordinates.add(LatLng(coord[1].toDouble(), coord[0].toDouble()));
+            }
+          }
+        }
+      } catch (e) {
+        log("OSRM polyline error: $e");
       }
     }
 
@@ -2654,32 +2714,36 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                 }
                 if (selectedTabIndex == 2) {
                   if (_formKey.currentState == null || _formKey.currentState!.validate()) {
-                    double pLat = double.tryParse(pickLat ?? '') ?? 40.7128;
-                    double pLong = double.tryParse(pickLong ?? '') ?? -74.0060;
-                    double dLat = double.tryParse(deliverLat ?? '') ?? 40.7306;
-                    double dLong = double.tryParse(deliverLong ?? '') ?? -73.9352;
+                    appStore.setLoading(true);
+                    await ensureGeocodedCoordinates();
+
+                    double pLat = double.tryParse(pickLat ?? '') ?? 11.9338;
+                    double pLong = double.tryParse(pickLong ?? '') ?? 79.8297;
+                    double dLat = double.tryParse(deliverLat ?? '') ?? 13.0827;
+                    double dLong = double.tryParse(deliverLong ?? '') ?? 80.2707;
 
                     markers.clear();
                     markers.add(
                       Marker(
                         markerId: MarkerId("1"),
                         position: LatLng(pLat, pLong),
-                        infoWindow: InfoWindow(title: language.sourceLocation),
+                        infoWindow: InfoWindow(title: language.sourceLocation, snippet: pickAddressCont.text),
                         icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueRed),
+                            BitmapDescriptor.hueGreen),
                       ),
                     );
                     markers.add(
                       Marker(
                         markerId: MarkerId("2"),
                         position: LatLng(dLat, dLong),
-                        infoWindow: InfoWindow(title: language.destinationLocation),
+                        infoWindow: InfoWindow(title: language.destinationLocation, snippet: deliverAddressCont.text),
                         icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueBlue),
+                            BitmapDescriptor.hueRed),
                       ),
                     );
                     await getDistance();
                     await setPolylines();
+                    appStore.setLoading(false);
                     selectedTabIndex = 3;
                     setState(() {});
                   }

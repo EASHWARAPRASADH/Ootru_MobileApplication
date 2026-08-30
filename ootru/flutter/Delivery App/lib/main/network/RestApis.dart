@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:core' as core;
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mighty_delivery/main/models/DashboardDetail.dart';
 import 'package:mighty_delivery/main/models/EmergencyResponseListModel.dart';
@@ -579,6 +582,11 @@ Future<CountryListModel> getCountryList() async {
     return CountryListModel(data: [
       CountryModel(id: 1, name: 'India', code: 'IN', status: 1),
       CountryModel(id: 2, name: 'United States', code: 'US', status: 1),
+      CountryModel(id: 3, name: 'United Kingdom', code: 'GB', status: 1),
+      CountryModel(id: 4, name: 'United Arab Emirates', code: 'AE', status: 1),
+      CountryModel(id: 5, name: 'Singapore', code: 'SG', status: 1),
+      CountryModel(id: 6, name: 'Canada', code: 'CA', status: 1),
+      CountryModel(id: 7, name: 'Australia', code: 'AU', status: 1),
     ]);
   }
 }
@@ -588,7 +596,15 @@ Future<CountryDetailModel> getCountryDetail(int id) async {
     return CountryDetailModel.fromJson(await handleResponse(await buildHttpResponse('country-detail?id=$id', method: HttpMethod.GET)));
   } catch (e) {
     log("getCountryDetail fallback: $e");
-    return CountryDetailModel(data: CountryModel(id: id, name: 'India', code: 'IN', status: 1));
+    String name = 'India';
+    String code = 'IN';
+    if (id == 2) { name = 'United States'; code = 'US'; }
+    else if (id == 3) { name = 'United Kingdom'; code = 'GB'; }
+    else if (id == 4) { name = 'United Arab Emirates'; code = 'AE'; }
+    else if (id == 5) { name = 'Singapore'; code = 'SG'; }
+    else if (id == 6) { name = 'Canada'; code = 'CA'; }
+    else if (id == 7) { name = 'Australia'; code = 'AU'; }
+    return CountryDetailModel(data: CountryModel(id: id, name: name, code: code, status: 1));
   }
 }
 
@@ -597,10 +613,83 @@ Future<CityListModel> getCityList({required int countryId, String? name}) async 
     return CityListModel.fromJson(await handleResponse(await buildHttpResponse(name != null ? 'city-list?country_id=$countryId&search=$name&per_page=-1' : 'city-list?country_id=$countryId&per_page=-1', method: HttpMethod.GET)));
   } catch (e) {
     log("getCityList fallback: $e");
-    return CityListModel(data: [
-      CityModel(id: 1, name: 'New Delhi', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
-      CityModel(id: 2, name: 'Mumbai', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
-    ]);
+    List<CityModel> allCities = [];
+
+    if (countryId == 1) { // India
+      allCities = [
+        CityModel(id: 1, name: 'Chennai', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 2, name: 'Coimbatore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 3, name: 'Bengaluru / Bangalore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 4, name: 'Hyderabad', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 5, name: 'Mumbai', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 6, name: 'New Delhi', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 7, name: 'Kolkata', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 8, name: 'Pune', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 9, name: 'Ahmedabad', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 10, name: 'Jaipur', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 11, name: 'Kochi / Cochin', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 12, name: 'Madurai', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 13, name: 'Tiruchirappalli (Trichy)', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 14, name: 'Salem', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 15, name: 'Tiruppur', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 16, name: 'Erode', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 17, name: 'Vellore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 18, name: 'Tirunelveli', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 19, name: 'Chandigarh', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 20, name: 'Lucknow', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 21, name: 'Surat', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 22, name: 'Indore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else if (countryId == 2) { // United States
+      allCities = [
+        CityModel(id: 30, name: 'New York', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 31, name: 'Los Angeles', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 32, name: 'Chicago', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 33, name: 'San Francisco', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 34, name: 'Houston', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 35, name: 'Miami', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 36, name: 'Seattle', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else if (countryId == 3) { // United Kingdom
+      allCities = [
+        CityModel(id: 40, name: 'London', countryId: 3, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 41, name: 'Manchester', countryId: 3, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 42, name: 'Birmingham', countryId: 3, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else if (countryId == 4) { // UAE
+      allCities = [
+        CityModel(id: 50, name: 'Dubai', countryId: 4, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 51, name: 'Abu Dhabi', countryId: 4, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 52, name: 'Sharjah', countryId: 4, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else {
+      allCities = [
+        CityModel(id: 60, name: 'Central City', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 61, name: 'Downtown', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    }
+
+    if (name != null && name.trim().isNotEmpty) {
+      String query = name.trim().toLowerCase();
+      List<CityModel> filtered = allCities.where((c) => c.name?.toLowerCase().contains(query) ?? false).toList();
+      if (filtered.isEmpty) {
+        filtered.add(CityModel(
+          id: name.hashCode.abs() % 10000 + 100,
+          name: name.trim(),
+          countryId: countryId,
+          status: 1,
+          fixedCharges: 10,
+          minDistance: 5,
+          minWeight: 1,
+          perDistanceCharges: 2,
+          perWeightCharges: 1,
+          cancelCharges: 5,
+        ));
+      }
+      return CityListModel(data: filtered);
+    }
+
+    return CityListModel(data: allCities);
   }
 }
 
@@ -609,7 +698,9 @@ Future<CityDetailModel> getCityDetail(int id) async {
     return CityDetailModel.fromJson(await handleResponse(await buildHttpResponse('city-detail?id=$id', method: HttpMethod.GET)));
   } catch (e) {
     log("getCityDetail fallback: $e");
-    return CityDetailModel(data: CityModel(id: id, name: 'New Delhi', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5));
+    CityListModel list = await getCityList(countryId: 1);
+    CityModel? matched = list.data?.firstWhere((element) => element.id == id, orElse: () => CityModel(id: id, name: 'Chennai', countryId: 1, status: 1));
+    return CityDetailModel(data: matched);
   }
 }
 
@@ -1023,19 +1114,102 @@ Future updatePlayerId() async {
   });
 }
 
+const LOCAL_USER_ADDRESSES_KEY = "LOCAL_USER_ADDRESSES_KEY";
+
+List<AddressData> getLocalUserAddressList() {
+  String jsonStr = getStringAsync(LOCAL_USER_ADDRESSES_KEY, defaultValue: "");
+  if (jsonStr.isNotEmpty) {
+    try {
+      List decoded = jsonDecode(jsonStr);
+      return decoded.map((e) => AddressData.fromJson(e)).toList();
+    } catch (e) {
+      log("Error decoding local address: $e");
+    }
+  }
+  List<AddressData> defaultAddresses = [
+    AddressData(
+      id: 1,
+      userId: getIntAsync(USER_ID),
+      address: "123 Main Street, Suite 400",
+      latitude: "40.7128",
+      longitude: "-74.0060",
+      contactNumber: "+91 9876543210",
+      addressType: "Home",
+      cityName: "New York",
+    ),
+    AddressData(
+      id: 2,
+      userId: getIntAsync(USER_ID),
+      address: "789 Business Center, 5th Floor",
+      latitude: "40.7306",
+      longitude: "-73.9352",
+      contactNumber: "+91 9876543210",
+      addressType: "Office",
+      cityName: "New York",
+    ),
+  ];
+  saveLocalUserAddressList(defaultAddresses);
+  return defaultAddresses;
+}
+
+Future<void> saveLocalUserAddressList(List<AddressData> list) async {
+  setValue(LOCAL_USER_ADDRESSES_KEY, jsonEncode(list.map((e) => e.toJson()).toList()));
+}
+
 Future<AddressListModel> getAddressList({int? page}) async {
   if (DOMAIN_URL.contains('meetmighty.com')) {
-    return AddressListModel(data: []);
+    List<AddressData> list = getLocalUserAddressList();
+    return AddressListModel(
+      data: list,
+      pagination: PaginationModel(
+        currentPage: 1,
+        perPage: 20,
+        totalItems: list.length,
+        totalPages: 1,
+      ),
+    );
   }
   try {
     return AddressListModel.fromJson(
         await handleResponse(await buildHttpResponse(page != null ? 'useraddress-list?page=$page&user_id=${getIntAsync(USER_ID)}&city_id=${getIntAsync(CITY_ID)}' : 'useraddress-list?per_page=-1&user_id=${getIntAsync(USER_ID)}&city_id=${getIntAsync(CITY_ID)}', method: HttpMethod.GET)));
   } catch (e) {
-    return AddressListModel(data: []);
+    List<AddressData> list = getLocalUserAddressList();
+    return AddressListModel(
+      data: list,
+      pagination: PaginationModel(
+        currentPage: 1,
+        perPage: 20,
+        totalItems: list.length,
+        totalPages: 1,
+      ),
+    );
   }
 }
 
 Future<LDBaseResponse> saveUserAddress(Map req) async {
+  List<AddressData> list = getLocalUserAddressList();
+  int id = req['id'] != null && req['id'].toString().isNotEmpty ? int.tryParse(req['id'].toString()) ?? DateTime.now().millisecondsSinceEpoch : DateTime.now().millisecondsSinceEpoch;
+  
+  int existingIndex = list.indexWhere((e) => e.id == id);
+  AddressData item = AddressData(
+    id: id,
+    userId: getIntAsync(USER_ID),
+    address: req['address']?.toString() ?? '',
+    latitude: req['latitude']?.toString() ?? '0.0',
+    longitude: req['longitude']?.toString() ?? '0.0',
+    contactNumber: req['contact_number']?.toString() ?? '',
+    addressType: req['address_type']?.toString() ?? 'Other',
+    cityId: getIntAsync(CITY_ID),
+    countryId: getIntAsync(COUNTRY_ID),
+  );
+
+  if (existingIndex >= 0) {
+    list[existingIndex] = item;
+  } else {
+    list.insert(0, item);
+  }
+  await saveLocalUserAddressList(list);
+
   if (DOMAIN_URL.contains('meetmighty.com')) {
     return LDBaseResponse(status: true, message: 'Address saved successfully');
   }
@@ -1047,6 +1221,10 @@ Future<LDBaseResponse> saveUserAddress(Map req) async {
 }
 
 Future<LDBaseResponse> deleteUserAddress(int id) async {
+  List<AddressData> list = getLocalUserAddressList();
+  list.removeWhere((e) => e.id == id);
+  await saveLocalUserAddressList(list);
+
   if (DOMAIN_URL.contains('meetmighty.com')) {
     return LDBaseResponse(status: true, message: 'Address deleted successfully');
   }
@@ -1066,28 +1244,74 @@ Future<LDBaseResponse> resendOtpEmail() async {
 }
 
 Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String destinations) async {
-  if (DOMAIN_URL.contains('meetmighty.com')) {
-    return DirectionsResponse.fromJson({
-      'destination_addresses': [destinations],
-      'origin_addresses': [origins],
-      'rows': [
-        {
-          'elements': [
-            {
-              'distance': {'text': '5 km', 'value': 5000},
-              'duration': {'text': '15 mins', 'value': 900},
-              'status': 'OK',
-            }
-          ]
-        }
-      ],
-      'status': 'OK',
-    });
-  }
+  double lat1 = 0.0, lon1 = 0.0, lat2 = 0.0, lon2 = 0.0;
   try {
-    return DirectionsResponse.fromJson(await handleResponse(await buildHttpResponse('distance-matrix-api?origins=$origins&destinations=$destinations', method: HttpMethod.GET)));
+    List<String> origParts = origins.split(',');
+    if (origParts.length >= 2) {
+      lat1 = double.tryParse(origParts[0].trim()) ?? 0.0;
+      lon1 = double.tryParse(origParts[1].trim()) ?? 0.0;
+    }
+    List<String> destParts = destinations.split(',');
+    if (destParts.length >= 2) {
+      lat2 = double.tryParse(destParts[0].trim()) ?? 0.0;
+      lon2 = double.tryParse(destParts[1].trim()) ?? 0.0;
+    }
   } catch (e) {
-    log("getDistanceBetweenLatLng fallback: $e");
+    log("Error parsing coordinates: $e");
+  }
+
+  // Try Open Source Routing Machine (OSRM) for real road distance
+  if (lat1 != 0.0 && lon1 != 0.0 && lat2 != 0.0 && lon2 != 0.0) {
+    try {
+      final osrmUrl = Uri.parse('https://router.project-osrm.org/route/v1/driving/$lon1,$lat1;$lon2,$lat2?overview=false');
+      final response = await http.get(osrmUrl).timeout(const core.Duration(seconds: 4));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['code'] == 'Ok' && data['routes'] != null && (data['routes'] as List).isNotEmpty) {
+          num distanceMeters = data['routes'][0]['distance'] ?? 0;
+          num durationSeconds = data['routes'][0]['duration'] ?? 0;
+          
+          double distKm = (distanceMeters / 1000.0);
+          int durMins = (durationSeconds / 60.0).round();
+          if (durMins < 1) durMins = 1;
+
+          String distText = "${distKm.toStringAsFixed(1)} km";
+          String durText = durMins > 60 ? "${(durMins / 60).floor()} hr ${durMins % 60} mins" : "$durMins mins";
+
+          return DirectionsResponse.fromJson({
+            'destination_addresses': [destinations],
+            'origin_addresses': [origins],
+            'rows': [
+              {
+                'elements': [
+                  {
+                    'distance': {'text': distText, 'value': distanceMeters.toInt()},
+                    'duration': {'text': durText, 'value': durationSeconds.toInt()},
+                    'status': 'OK',
+                  }
+                ]
+              }
+            ],
+            'status': 'OK',
+          });
+        }
+      }
+    } catch (e) {
+      log("OSRM routing error, using fallback math: $e");
+    }
+
+    // High accuracy straight-line + road factor calculation
+    double straightMeters = Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
+    double roadMeters = straightMeters * 1.25; // 1.25x road curve factor
+    double distKm = roadMeters / 1000.0;
+    if (distKm < 0.5) distKm = 0.5;
+    
+    int durMins = (distKm / 35.0 * 60).round(); // average 35 km/h driving speed
+    if (durMins < 5) durMins = 5;
+
+    String distText = "${distKm.toStringAsFixed(1)} km";
+    String durText = durMins > 60 ? "${(durMins / 60).floor()} hr ${durMins % 60} mins" : "$durMins mins";
+
     return DirectionsResponse.fromJson({
       'destination_addresses': [destinations],
       'origin_addresses': [origins],
@@ -1095,8 +1319,8 @@ Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String desti
         {
           'elements': [
             {
-              'distance': {'text': '5 km', 'value': 5000},
-              'duration': {'text': '15 mins', 'value': 900},
+              'distance': {'text': distText, 'value': roadMeters.toInt()},
+              'duration': {'text': durText, 'value': durMins * 60},
               'status': 'OK',
             }
           ]
@@ -1105,6 +1329,23 @@ Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String desti
       'status': 'OK',
     });
   }
+
+  return DirectionsResponse.fromJson({
+    'destination_addresses': [destinations],
+    'origin_addresses': [origins],
+    'rows': [
+      {
+        'elements': [
+          {
+            'distance': {'text': '1.0 km', 'value': 1000},
+            'duration': {'text': '5 mins', 'value': 300},
+            'status': 'OK',
+          }
+        ]
+      }
+    ],
+    'status': 'OK',
+  });
 }
 
 //Language Data
