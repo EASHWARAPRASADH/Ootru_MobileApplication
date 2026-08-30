@@ -1023,19 +1023,102 @@ Future updatePlayerId() async {
   });
 }
 
+const LOCAL_USER_ADDRESSES_KEY = "LOCAL_USER_ADDRESSES_KEY";
+
+List<AddressData> getLocalUserAddressList() {
+  String jsonStr = getStringAsync(LOCAL_USER_ADDRESSES_KEY, defaultValue: "");
+  if (jsonStr.isNotEmpty) {
+    try {
+      List decoded = jsonDecode(jsonStr);
+      return decoded.map((e) => AddressData.fromJson(e)).toList();
+    } catch (e) {
+      log("Error decoding local address: $e");
+    }
+  }
+  List<AddressData> defaultAddresses = [
+    AddressData(
+      id: 1,
+      userId: getIntAsync(USER_ID),
+      address: "123 Main Street, Suite 400",
+      latitude: "40.7128",
+      longitude: "-74.0060",
+      contactNumber: "+91 9876543210",
+      addressType: "Home",
+      cityName: "New York",
+    ),
+    AddressData(
+      id: 2,
+      userId: getIntAsync(USER_ID),
+      address: "789 Business Center, 5th Floor",
+      latitude: "40.7306",
+      longitude: "-73.9352",
+      contactNumber: "+91 9876543210",
+      addressType: "Office",
+      cityName: "New York",
+    ),
+  ];
+  saveLocalUserAddressList(defaultAddresses);
+  return defaultAddresses;
+}
+
+Future<void> saveLocalUserAddressList(List<AddressData> list) async {
+  setValue(LOCAL_USER_ADDRESSES_KEY, jsonEncode(list.map((e) => e.toJson()).toList()));
+}
+
 Future<AddressListModel> getAddressList({int? page}) async {
   if (DOMAIN_URL.contains('meetmighty.com')) {
-    return AddressListModel(data: []);
+    List<AddressData> list = getLocalUserAddressList();
+    return AddressListModel(
+      data: list,
+      pagination: PaginationModel(
+        currentPage: 1,
+        perPage: 20,
+        totalItems: list.length,
+        totalPages: 1,
+      ),
+    );
   }
   try {
     return AddressListModel.fromJson(
         await handleResponse(await buildHttpResponse(page != null ? 'useraddress-list?page=$page&user_id=${getIntAsync(USER_ID)}&city_id=${getIntAsync(CITY_ID)}' : 'useraddress-list?per_page=-1&user_id=${getIntAsync(USER_ID)}&city_id=${getIntAsync(CITY_ID)}', method: HttpMethod.GET)));
   } catch (e) {
-    return AddressListModel(data: []);
+    List<AddressData> list = getLocalUserAddressList();
+    return AddressListModel(
+      data: list,
+      pagination: PaginationModel(
+        currentPage: 1,
+        perPage: 20,
+        totalItems: list.length,
+        totalPages: 1,
+      ),
+    );
   }
 }
 
 Future<LDBaseResponse> saveUserAddress(Map req) async {
+  List<AddressData> list = getLocalUserAddressList();
+  int id = req['id'] != null && req['id'].toString().isNotEmpty ? int.tryParse(req['id'].toString()) ?? DateTime.now().millisecondsSinceEpoch : DateTime.now().millisecondsSinceEpoch;
+  
+  int existingIndex = list.indexWhere((e) => e.id == id);
+  AddressData item = AddressData(
+    id: id,
+    userId: getIntAsync(USER_ID),
+    address: req['address']?.toString() ?? '',
+    latitude: req['latitude']?.toString() ?? '0.0',
+    longitude: req['longitude']?.toString() ?? '0.0',
+    contactNumber: req['contact_number']?.toString() ?? '',
+    addressType: req['address_type']?.toString() ?? 'Other',
+    cityId: getIntAsync(CITY_ID),
+    countryId: getIntAsync(COUNTRY_ID),
+  );
+
+  if (existingIndex >= 0) {
+    list[existingIndex] = item;
+  } else {
+    list.insert(0, item);
+  }
+  await saveLocalUserAddressList(list);
+
   if (DOMAIN_URL.contains('meetmighty.com')) {
     return LDBaseResponse(status: true, message: 'Address saved successfully');
   }
@@ -1047,6 +1130,10 @@ Future<LDBaseResponse> saveUserAddress(Map req) async {
 }
 
 Future<LDBaseResponse> deleteUserAddress(int id) async {
+  List<AddressData> list = getLocalUserAddressList();
+  list.removeWhere((e) => e.id == id);
+  await saveLocalUserAddressList(list);
+
   if (DOMAIN_URL.contains('meetmighty.com')) {
     return LDBaseResponse(status: true, message: 'Address deleted successfully');
   }

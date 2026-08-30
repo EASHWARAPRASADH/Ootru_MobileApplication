@@ -54,15 +54,16 @@ class PickAddressBottomSheetState extends State<PickAddressBottomSheet> {
 
   void init() async {
     await getAddressList(page: page).then((value) {
-      print("Address Length = ${value.data!.length}");
       appStore.setLoading(false);
-      totalPage = value.pagination!.totalPages.validate(value: 1);
-      page = value.pagination!.currentPage.validate(value: 1);
+      totalPage = value.pagination?.totalPages.validate(value: 1) ?? 1;
+      page = value.pagination?.currentPage.validate(value: 1) ?? 1;
       isLastPage = false;
       if (page == 1) {
         addressList.clear();
       }
-      addressList.addAll(value.data!);
+      if (value.data != null) {
+        addressList.addAll(value.data!);
+      }
 
       List<AddressData> list = [];
       addressList.forEach((e) {
