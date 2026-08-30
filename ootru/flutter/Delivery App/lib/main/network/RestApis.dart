@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:core' as core;
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mighty_delivery/main/models/DashboardDetail.dart';
 import 'package:mighty_delivery/main/models/EmergencyResponseListModel.dart';
@@ -1261,7 +1264,7 @@ Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String desti
   if (lat1 != 0.0 && lon1 != 0.0 && lat2 != 0.0 && lon2 != 0.0) {
     try {
       final osrmUrl = Uri.parse('https://router.project-osrm.org/route/v1/driving/$lon1,$lat1;$lon2,$lat2?overview=false');
-      final response = await http.get(osrmUrl).timeout(Duration(seconds: 4));
+      final response = await http.get(osrmUrl).timeout(const core.Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['code'] == 'Ok' && data['routes'] != null && (data['routes'] as List).isNotEmpty) {
