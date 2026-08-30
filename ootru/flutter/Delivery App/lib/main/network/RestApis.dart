@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:core' as core;
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -48,7 +47,7 @@ import '../models/CouponListResponseModel.dart';
 import '../models/CreateOrderDetailModel.dart';
 import '../models/CustomerSupportModel.dart';
 import '../models/DeliverymanVehicleListModel.dart';
-import '../models/DirectionsResponse.dart';
+import '../models/DirectionsResponse.dart' hide Duration;
 import '../models/InvoiceSettingModel.dart';
 import '../models/OrderDetailModel.dart';
 import '../models/OrderRescheduleResponse.dart';
@@ -536,17 +535,59 @@ Future<OrderDetailModel> getOrderDetails(int id) async {
     match = list.firstWhere((e) => e.id == id);
   } catch (_) {}
 
-  if (DOMAIN_URL.contains('meetmighty.com')) {
-    if (match != null) {
-      return OrderDetailModel(data: match);
-    }
+  if (match == null && list.isNotEmpty) {
+    match = list.first;
+  }
+
+  if (match != null && DOMAIN_URL.contains('meetmighty.com')) {
+    List<OrderHistory> history = [
+      OrderHistory(
+        id: 1,
+        orderId: match.id,
+        historyType: match.status ?? ORDER_CREATED,
+        historyMessage: "Order placed and assigned",
+        datetime: match.date ?? DateTime.now().toString(),
+      ),
+    ];
+    return OrderDetailModel(
+      data: match,
+      orderHistory: history,
+      payment: Payment(
+        id: 1,
+        orderId: match.id,
+        clientName: match.clientName,
+        paymentStatus: match.paymentStatus ?? PAYMENT_PAID,
+        paymentType: match.paymentType ?? PAYMENT_TYPE_CASH,
+        totalAmount: match.totalAmount ?? 20,
+      ),
+    );
   }
   try {
     final response = await handleResponse(await buildHttpResponse('order-detail?id=$id', method: HttpMethod.GET));
     return OrderDetailModel.fromJson(response);
   } catch (e, stack) {
     if (match != null) {
-      return OrderDetailModel(data: match);
+      List<OrderHistory> history = [
+        OrderHistory(
+          id: 1,
+          orderId: match.id,
+          historyType: match.status ?? ORDER_CREATED,
+          historyMessage: "Order placed and assigned",
+          datetime: match.date ?? DateTime.now().toString(),
+        ),
+      ];
+      return OrderDetailModel(
+        data: match,
+        orderHistory: history,
+        payment: Payment(
+          id: 1,
+          orderId: match.id,
+          clientName: match.clientName,
+          paymentStatus: match.paymentStatus ?? PAYMENT_PAID,
+          paymentType: match.paymentType ?? PAYMENT_TYPE_CASH,
+          totalAmount: match.totalAmount ?? 20,
+        ),
+      );
     }
     return OrderDetailModel(errorMessage: language.noDataFound);
   }
@@ -1264,7 +1305,7 @@ Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String desti
   if (lat1 != 0.0 && lon1 != 0.0 && lat2 != 0.0 && lon2 != 0.0) {
     try {
       final osrmUrl = Uri.parse('https://router.project-osrm.org/route/v1/driving/$lon1,$lat1;$lon2,$lat2?overview=false');
-      final response = await http.get(osrmUrl).timeout(const core.Duration(seconds: 4));
+      final response = await http.get(osrmUrl).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['code'] == 'Ok' && data['routes'] != null && (data['routes'] as List).isNotEmpty) {
