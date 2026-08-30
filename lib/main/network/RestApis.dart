@@ -579,6 +579,11 @@ Future<CountryListModel> getCountryList() async {
     return CountryListModel(data: [
       CountryModel(id: 1, name: 'India', code: 'IN', status: 1),
       CountryModel(id: 2, name: 'United States', code: 'US', status: 1),
+      CountryModel(id: 3, name: 'United Kingdom', code: 'GB', status: 1),
+      CountryModel(id: 4, name: 'United Arab Emirates', code: 'AE', status: 1),
+      CountryModel(id: 5, name: 'Singapore', code: 'SG', status: 1),
+      CountryModel(id: 6, name: 'Canada', code: 'CA', status: 1),
+      CountryModel(id: 7, name: 'Australia', code: 'AU', status: 1),
     ]);
   }
 }
@@ -588,7 +593,15 @@ Future<CountryDetailModel> getCountryDetail(int id) async {
     return CountryDetailModel.fromJson(await handleResponse(await buildHttpResponse('country-detail?id=$id', method: HttpMethod.GET)));
   } catch (e) {
     log("getCountryDetail fallback: $e");
-    return CountryDetailModel(data: CountryModel(id: id, name: 'India', code: 'IN', status: 1));
+    String name = 'India';
+    String code = 'IN';
+    if (id == 2) { name = 'United States'; code = 'US'; }
+    else if (id == 3) { name = 'United Kingdom'; code = 'GB'; }
+    else if (id == 4) { name = 'United Arab Emirates'; code = 'AE'; }
+    else if (id == 5) { name = 'Singapore'; code = 'SG'; }
+    else if (id == 6) { name = 'Canada'; code = 'CA'; }
+    else if (id == 7) { name = 'Australia'; code = 'AU'; }
+    return CountryDetailModel(data: CountryModel(id: id, name: name, code: code, status: 1));
   }
 }
 
@@ -597,10 +610,83 @@ Future<CityListModel> getCityList({required int countryId, String? name}) async 
     return CityListModel.fromJson(await handleResponse(await buildHttpResponse(name != null ? 'city-list?country_id=$countryId&search=$name&per_page=-1' : 'city-list?country_id=$countryId&per_page=-1', method: HttpMethod.GET)));
   } catch (e) {
     log("getCityList fallback: $e");
-    return CityListModel(data: [
-      CityModel(id: 1, name: 'New Delhi', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
-      CityModel(id: 2, name: 'Mumbai', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
-    ]);
+    List<CityModel> allCities = [];
+
+    if (countryId == 1) { // India
+      allCities = [
+        CityModel(id: 1, name: 'Chennai', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 2, name: 'Coimbatore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 3, name: 'Bengaluru / Bangalore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 4, name: 'Hyderabad', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 5, name: 'Mumbai', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 6, name: 'New Delhi', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 7, name: 'Kolkata', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 8, name: 'Pune', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 9, name: 'Ahmedabad', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 10, name: 'Jaipur', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 11, name: 'Kochi / Cochin', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 12, name: 'Madurai', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 13, name: 'Tiruchirappalli (Trichy)', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 14, name: 'Salem', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 15, name: 'Tiruppur', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 16, name: 'Erode', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 17, name: 'Vellore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 18, name: 'Tirunelveli', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 19, name: 'Chandigarh', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 20, name: 'Lucknow', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 21, name: 'Surat', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 22, name: 'Indore', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else if (countryId == 2) { // United States
+      allCities = [
+        CityModel(id: 30, name: 'New York', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 31, name: 'Los Angeles', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 32, name: 'Chicago', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 33, name: 'San Francisco', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 34, name: 'Houston', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 35, name: 'Miami', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 36, name: 'Seattle', countryId: 2, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else if (countryId == 3) { // United Kingdom
+      allCities = [
+        CityModel(id: 40, name: 'London', countryId: 3, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 41, name: 'Manchester', countryId: 3, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 42, name: 'Birmingham', countryId: 3, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else if (countryId == 4) { // UAE
+      allCities = [
+        CityModel(id: 50, name: 'Dubai', countryId: 4, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 51, name: 'Abu Dhabi', countryId: 4, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 52, name: 'Sharjah', countryId: 4, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    } else {
+      allCities = [
+        CityModel(id: 60, name: 'Central City', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+        CityModel(id: 61, name: 'Downtown', countryId: countryId, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5),
+      ];
+    }
+
+    if (name != null && name.trim().isNotEmpty) {
+      String query = name.trim().toLowerCase();
+      List<CityModel> filtered = allCities.where((c) => c.name?.toLowerCase().contains(query) ?? false).toList();
+      if (filtered.isEmpty) {
+        filtered.add(CityModel(
+          id: name.hashCode.abs() % 10000 + 100,
+          name: name.trim(),
+          countryId: countryId,
+          status: 1,
+          fixedCharges: 10,
+          minDistance: 5,
+          minWeight: 1,
+          perDistanceCharges: 2,
+          perWeightCharges: 1,
+          cancelCharges: 5,
+        ));
+      }
+      return CityListModel(data: filtered);
+    }
+
+    return CityListModel(data: allCities);
   }
 }
 
@@ -609,7 +695,9 @@ Future<CityDetailModel> getCityDetail(int id) async {
     return CityDetailModel.fromJson(await handleResponse(await buildHttpResponse('city-detail?id=$id', method: HttpMethod.GET)));
   } catch (e) {
     log("getCityDetail fallback: $e");
-    return CityDetailModel(data: CityModel(id: id, name: 'New Delhi', countryId: 1, status: 1, fixedCharges: 10, minDistance: 5, minWeight: 1, perDistanceCharges: 2, perWeightCharges: 1, cancelCharges: 5));
+    CityListModel list = await getCityList(countryId: 1);
+    CityModel? matched = list.data?.firstWhere((element) => element.id == id, orElse: () => CityModel(id: id, name: 'Chennai', countryId: 1, status: 1));
+    return CityDetailModel(data: matched);
   }
 }
 
