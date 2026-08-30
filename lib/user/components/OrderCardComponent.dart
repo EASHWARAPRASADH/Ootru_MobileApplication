@@ -254,7 +254,16 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
                   onTap: () {
                     OrderTrackingScreen(orderData: widget.item).launch(context);
                   },
-                ).visible((widget.item.status == ORDER_DEPARTED) && appStore.userType != DELIVERY_MAN),
+                ).visible((widget.item.status == ORDER_ACCEPTED ||
+                        widget.item.status == ORDER_ASSIGNED ||
+                        widget.item.status == ORDER_PICKED_UP ||
+                        widget.item.status == ORDER_DEPARTED ||
+                        widget.item.status == ORDER_ARRIVED ||
+                        widget.item.deliveryManId != null) &&
+                    widget.item.status != ORDER_CANCELLED &&
+                    widget.item.status != ORDER_DELIVERED &&
+                    widget.item.status != ORDER_DRAFT &&
+                    appStore.userType != DELIVERY_MAN),
               ],
             ),
           ],

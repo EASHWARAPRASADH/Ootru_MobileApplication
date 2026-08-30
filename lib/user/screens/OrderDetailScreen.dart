@@ -50,6 +50,7 @@ import '../../user/components/CancelOrderDialog.dart';
 import '../../user/screens/ReturnOrderScreen.dart';
 import '../components/OrderCardComponent.dart';
 import 'OrderHistoryScreen.dart';
+import 'OrderTrackingScreen.dart';
 import 'ReviewScreen.dart';
 import 'packaging_symbols_info.dart';
 
@@ -429,6 +430,75 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                         Column(
                           crossAxisAlignment: .start,
                           children: [
+                            Container(
+                              margin: .only(bottom: 16),
+                              decoration: boxDecorationWithRoundedCorners(
+                                borderRadius: BorderRadius.circular(defaultRadius),
+                                border: Border.all(color: ColorUtils.colorPrimary, width: 1.5),
+                                backgroundColor: ColorUtils.colorPrimary.withOpacity(0.06),
+                              ),
+                              padding: .all(14),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: .all(10),
+                                    decoration: BoxDecoration(
+                                      color: ColorUtils.colorPrimary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.navigation_rounded, color: Colors.white, size: 22),
+                                  ),
+                                  12.width,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(language.trackOrder, style: boldTextStyle(size: 15, color: ColorUtils.colorPrimary)),
+                                          6.width,
+                                          Container(
+                                            width: 8,
+                                            height: 8,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      4.height,
+                                      Text(
+                                        orderData!.status == ORDER_ACCEPTED || orderData!.status == ORDER_ASSIGNED || orderData!.status == ORDER_TRANSFER
+                                            ? language.courierWillPickupAt
+                                            : language.courierWillDeliverAt,
+                                        style: secondaryTextStyle(size: 12),
+                                      ),
+                                    ],
+                                  ).expand(),
+                                  AppButton(
+                                    elevation: 0,
+                                    height: 32,
+                                    color: ColorUtils.colorPrimary,
+                                    padding: .symmetric(horizontal: 12),
+                                    text: language.track,
+                                    textStyle: primaryTextStyle(color: Colors.white, size: 12),
+                                    onTap: () {
+                                      OrderTrackingScreen(orderData: orderData!).launch(context);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ).onTap(() {
+                              OrderTrackingScreen(orderData: orderData!).launch(context);
+                            }).visible(orderData!.status != ORDER_DELIVERED &&
+                                orderData!.status != ORDER_CANCELLED &&
+                                orderData!.status != ORDER_DRAFT &&
+                                (orderData!.deliveryManId != null ||
+                                    orderData!.status == ORDER_ACCEPTED ||
+                                    orderData!.status == ORDER_ASSIGNED ||
+                                    orderData!.status == ORDER_PICKED_UP ||
+                                    orderData!.status == ORDER_DEPARTED ||
+                                    orderData!.status == ORDER_ARRIVED)),
                             AppButton(
                               elevation: 0,
                               height: 35,
