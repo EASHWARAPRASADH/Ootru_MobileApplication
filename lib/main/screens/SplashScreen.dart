@@ -256,7 +256,7 @@ class SplashScreenState extends State<SplashScreen> {
                   40.height,
                   Image.asset(ic_logo, height: 80, width: 80, fit: BoxFit.fill).cornerRadiusWithClipRRect(defaultRadius),
                   16.height,
-                  Text(language.appName == "$defaultKeyNotFoundValue(9)" ? mAppName : language.appName, style: boldTextStyle(size: 20), textAlign: TextAlign.center).expand(),
+                  Text(mAppName, style: boldTextStyle(size: 20), textAlign: TextAlign.center).expand(),
                   Text('v ${snap.data!.version.validate()}', style: secondaryTextStyle(size: 12)),
                   16.height,
                 ],

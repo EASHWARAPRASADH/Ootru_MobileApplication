@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-
+import '../main/utils/Constants.dart';
 import 'LanguageDataConstant.dart';
 
 class BaseLanguage {
@@ -21,7 +20,7 @@ class BaseLanguage {
 
   String get walkThrough3Subtitle => getContentValueFromKey(8);
 
-  String get appName => getContentValueFromKey(9);
+  String get appName => mAppName;
 
   String get userNotApproveMsg => getContentValueFromKey(10);
 
