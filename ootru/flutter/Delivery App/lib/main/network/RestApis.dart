@@ -1241,28 +1241,74 @@ Future<LDBaseResponse> resendOtpEmail() async {
 }
 
 Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String destinations) async {
-  if (DOMAIN_URL.contains('meetmighty.com')) {
-    return DirectionsResponse.fromJson({
-      'destination_addresses': [destinations],
-      'origin_addresses': [origins],
-      'rows': [
-        {
-          'elements': [
-            {
-              'distance': {'text': '5 km', 'value': 5000},
-              'duration': {'text': '15 mins', 'value': 900},
-              'status': 'OK',
-            }
-          ]
-        }
-      ],
-      'status': 'OK',
-    });
-  }
+  double lat1 = 0.0, lon1 = 0.0, lat2 = 0.0, lon2 = 0.0;
   try {
-    return DirectionsResponse.fromJson(await handleResponse(await buildHttpResponse('distance-matrix-api?origins=$origins&destinations=$destinations', method: HttpMethod.GET)));
+    List<String> origParts = origins.split(',');
+    if (origParts.length >= 2) {
+      lat1 = double.tryParse(origParts[0].trim()) ?? 0.0;
+      lon1 = double.tryParse(origParts[1].trim()) ?? 0.0;
+    }
+    List<String> destParts = destinations.split(',');
+    if (destParts.length >= 2) {
+      lat2 = double.tryParse(destParts[0].trim()) ?? 0.0;
+      lon2 = double.tryParse(destParts[1].trim()) ?? 0.0;
+    }
   } catch (e) {
-    log("getDistanceBetweenLatLng fallback: $e");
+    log("Error parsing coordinates: $e");
+  }
+
+  // Try Open Source Routing Machine (OSRM) for real road distance
+  if (lat1 != 0.0 && lon1 != 0.0 && lat2 != 0.0 && lon2 != 0.0) {
+    try {
+      final osrmUrl = Uri.parse('https://router.project-osrm.org/route/v1/driving/$lon1,$lat1;$lon2,$lat2?overview=false');
+      final response = await http.get(osrmUrl).timeout(Duration(seconds: 4));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['code'] == 'Ok' && data['routes'] != null && (data['routes'] as List).isNotEmpty) {
+          num distanceMeters = data['routes'][0]['distance'] ?? 0;
+          num durationSeconds = data['routes'][0]['duration'] ?? 0;
+          
+          double distKm = (distanceMeters / 1000.0);
+          int durMins = (durationSeconds / 60.0).round();
+          if (durMins < 1) durMins = 1;
+
+          String distText = "${distKm.toStringAsFixed(1)} km";
+          String durText = durMins > 60 ? "${(durMins / 60).floor()} hr ${durMins % 60} mins" : "$durMins mins";
+
+          return DirectionsResponse.fromJson({
+            'destination_addresses': [destinations],
+            'origin_addresses': [origins],
+            'rows': [
+              {
+                'elements': [
+                  {
+                    'distance': {'text': distText, 'value': distanceMeters.toInt()},
+                    'duration': {'text': durText, 'value': durationSeconds.toInt()},
+                    'status': 'OK',
+                  }
+                ]
+              }
+            ],
+            'status': 'OK',
+          });
+        }
+      }
+    } catch (e) {
+      log("OSRM routing error, using fallback math: $e");
+    }
+
+    // High accuracy straight-line + road factor calculation
+    double straightMeters = Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
+    double roadMeters = straightMeters * 1.25; // 1.25x road curve factor
+    double distKm = roadMeters / 1000.0;
+    if (distKm < 0.5) distKm = 0.5;
+    
+    int durMins = (distKm / 35.0 * 60).round(); // average 35 km/h driving speed
+    if (durMins < 5) durMins = 5;
+
+    String distText = "${distKm.toStringAsFixed(1)} km";
+    String durText = durMins > 60 ? "${(durMins / 60).floor()} hr ${durMins % 60} mins" : "$durMins mins";
+
     return DirectionsResponse.fromJson({
       'destination_addresses': [destinations],
       'origin_addresses': [origins],
@@ -1270,8 +1316,8 @@ Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String desti
         {
           'elements': [
             {
-              'distance': {'text': '5 km', 'value': 5000},
-              'duration': {'text': '15 mins', 'value': 900},
+              'distance': {'text': distText, 'value': roadMeters.toInt()},
+              'duration': {'text': durText, 'value': durMins * 60},
               'status': 'OK',
             }
           ]
@@ -1280,6 +1326,23 @@ Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String desti
       'status': 'OK',
     });
   }
+
+  return DirectionsResponse.fromJson({
+    'destination_addresses': [destinations],
+    'origin_addresses': [origins],
+    'rows': [
+      {
+        'elements': [
+          {
+            'distance': {'text': '1.0 km', 'value': 1000},
+            'duration': {'text': '5 mins', 'value': 300},
+            'status': 'OK',
+          }
+        ]
+      }
+    ],
+    'status': 'OK',
+  });
 }
 
 //Language Data
