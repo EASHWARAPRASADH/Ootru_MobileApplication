@@ -346,7 +346,7 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
             child: Row(children: [
               Icon(Ionicons.ios_location_outline, color: Colors.white, size: 18),
               8.width,
-              Text(CityModel.fromJson(getJSONAsync(CITY_DATA)).name!.validate(), style: primaryTextStyle(color: white)),
+              Text(CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate(), style: primaryTextStyle(color: white)),
             ]).onTap(() {
               UserCitySelectScreen(
                 isBack: true,
