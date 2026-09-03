@@ -39,6 +39,7 @@ dependencies:
   timeline_tile: ^2.0.0
   country_code_picker: ^3.0.0
   chewie: 1.8.2
+  flutter_contacts: ^1.1.9+1  # for delivery contact picker feature
 
   # Dotted Line
   dotted_line: ^3.2.2

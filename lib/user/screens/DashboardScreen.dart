@@ -312,7 +312,7 @@ class DashboardScreenState extends State<DashboardScreen> with WidgetsBindingObs
             CreateOrderScreen().launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
           } else {
             toast(language.balanceInsufficient);
-            WalletScreen().launch(context);
+            // WALLET_HIDDEN: WalletScreen().launch(context); // preserved below
           }
         },
       ),

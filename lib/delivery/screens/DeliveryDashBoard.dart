@@ -47,7 +47,9 @@ import '../../main/screens/UserCitySelectScreen.dart';
 import '../../main/utils/Common.dart';
 import '../../main/utils/Constants.dart';
 import '../../main/utils/Images.dart';
+import '../../main/services/AuthServices.dart'; // for sendOtp
 import '../../user/screens/OrderDetailScreen.dart';
+import '../components/OTPDialog.dart'; // for OTP dialog
 import 'ReceivedScreenOrderScreen.dart';
 
 class DeliveryDashBoard extends StatefulWidget {
@@ -968,19 +970,55 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
   Future<void> onTapData({required String orderStatus, required OrderData orderData}) async {
     FlutterRingtonePlayer().stop();
     if (orderStatus == ORDER_ASSIGNED) {
-      Map req = {'order_id': orderData.id, 'status': ORDER_ACCEPTED};
-      await updateOrderStatusForAssignedTab(req).then((value) {
-        if (value.success == false) {
-          toast(value.message);
-          appStore.setLoading(false);
-          setState(() {});
-        } else {
-          print("---------res${value.message}");
-          int i = statusList.indexWhere((item) => item == ORDER_ASSIGNED);
-          pageController.jumpToPage(i + 1);
-          getOrderListApiCall();
-        }
-      });
+      // OTP 4.1: Send OTP to pickup contact and require delivery boy to enter it
+      final pickupContact = orderData.pickupPoint?.contactNumber.validate() ?? '';
+      if (pickupContact.isNotEmpty) {
+        sendOtp(
+          context,
+          phoneNumber: pickupContact,
+          onUpdate: (verificationId) async {
+            await showInDialog(
+              context,
+              barrierDismissible: false,
+              builder: (ctx) => OTPDialog(
+                phoneNumber: pickupContact,
+                verificationId: verificationId,
+                onUpdate: () async {
+                  // OTP verified — now accept the order
+                  Map req = {'order_id': orderData.id, 'status': ORDER_ACCEPTED};
+                  await updateOrderStatusForAssignedTab(req).then((value) {
+                    if (value.success == false) {
+                      toast(value.message);
+                      appStore.setLoading(false);
+                      setState(() {});
+                    } else {
+                      print("---------res${value.message}");
+                      int i = statusList.indexWhere((item) => item == ORDER_ASSIGNED);
+                      pageController.jumpToPage(i + 1);
+                      getOrderListApiCall();
+                    }
+                  });
+                },
+              ),
+            );
+          },
+        );
+      } else {
+        // No contact number — accept without OTP
+        Map req = {'order_id': orderData.id, 'status': ORDER_ACCEPTED};
+        await updateOrderStatusForAssignedTab(req).then((value) {
+          if (value.success == false) {
+            toast(value.message);
+            appStore.setLoading(false);
+            setState(() {});
+          } else {
+            print("---------res${value.message}");
+            int i = statusList.indexWhere((item) => item == ORDER_ASSIGNED);
+            pageController.jumpToPage(i + 1);
+            getOrderListApiCall();
+          }
+        });
+      }
     } else if (orderStatus == ORDER_ACCEPTED) {
       if (orderData.pickupPoint!.startTime != null && orderData.pickupPoint!.endTime != null) {
         DateTime startTime = DateTime.parse(orderData.pickupPoint!.startTime!);

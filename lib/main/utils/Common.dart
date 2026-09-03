@@ -178,19 +178,19 @@ Widget emptyWidget() {
 
 String orderStatus(String orderStatus) {
   if (orderStatus == ORDER_ASSIGNED) {
-    return language.assigned;
+    return 'In Progress'; // was: language.assigned
   } else if (orderStatus == ORDER_DRAFT) {
     return language.draft;
   } else if (orderStatus == ORDER_CREATED) {
-    return language.created;
+    return 'Not Accepted'; // was: language.created
   } else if (orderStatus == ORDER_ACCEPTED) {
-    return language.accepted;
+    return 'In Progress'; // was: language.accepted
   } else if (orderStatus == ORDER_PICKED_UP) {
-    return language.pickedUp;
+    return 'In Progress'; // was: language.pickedUp
   } else if (orderStatus == ORDER_ARRIVED) {
-    return language.arrived;
+    return 'In Progress'; // was: language.arrived
   } else if (orderStatus == ORDER_DEPARTED) {
-    return language.departed;
+    return 'In Progress'; // was: language.departed
   } else if (orderStatus == ORDER_DELIVERED) {
     return language.delivered;
   } else if (orderStatus == ORDER_CANCELLED) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
+import 'package:flutter_contacts/flutter_contacts.dart'; // for contact picker
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -45,6 +46,7 @@ import '../../main/models/PaymentModel.dart';
 import '../../main/models/TotalAmountResponse.dart';
 import '../../main/models/VehicleModel.dart';
 import '../../main/network/RestApis.dart';
+import '../../main/services/AuthServices.dart'; // for sendOtp
 import '../../main/utils/Common.dart';
 import '../../main/utils/Constants.dart';
 import '../../main/utils/Images.dart';
@@ -52,6 +54,7 @@ import '../../main/utils/Widgets.dart';
 import '../../main/utils/dynamic_theme.dart';
 import '../../user/components/CreateOrderConfirmationDialog.dart';
 import '../../user/screens/DashboardScreen.dart';
+import '../../extensions/app_button.dart'; // for AppButton
 import 'GoogleMapScreen.dart';
 import 'PaymentScreen.dart';
 
@@ -256,6 +259,24 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       await getStaticDetailsForOrder();
       getAddressData = await getAddressList(page: 1);
       await getCouponList();
+      // Auto-fill pickup contact from logged-in user's profile (only for new orders)
+      if (widget.orderData == null) {
+        final userName = getStringAsync(NAME);
+        final userContact = getStringAsync(USER_CONTACT_NUMBER);
+        if (pickPersonNameCont.text.isEmpty && userName.isNotEmpty) {
+          pickPersonNameCont.text = userName;
+        }
+        if (pickPhoneCont.text.isEmpty && userContact.isNotEmpty) {
+          // Strip any country code prefix if present (e.g. "+91 9876543210" → "9876543210")
+          String digits = userContact.replaceAll(RegExp(r'[^\d]'), '');
+          // If longer than 10 digits, strip country code (typically 1-3 digits)
+          if (digits.length > 10) {
+            digits = digits.substring(digits.length - 10);
+          }
+          pickPhoneCont.text = digits;
+        }
+        setState(() {});
+      }
       if (widget.orderData != null) {
         if (widget.orderData!.totalWeight != 0)
           weightController.text = widget.orderData!.totalWeight!.toString();
@@ -596,28 +617,71 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       appStore.setLoading(false);
       toast(value.message);
       LiveStream().emit('UpdateOrderData');
-      if (isSelected == 2) {
-        finish(context);
-        PaymentScreen(
-          orderId: value.orderId.validate(),
-          totalAmount: (totalAmountResponse!.totalAmount!),
-          isOnline: true,
-        ).launch(context);
-      } else if (isSelected == 3) {
-        log("-----available balance ${appStore.availableBal.toString()}-----------${totalAmountResponse!.totalAmount}----------${insuranceAmount}----------${(totalAmountResponse!.totalAmount! + insuranceAmount)}");
-        if (appStore.availableBal > (totalAmountResponse!.totalAmount!)) {
-          await savePaymentApiCall(
-              paymentType: PAYMENT_TYPE_WALLET,
-              paymentStatus: PAYMENT_PAID,
-              totalAmount: (calculateTotalAmount()).toString(),
-              orderID: value.orderId.toString());
-        }
-        finish(context);
-        DashboardScreen().launch(context, isNewTask: true);
-      } else {
-        finish(context);
-        DashboardScreen().launch(context, isNewTask: true);
-      }
+      // Generate 4-digit pickup OTP and show to order creator + send SMS to pickup contact
+      final pickupOtp = (1000 + (DateTime.now().millisecondsSinceEpoch % 9000)).toString();
+      final pickupContact = '$pickupCountryCode${pickPhoneCont.text.trim()}';
+      // Store OTP in SharedPreferences keyed by orderId for delivery boy verification
+      await setValue('pickup_otp_${value.orderId}', pickupOtp);
+      // Send OTP via SMS to pickup contact (Firebase Phone Auth)
+      sendOtp(context, phoneNumber: pickupContact, onUpdate: (verificationId) {});
+      // Show OTP on screen for order creator
+      showInDialog(
+        context,
+        barrierDismissible: false,
+        builder: (ctx) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 48),
+            16.height,
+            Text('Order Created!', style: boldTextStyle(size: 18)),
+            8.height,
+            Text('Your Pickup OTP', style: secondaryTextStyle(size: 14)),
+            12.height,
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: boxDecorationWithRoundedCorners(
+                borderRadius: BorderRadius.circular(defaultRadius),
+                backgroundColor: ColorUtils.colorPrimary.withOpacity(0.1),
+                border: Border.all(color: ColorUtils.colorPrimary),
+              ),
+              child: Text(
+                pickupOtp,
+                style: boldTextStyle(size: 36, color: ColorUtils.colorPrimary),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            12.height,
+            Text(
+              'Share this OTP with the delivery person when they pick up your parcel. The OTP has also been sent via SMS to:\n$pickupContact',
+              style: secondaryTextStyle(size: 12),
+              textAlign: TextAlign.center,
+            ),
+            16.height,
+            AppButton(
+              text: 'OK',
+              color: ColorUtils.colorPrimary,
+              textStyle: boldTextStyle(color: Colors.white),
+              onTap: () {
+                Navigator.pop(ctx);
+                if (isSelected == 2) {
+                  finish(context);
+                  PaymentScreen(
+                    orderId: value.orderId.validate(),
+                    totalAmount: (totalAmountResponse!.totalAmount!),
+                    isOnline: true,
+                  ).launch(context);
+                } else if (isSelected == 3) {
+                  finish(context);
+                  DashboardScreen().launch(context, isNewTask: true);
+                } else {
+                  finish(context);
+                  DashboardScreen().launch(context, isNewTask: true);
+                }
+              },
+            ),
+          ],
+        ),
+      );
     }).catchError((error) {
       appStore.setLoading(false);
       toast(error.toString());
@@ -1559,7 +1623,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       crossAxisAlignment: .start,
       children: [
         Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1567,7 +1631,11 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                 Text(language.deliveryLocation, style: primaryTextStyle()),
                 InkWell(
                   onTap: () async {
-                    await fetchLiveLocation(isPickup: false);
+                    // "Pin the Location" — opens map picker for delivery location
+                    bool isLocationEnabledNow = await checkAndRequestLocationServices(context);
+                    if (isLocationEnabledNow) {
+                      await showMapScreen(isPick: false, isSaveAddress: false);
+                    }
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
@@ -1580,10 +1648,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.my_location, color: ColorUtils.colorPrimary, size: 14),
+                        Icon(Icons.location_pin, color: ColorUtils.colorPrimary, size: 14),
                         6.width,
                         Text(
-                          "Fetch Live Location",
+                          "Pin the Location",
                           style: boldTextStyle(color: ColorUtils.colorPrimary, size: 12),
                         ),
                       ],
@@ -1666,7 +1734,6 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
               nextFocus: deliverDesFocus,
               textFieldType: TextFieldType.PHONE,
               decoration: commonInputDecoration(
-                suffixIcon: Icons.phone,
                 prefixIcon: IntrinsicHeight(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1705,10 +1772,87 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     ],
                   ),
                 ),
+                // Use dateTime slot as a widget suffix for the contacts icon
+                dateTime: GestureDetector(
+                  onTap: () async {
+                    // Open device contact picker
+                    if (await FlutterContacts.requestPermission(readonly: true)) {
+                      final contacts = await FlutterContacts.getContacts(withProperties: true);
+                      if (!mounted) return;
+                      await showModalBottomSheet(
+                        context: context,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(defaultRadius)),
+                        ),
+                        isScrollControlled: true,
+                        builder: (ctx) {
+                          return DraggableScrollableSheet(
+                            expand: false,
+                            maxChildSize: 0.85,
+                            initialChildSize: 0.6,
+                            builder: (_, scrollCtrl) {
+                              return Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Text('Select Contact', style: boldTextStyle(size: 16)),
+                                  ),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      controller: scrollCtrl,
+                                      itemCount: contacts.length,
+                                      itemBuilder: (_, i) {
+                                        final c = contacts[i];
+                                        final phone = c.phones.isNotEmpty
+                                            ? c.phones.first.number.replaceAll(RegExp(r'[^\d]'), '')
+                                            : '';
+                                        return ListTile(
+                                          leading: CircleAvatar(
+                                            backgroundColor: ColorUtils.colorPrimary.withOpacity(0.2),
+                                            child: Text(
+                                              c.displayName.isNotEmpty ? c.displayName[0].toUpperCase() : '?',
+                                              style: boldTextStyle(color: ColorUtils.colorPrimary),
+                                            ),
+                                          ),
+                                          title: Text(c.displayName, style: primaryTextStyle()),
+                                          subtitle: phone.isNotEmpty ? Text(phone, style: secondaryTextStyle()) : null,
+                                          onTap: () {
+                                            Navigator.pop(ctx);
+                                            if (phone.isNotEmpty) {
+                                              // Strip country code if >10 digits
+                                              String digits = phone;
+                                              if (digits.length > 10) {
+                                                digits = digits.substring(digits.length - 10);
+                                              }
+                                              deliverPhoneCont.text = digits;
+                                            }
+                                            if (c.displayName.isNotEmpty) {
+                                              deliverPersonNameCont.text = c.displayName;
+                                            }
+                                            setState(() {});
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      );
+                    } else {
+                      toast('Contacts permission denied');
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Icon(Icons.contacts_outlined, color: ColorUtils.colorPrimary, size: 22),
+                  ),
+                ),
               ),
               validator: (value) {
                 if (value!.trim().isEmpty) return language.fieldRequiredMsg;
-                //if (value!.length < 8 || value.length > 15) return "please enter valid mobile number";
                 if (value.trim().length < minContactLength ||
                     value.trim().length > maxContactLength)
                   return language.phoneNumberInvalid;
@@ -2743,9 +2887,19 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     );
                     await getDistance();
                     await setPolylines();
+                    // Force map camera to fit the route after polylines are ready
+                    if (googleMapController != null && _polylines.isNotEmpty) {
+                      setMapFitToCenter(_polylines);
+                    }
                     appStore.setLoading(false);
                     selectedTabIndex = 3;
                     setState(() {});
+                    // Re-trigger map update after tab is visible
+                    Future.delayed(Duration(milliseconds: 400), () {
+                      if (mounted && googleMapController != null && _polylines.isNotEmpty) {
+                        setMapFitToCenter(_polylines);
+                      }
+                    });
                   }
                   return;
                 }

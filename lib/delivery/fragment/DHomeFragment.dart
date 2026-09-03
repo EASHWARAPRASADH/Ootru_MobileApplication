@@ -67,15 +67,16 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
 
   ScrollController scrollController = ScrollController();
   UserBankAccount? userBankAccount;
+  // WALLET_HIDDEN: wallet items kept in code but removed from UI display
   List items = [
     TODAY_ORDER,
     REMAINING_ORDER,
     COMPLETED_ORDER,
     INPROGRESS_ORDER,
     TOTAL_EARNING,
-    WALLET_BALANCE,
-    PENDING_WITHDRAW_REQUEST,
-    COMPLETED_WITHDRAW_REQUEST,
+    // WALLET_BALANCE,             // WALLET_HIDDEN
+    // PENDING_WITHDRAW_REQUEST,   // WALLET_HIDDEN
+    // COMPLETED_WITHDRAW_REQUEST, // WALLET_HIDDEN
   ];
 
   List<Color> colorList = [
@@ -84,10 +85,9 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
     Color(0xFFE5D1EA),
     Color(0xFFD0E5F6),
     Color(0xFFD9F6D0),
-    Color(0xFFF6D3E8),
-    Color(0xFFFFDFDA),
-    Color(0xFFD9D9F6),
-    Color(0xFFE4D2E9),
+    // Color(0xFFF6D3E8),  // WALLET_HIDDEN
+    // Color(0xFFFFDFDA),  // WALLET_HIDDEN
+    // Color(0xFFD9D9F6),  // WALLET_HIDDEN
   ];
 
   String getCount(int index) {
@@ -102,12 +102,9 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
         return (countData?.inprogressOrder).toString().validate();
       case 4:
         return printAmount((countData?.commission).validate());
-      case 5:
-        return printAmount((countData?.walletBalance).validate());
-      case 6:
-        return (countData?.pendingWithdrawRequest).toString().validate();
-      case 7:
-        return (countData?.completeWithdrawRequest).toString().validate();
+      // case 5: return printAmount((countData?.walletBalance).validate()); // WALLET_HIDDEN
+      // case 6: return (countData?.pendingWithdrawRequest).toString().validate(); // WALLET_HIDDEN
+      // case 7: return (countData?.completeWithdrawRequest).toString().validate(); // WALLET_HIDDEN
       default:
         return "0";
     }
@@ -139,23 +136,25 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
       });
     } else if (index == 4) {
       EarningHistoryScreen().launch(context);
-    } else if (index == 5) {
-      WalletScreen().launch(context).then((value) {
-        getDashboardCountDataApi();
-      });
-    } else {
-      if (countData?.walletBalance.validate() != 0) {
-        await getBankDetail();
-        if (userBankAccount != null)
-          WithDrawScreen(
-            onTap: () {},
-          ).launch(context);
-        else {
-          toast(language.bankNotFound);
-          BankDetailScreen(isWallet: true).launch(context);
-        }
-      }
     }
+    // WALLET_HIDDEN: wallet navigation disabled but code preserved below
+    // else if (index == 5) {
+    //   WalletScreen().launch(context).then((value) {
+    //     getDashboardCountDataApi();
+    //   });
+    // } else {
+    //   if (countData?.walletBalance.validate() != 0) {
+    //     await getBankDetail();
+    //     if (userBankAccount != null)
+    //       WithDrawScreen(
+    //         onTap: () {},
+    //       ).launch(context);
+    //     else {
+    //       toast(language.bankNotFound);
+    //       BankDetailScreen(isWallet: true).launch(context);
+    //     }
+    //   }
+    // }
   }
 
   @override
@@ -393,52 +392,47 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
         child: Stack(
           children: [
             Padding(
-              padding: const .symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListView(
                 physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 children: [
                   12.height,
                   latestOrderToCancelBid != null ? bidCancelView(order: latestOrderToCancelBid ?? null) : bidAcceptView(order: latestOrder ?? null),
-                  16.height,
-                  Row(
-                    children: [
-                      Text(
-                        language.filterBelowCount,
-                        style: boldTextStyle(size: 16, color: ColorUtils.colorPrimary),
-                      ),
-                      Spacer(),
-                      Icon(
-                        Icons.filter_list,
-                        color: ColorUtils.colorPrimary,
-                      ).onTap(() async {
-                        await showInDialog(context, shape: RoundedRectangleBorder(borderRadius: radius()), builder: (_) => FilterCountScreen(), contentPadding: .zero).then((value) {
-                          String startDate = DateFormat('yyyy-MM-dd').format(value[0]);
-                          String endDate = DateFormat('yyyy-MM-dd').format(value[1]);
-                          getDashboardCountDataApi(startDate: startDate, endDate: endDate);
-                        });
-                      }),
-                    ],
-                  ).paddingSymmetric(horizontal: 10),
-                  8.height,
-                  GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.45,
-                      mainAxisSpacing: 4,
-                      crossAxisSpacing: 4,
+                  24.height,
+                  // Delivery info card
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.all(16),
+                    decoration: boxDecorationWithRoundedCorners(
+                      borderRadius: BorderRadius.circular(defaultRadius),
+                      backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08),
+                      border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.2)),
                     ),
-                    cacheExtent: 2.0,
-                    shrinkWrap: true,
-                    controller: scrollController,
-                    padding: .fromLTRB(7, 5, 7, 5),
-                    itemBuilder: (context, index) {
-                      log("GETCOUNT::: ${getCount(index)}");
-                      return countWidget(text: items[index], value: getCount(index), color: colorList[index]).onTap(() {
-                        goToCountScreen(index);
-                      });
-                    },
-                    itemCount: items.length,
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: ColorUtils.colorPrimary, size: 20),
+                        12.width,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Welcome, ${getStringAsync(NAME)}', style: boldTextStyle(size: 14)),
+                              4.height,
+                              Text('Use the buttons below to manage your orders', style: secondaryTextStyle(size: 12)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  // GRID_HIDDEN: stat grid removed from UI per user request
+                  // The grid code and data are preserved below for reference:
+                  // GridView.builder(
+                  //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.45, mainAxisSpacing: 4, crossAxisSpacing: 4),
+                  //   shrinkWrap: true, controller: scrollController,
+                  //   itemBuilder: (context, index) => countWidget(text: items[index], value: getCount(index), color: colorList[index]).onTap(() => goToCountScreen(index)),
+                  //   itemCount: items.length,
+                  // ),
                 ],
               ),
             ),
@@ -447,21 +441,64 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: .only(left: 16, right: 16, bottom: 16),
-        child: Container(
-          padding: .symmetric(horizontal: 12, vertical: 8),
-          decoration: boxDecorationWithRoundedCorners(backgroundColor: ColorUtils.colorPrimary),
-          child: Row(
-            mainAxisAlignment: .center,
-            children: [
-              Text(language.viewAllOrders, style: boldTextStyle(color: Colors.white)),
-            ],
-          ).onTap(() {
-            DeliveryDashBoard().launch(context).then((value) {
-              setState(() {});
-              getDashboardCountDataApi();
-            });
-          }),
+        padding: EdgeInsets.only(left: 16, right: 16, bottom: 24, top: 8),
+        child: Row(
+          children: [
+            // Orders button — nearby orders
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  DeliveryDashBoard().launch(context).then((value) {
+                    setState(() {});
+                    getDashboardCountDataApi();
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  decoration: boxDecorationWithRoundedCorners(
+                    borderRadius: BorderRadius.circular(defaultRadius),
+                    backgroundColor: ColorUtils.colorPrimary,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.list_alt_outlined, color: Colors.white, size: 26),
+                      6.height,
+                      Text('Orders', style: boldTextStyle(color: Colors.white, size: 13)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            12.width,
+            // History button — completed orders
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  DeliveryDashBoard(selectedIndex: 6).launch(context).then((value) {
+                    setState(() {});
+                    getDashboardCountDataApi();
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  decoration: boxDecorationWithRoundedCorners(
+                    borderRadius: BorderRadius.circular(defaultRadius),
+                    backgroundColor: Colors.white,
+                    border: Border.all(color: ColorUtils.colorPrimary),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.history, color: ColorUtils.colorPrimary, size: 26),
+                      6.height,
+                      Text('History', style: boldTextStyle(color: ColorUtils.colorPrimary, size: 13)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
