@@ -130,19 +130,20 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
     }
   }
 
+  bool isListLoading = false;
+
   void init() async {
-    appStore.setLoading(true);
-    await getDashboardDetails();
-    await configCrispChatData();
     LiveStream().on('UpdateLanguage', (p0) {
-      setState(() {});
+      if (mounted) setState(() {});
     });
     LiveStream().on('UpdateTheme', (p0) {
-      setState(() {});
+      if (mounted) setState(() {});
     });
-    selectedStatusIndex = widget.selectedIndex;
-    await getAppSetting().then((value) {
-      print("-------------------------------${value.otpVerifyOnPickupDelivery}");
+
+    getDashboardDetails();
+    configCrispChatData();
+
+    getAppSetting().then((value) {
       appStore.setOtpVerifyOnPickupDelivery(value.otpVerifyOnPickupDelivery == 1);
       appStore.setCurrencyCode(value.currencyCode ?? CURRENCY_CODE);
       appStore.setCurrencySymbol(value.currency ?? CURRENCY_SYMBOL);
@@ -150,36 +151,30 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
       appStore.isVehicleOrder = value.isVehicleInOrder ?? 0;
       appStore.setSiteEmail(value.siteEmail ?? "");
       appStore.setCopyRight(value.siteCopyright ?? "");
-      //   appStore.setOrderTrackingIdPrefix(value.orderTrackingIdPrefix ?? "");
       appStore.setIsInsuranceAllowed(value.isInsuranceAllowed ?? "0");
       appStore.setInsurancePercentage(value.insurancePercentage ?? "0");
       appStore.setInsuranceDescription(value.insuranceDescription ?? "");
       appStore.setMaxAmountPerMonth(value.maxEarningsPerMonth ?? '');
       appStore.setClaimDuration(value.claimDuration ?? "");
-      // setValue(IS_VERIFIED_DELIVERY_MAN, (value.isVerifiedDeliveryMan.validate() == 1));
     }).catchError((error) {
-      log(error.toString());
+      log("getAppSetting error: $error");
     });
-    if (await checkPermission()) {
-      await checkLocationPermission(context);
-    }
+
+    checkPermission().then((val) {
+      if (val) checkLocationPermission(context);
+    });
+
     scrollController.addListener(() {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-        if (currentPage < totalPage) {
-          appStore.setLoading(true);
+        if (currentPage < totalPage && !isListLoading) {
           currentPage++;
-          setState(() {});
           getOrderListApiCall();
         }
       }
     });
-    if (selectedStatusIndex > 2) {
-      scrollController1.animateTo(selectedStatusIndex * 100, duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
-      pageController.jumpToPage(selectedStatusIndex);
-    }
+
     orderData.clear();
     await getOrderListApiCall();
-    afterBuildCreated(() => appStore.setLoading(true));
   }
 
   getDashboardDetails() async {
@@ -242,7 +237,6 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
 
   void onResumed() async {
     await checkLocationPermission(context);
-    // await getDashboardDetails();
     if (getStringAsync(USER_TYPE) == DELIVERY_MAN) {
       isSosVisible.value = true;
     } else {
@@ -251,34 +245,42 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
     setState(() {});
   }
 
-  getOrderListApiCall() async {
+  Future<void> getOrderListApiCall() async {
+    isListLoading = true;
     appStore.setLoading(true);
-    String fetchStatus = isHistoryMode ? 'history' : 'available';
-    await getDeliveryBoyOrderList(
-      page: currentPage,
-      deliveryBoyID: getIntAsync(USER_ID),
-      cityId: getIntAsync(CITY_ID),
-      countryId: getIntAsync(COUNTRY_ID),
-      orderStatus: fetchStatus,
-    ).then((value) {
-      appStore.setLoading(false);
+    if (mounted) setState(() {});
+    try {
+      String fetchStatus = isHistoryMode ? 'history' : 'available';
+      var value = await getDeliveryBoyOrderList(
+        page: currentPage,
+        deliveryBoyID: getIntAsync(USER_ID),
+        cityId: getIntAsync(CITY_ID),
+        countryId: getIntAsync(COUNTRY_ID),
+        orderStatus: fetchStatus,
+      );
       appStore.setAllUnreadCount(value.allUnreadCount.validate());
-      currentPage = value.pagination!.currentPage!;
-      totalPage = value.pagination!.totalPages!;
+      if (value.pagination != null) {
+        currentPage = value.pagination!.currentPage ?? 1;
+        totalPage = value.pagination!.totalPages ?? 1;
+      }
       if (currentPage == 1) {
         orderData.clear();
       }
-      orderData.addAll(value.data!);
-      setState(() {});
-    }).catchError((error) {
-      log(error);
-    }).whenComplete(() {
+      if (value.data != null) {
+        orderData.addAll(value.data!);
+      }
+    } catch (error) {
+      log("getOrderListApiCall error: $error");
+    } finally {
+      isListLoading = false;
       appStore.setLoading(false);
-    });
+      if (mounted) setState(() {});
+    }
   }
 
   Future<void> cancelOrder(OrderData order) async {
-    appStore.setLoading(true);
+    isListLoading = true;
+    setState(() {});
     List<dynamic> cancelledDeliverManIds = order.cancelledDeliverManIds ?? [];
     cancelledDeliverManIds.add(getIntAsync(USER_ID));
     Map req = {
@@ -286,12 +288,13 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
       "cancelled_delivery_man_ids": cancelledDeliverManIds,
     };
     await cancelAutoAssignOrder(req).then((value) {
-      appStore.setLoading(false);
       toast(value.message);
       getOrderListApiCall();
     }).catchError((error) {
-      appStore.setLoading(false);
       toast(error.toString());
+    }).whenComplete(() {
+      isListLoading = false;
+      if (mounted) setState(() {});
     });
   }
 
@@ -303,6 +306,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     positionStream?.cancel();
+    appStore.setLoading(false);
     super.dispose();
   }
 
@@ -338,16 +342,14 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                   physics: BouncingScrollPhysics(),
                   padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 60),
                   onNextPage: () {
-                    if (currentPage < totalPage) {
+                    if (currentPage < totalPage && !isListLoading) {
                       currentPage++;
-                      setState(() {});
                       getOrderListApiCall();
                     }
                   },
                   onSwipeRefresh: () async {
                     currentPage = 1;
-                    getOrderListApiCall();
-                    return Future.value(true);
+                    await getOrderListApiCall();
                   },
                   itemBuilder: (context, i) {
                     return orderCard(orderData[i]);
@@ -365,8 +367,8 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                       ),
                     ],
                   ),
-                ).visible(!appStore.isLoading),
-          Observer(builder: (context) => loaderWidget().visible(appStore.isLoading)),
+                ).visible(!isListLoading),
+          loaderWidget().center().visible(isListLoading),
         ],
       ),
     );
