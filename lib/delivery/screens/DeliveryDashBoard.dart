@@ -54,14 +54,16 @@ import 'ReceivedScreenOrderScreen.dart';
 
 class DeliveryDashBoard extends StatefulWidget {
   final int selectedIndex;
+  final bool? isHistory;
 
-  DeliveryDashBoard({this.selectedIndex = 0});
+  DeliveryDashBoard({this.selectedIndex = 0, this.isHistory});
 
   @override
   DeliveryDashBoardState createState() => DeliveryDashBoardState();
 }
 
 class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindingObserver {
+  bool get isHistoryMode => widget.isHistory ?? (widget.selectedIndex == 6);
   List<String> statusList = [ORDER_PENDING, ORDER_ASSIGNED, ORDER_ACCEPTED, ORDER_ARRIVED, ORDER_PICKED_UP, ORDER_DEPARTED, ORDER_DELIVERED, ORDER_CANCELLED, ORDER_SHIPPED];
   ScrollController scrollController = ScrollController();
   ScrollController scrollController1 = ScrollController();
@@ -251,9 +253,14 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
 
   getOrderListApiCall() async {
     appStore.setLoading(true);
+    String fetchStatus = isHistoryMode ? 'history' : 'available';
     await getDeliveryBoyOrderList(
-            page: currentPage, deliveryBoyID: getIntAsync(USER_ID), cityId: getIntAsync(CITY_ID), countryId: getIntAsync(COUNTRY_ID), orderStatus: statusList[selectedStatusIndex])
-        .then((value) {
+      page: currentPage,
+      deliveryBoyID: getIntAsync(USER_ID),
+      cityId: getIntAsync(CITY_ID),
+      countryId: getIntAsync(COUNTRY_ID),
+      orderStatus: fetchStatus,
+    ).then((value) {
       appStore.setLoading(false);
       appStore.setAllUnreadCount(value.allUnreadCount.validate());
       currentPage = value.pagination!.currentPage!;
@@ -261,7 +268,6 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
       if (currentPage == 1) {
         orderData.clear();
       }
-
       orderData.addAll(value.data!);
       setState(() {});
     }).catchError((error) {
@@ -304,14 +310,18 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
   Widget build(BuildContext context) {
     return CommonScaffoldComponent(
       appBar: PreferredSize(
-        preferredSize: Size(ContextExtensions(context).width(), 110),
+        preferredSize: Size(ContextExtensions(context).width(), 60),
         child: commonAppBarWidget(
-          '${language.hey} ${getStringAsync(NAME)} 👋',
-          showBack: false,
+          isHistoryMode ? 'Delivery History' : 'Available Orders',
+          showBack: true,
+          backWidget: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => finish(context),
+          ),
           actions: [
             Container(
-              margin: .symmetric(vertical: 12, horizontal: 8),
-              padding: .symmetric(horizontal: 8, vertical: 4),
+              margin: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.white24),
               child: Row(children: [
                 Icon(Ionicons.ios_location_outline, color: Colors.white, size: 18),
@@ -326,645 +336,230 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                     setState(() {});
                   },
                 ).launch(context);
-              }, highlightColor: Colors.transparent, hoverColor: Colors.transparent, splashColor: Colors.transparent),
-            ),
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Align(alignment: AlignmentDirectional.center, child: Icon(Ionicons.md_notifications_outline, color: Colors.white)),
-                Observer(builder: (context) {
-                  return Positioned(
-                    right: 0,
-                    top: 2,
-                    child: Container(
-                        height: 20,
-                        width: 20,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-                        child: Text('${appStore.allUnreadCount < 99 ? appStore.allUnreadCount : '99+'}',
-                            style: primaryTextStyle(size: appStore.allUnreadCount < 99 ? 12 : 8, color: Colors.white))),
-                  ).visible(appStore.allUnreadCount != 0);
-                }),
-              ],
-            ).withWidth(30).onTap(() {
-              NotificationScreen().launch(context);
-            }),
-            IconButton(
-              onPressed: () async {
-                DHomeFragment().launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop, isNewTask: true);
-              },
-              icon: Icon(Ionicons.stats_chart_outline, color: Colors.white),
+              }),
             ),
             IconButton(
-              padding: .only(right: 8),
+              padding: EdgeInsets.only(right: 8),
               onPressed: () async {
                 DProfileFragment().launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
               },
               icon: Icon(Ionicons.settings_outline, color: Colors.white),
             ),
           ],
-          bottom: PreferredSize(
-            preferredSize: Size(ContextExtensions(context).width(), 100),
-            child: HorizontalList(
-              controller: scrollController1,
-              itemCount: statusList.length,
-              itemBuilder: (ctx, index) {
-                return KeyedSubtree(
-                  key: itemKeys[index],
-                  child: Theme(
-                    data: ThemeData(splashColor: Colors.transparent, highlightColor: Colors.transparent),
-                    child: Text(orderStatus(statusList[index]),
-                            style: statusList[selectedStatusIndex] == statusList[index] ? boldTextStyle(color: Colors.white) : secondaryTextStyle(color: Colors.white70))
-                        .paddingAll(8)
-                        .onTap(() {
-                      currentPage = 1;
-                      selectedStatusIndex = statusList.indexWhere((item) => item == statusList[index]);
-                      pageController.jumpToPage(selectedStatusIndex);
-                      //   getOrderListApiCall();
-                      setState(() {});
-                    }),
-                  ),
-                );
-              },
-            ).paddingOnly(left: 6, right: 6),
-          ),
         ),
       ),
       body: Stack(
         children: [
-          PageView(
-            controller: pageController,
-            onPageChanged: (value) {
-              selectedStatusIndex = statusList.indexWhere((item) => item == statusList[value]);
-              orderData.clear();
-              final ctx = itemKeys[selectedStatusIndex].currentContext;
-              if (ctx != null) {
-                Scrollable.ensureVisible(
-                  ctx,
-                  alignment: 0.5, // 0.5 = center, 0.0 = top/left, 1.0 = end/right
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOut,
-                );
-              }
-              getOrderListApiCall();
-              setState(() {});
-            },
-            children: statusList.map((e) {
-              return Stack(
-                children: [
-                  AnimatedListView(
-                    itemCount: orderData.length,
-                    shrinkWrap: true,
-                    physics: BouncingScrollPhysics(),
-                    listAnimationType: ListAnimationType.Slide,
-                    padding: .only(left: 16, right: 16, top: 16, bottom: 60),
-                    flipConfiguration: FlipConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
-                    fadeInConfiguration: FadeInConfiguration(duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn),
-                    onNextPage: () {
-                      if (currentPage < totalPage) {
-                        currentPage++;
-                        setState(() {});
-                        getOrderListApiCall();
-                      }
-                    },
-                    onSwipeRefresh: () async {
-                      currentPage = 1;
-                      await getAppSetting().then((value) {
-                        appStore.setOtpVerifyOnPickupDelivery(value.otpVerifyOnPickupDelivery == 1);
-                        appStore.setCurrencyCode(value.currencyCode ?? CURRENCY_CODE);
-                        appStore.setCurrencySymbol(value.currency ?? CURRENCY_SYMBOL);
-                        appStore.setCurrencyPosition(value.currencyPosition ?? CURRENCY_POSITION_LEFT);
-                        appStore.isVehicleOrder = value.isVehicleInOrder ?? 0;
-                        appStore.setSiteEmail(value.siteEmail ?? "");
-                        appStore.setCopyRight(value.siteCopyright ?? "");
-                        appStore.setIsInsuranceAllowed(value.isInsuranceAllowed ?? "0");
-                        appStore.setInsurancePercentage(value.insurancePercentage ?? "0");
-                        //   appStore.setOrderTrackingIdPrefix(value.orderTrackingIdPrefix ?? "");
-                        appStore.setInsuranceDescription(value.insuranceDescription ?? "");
-                        appStore.setMaxAmountPerMonth(value.maxEarningsPerMonth ?? '');
-                        appStore.setClaimDuration(value.claimDuration ?? '');
-                      }).catchError((error) {
-                        log(error.toString());
-                      });
+          orderData.isNotEmpty
+              ? AnimatedListView(
+                  itemCount: orderData.length,
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 60),
+                  onNextPage: () {
+                    if (currentPage < totalPage) {
+                      currentPage++;
+                      setState(() {});
                       getOrderListApiCall();
-                      return Future.value(true);
-                    },
-                    itemBuilder: (context, i) {
-                      OrderData item = orderData[i];
-                      return item.status != ORDER_DRAFT ? orderCard(item) : SizedBox();
-                    },
-                  ).visible(orderData.length > 0),
-                  loaderWidget().visible(appStore.isLoading),
-                  emptyWidget().visible(orderData.length == 0 && !appStore.isLoading),
-                ],
-              );
-            }).toList(),
-          ),
+                    }
+                  },
+                  onSwipeRefresh: () async {
+                    currentPage = 1;
+                    getOrderListApiCall();
+                    return Future.value(true);
+                  },
+                  itemBuilder: (context, i) {
+                    return orderCard(orderData[i]);
+                  },
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      emptyWidget(),
+                      12.height,
+                      Text(
+                        isHistoryMode ? 'No completed orders yet' : 'No available orders right now',
+                        style: secondaryTextStyle(size: 14),
+                      ),
+                    ],
+                  ),
+                ).visible(!appStore.isLoading),
+          Observer(builder: (context) => loaderWidget().visible(appStore.isLoading)),
         ],
       ),
-      floatingActionButton: (appStore.isCrispChatEnabled == true)
-          ? Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                // Background tap to close (optional)
-                if (_isExpanded)
-                  GestureDetector(
-                    onTap: _toggleFAB,
-                    child: Container(
-                      color: Colors.transparent,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                  ),
-
-                // Buttons with animation
-                AnimatedPositioned(
-                  duration: Duration(milliseconds: 350),
-                  bottom: _isExpanded ? 150 : 20,
-                  right: 10,
-                  child: AnimatedOpacity(
-                    duration: Duration(milliseconds: 300),
-                    opacity: _isExpanded ? 1 : 0,
-                    child: FloatingActionButton(
-                      shape: RoundedRectangleBorder(borderRadius: radius(40)),
-                      backgroundColor: appStore.availableBal >= 0 ? ColorUtils.colorPrimary : textSecondaryColorGlobal,
-                      child: Icon(Icons.pin_drop_outlined, color: Colors.white),
-                      onPressed: () {
-                        OrdersMapScreen().launch(context);
-                      },
-                    ),
-                  ),
-                ),
-
-                AnimatedPositioned(
-                  duration: Duration(milliseconds: 300),
-                  bottom: _isExpanded ? 80 : 20,
-                  right: 10,
-                  child: AnimatedOpacity(
-                    duration: Duration(milliseconds: 300),
-                    opacity: _isExpanded ? 1 : 0,
-                    child: FloatingActionButton(
-                        onPressed: () async {
-                          configureCrispChat();
-                          await FlutterCrispChat.openCrispChat(config: configData);
-                        },
-                        backgroundColor: ColorUtils.colorPrimary,
-                        // Use your app's primary color
-                        child: CachedNetworkImage(
-                          imageUrl: crispChatIcon ?? "",
-                          errorWidget: (context, url, error) => Icon(Icons.chat_bubble_outline),
-                        )),
-                  ),
-                ),
-                // Main FAB
-                FloatingActionButton(
-                  // heroTag: "main",
-                  onPressed: _toggleFAB,
-                  backgroundColor: ColorUtils.colorPrimary,
-                  child: Icon(_isExpanded ? Icons.close : Icons.menu),
-                ).paddingAll(10),
-              ],
-            )
-          : FloatingActionButton(
-              shape: RoundedRectangleBorder(borderRadius: radius(40)),
-              backgroundColor: appStore.availableBal >= 0 ? ColorUtils.colorPrimary : textSecondaryColorGlobal,
-              child: Icon(Icons.pin_drop_outlined, color: Colors.white),
-              onPressed: () {
-                OrdersMapScreen().launch(context);
-              },
-            ).paddingAll(10),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 
   Widget orderCard(OrderData data) {
     return GestureDetector(
+      onTap: () {
+        OrderDetailScreen(orderId: data.id!).launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
+      },
       child: Container(
-        margin: .only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16),
         decoration: boxDecorationWithRoundedCorners(
-            borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary), backgroundColor: Colors.transparent),
-        padding: .all(12),
+          borderRadius: BorderRadius.circular(defaultRadius),
+          border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.35)),
+          backgroundColor: context.cardColor,
+        ),
+        padding: EdgeInsets.all(14),
         child: Column(
-          mainAxisAlignment: .start,
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${language.order} #${data.id}', style: boldTextStyle(size: 15)),
+                    4.height,
+                    Text('${data.orderTrackingId.validate()}', style: boldTextStyle(size: 12, color: ColorUtils.colorPrimary)),
+                  ],
+                ),
                 Container(
-                  height: 50,
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: boxDecorationWithRoundedCorners(
+                    backgroundColor: isHistoryMode ? Colors.green.withOpacity(0.12) : Colors.orange.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    isHistoryMode ? 'Delivered' : 'Available',
+                    style: boldTextStyle(color: isHistoryMode ? Colors.green : Colors.orange, size: 12),
+                  ),
+                ),
+              ],
+            ),
+            10.height,
+            Divider(height: 1, color: context.dividerColor),
+            10.height,
+            // From Location
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.location_on, color: Colors.green, size: 20),
+                8.width,
+                Expanded(
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${language.order}# ${data.id}', style: boldTextStyle(size: 14)).expand(),
-                      Text('${data.orderTrackingId}', style: boldTextStyle(size: 12, color: ColorUtils.colorPrimary)).expand(),
+                      Text('From: ${data.pickupPoint?.name.validate()}', style: boldTextStyle(size: 13)),
+                      2.height,
+                      Text('${data.pickupPoint?.address.validate()}', style: secondaryTextStyle(size: 12)),
                     ],
                   ),
-                ).expand(),
-                Container(
-                  decoration: boxDecorationWithRoundedCorners(
-                      backgroundColor: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimaryLight,
-                      borderRadius: BorderRadius.circular(defaultRadius),
-                      border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.5))),
-                  padding: .symmetric(horizontal: 4, vertical: 4),
-                  child: Icon(
-                    Icons.navigation_outlined,
-                    color: ColorUtils.colorPrimary,
-                    size: 28,
+                ),
+                if (data.pickupPoint?.contactNumber != null && data.pickupPoint!.contactNumber!.isNotEmpty)
+                  IconButton(
+                    icon: Icon(Icons.phone, color: ColorUtils.colorPrimary, size: 20),
+                    onPressed: () => commonLaunchUrl('tel:${data.pickupPoint!.contactNumber}'),
                   ),
-                )
-                    .onTap(() async {
-                      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
-                      double currentLat = position.latitude;
-                      double currentLng = position.longitude;
-                      if (data.status == ORDER_ACCEPTED) {
-                        openMap(position.latitude, position.longitude, double.parse(data.pickupPoint!.latitude.validate()), double.parse(data.pickupPoint!.longitude.validate()));
-                      } else if (data.status == ORDER_DEPARTED) {
-                        //
-                        openMap(
-                            position.latitude, position.longitude, double.parse(data.deliveryPoint!.latitude.validate()), double.parse(data.deliveryPoint!.longitude.validate()));
-                      } else {
-                        openMap(double.parse(data.pickupPoint!.latitude.validate()), double.parse(data.pickupPoint!.longitude.validate()),
-                            double.parse(data.deliveryPoint!.latitude.validate()), double.parse(data.deliveryPoint!.longitude.validate()));
-                      }
-                      // openMap(double.parse(data.pickupPoint!.latitude.validate()), double.parse(data.pickupPoint!.longitude.validate()), double.parse(data.deliveryPoint!.latitude.validate()), double.parse(data.deliveryPoint!.longitude.validate()));
-                    })
-                    .paddingSymmetric(horizontal: 5)
-                    .visible(data.status != ORDER_DELIVERED && data.status != ORDER_CANCELLED && data.status != ORDER_SHIPPED),
-                Container(
-                  decoration: boxDecorationWithRoundedCorners(
-                      borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: Colors.red), backgroundColor: Colors.red.withOpacity(0.2)),
-                  padding: .symmetric(horizontal: 4, vertical: 4),
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.red,
-                    size: 28,
-                  ),
-                ).onTap(() {
-                  showConfirmDialogCustom(
-                    context,
-                    primaryColor: Colors.red,
-                    dialogType: DialogType.CONFIRMATION,
-                    title: language.orderCancelConfirmation,
-                    positiveText: language.yes,
-                    negativeText: language.no,
-                    onAccept: (c) async {
-                      await cancelOrder(data);
-                    },
-                  );
-                }).visible(data.status == ORDER_ASSIGNED),
-                (statusList[selectedStatusIndex] == ORDER_ASSIGNED || statusList[selectedStatusIndex] == ORDER_PENDING)
-                    ? Container(
-                        decoration: boxDecorationWithRoundedCorners(
-                            borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary), backgroundColor: ColorUtils.colorPrimary),
-                        padding: .symmetric(horizontal: 4, vertical: 4),
-                        child: Icon(Icons.check, color: Colors.white, size: 28),
-                      ).onTap(() {
-                        FlutterRingtonePlayer().stop();
-                        showConfirmDialogCustom(
-                          context,
-                          primaryColor: ColorUtils.colorPrimary,
-                          dialogType: DialogType.CONFIRMATION,
-                          title: orderTitle(statusList[selectedStatusIndex]),
-                          positiveText: language.yes,
-                          negativeText: language.no,
-                          onAccept: (c) async {
-                            appStore.setLoading(true);
-                            await onTapData(orderData: data, orderStatus: statusList[selectedStatusIndex]);
-                            appStore.setLoading(false);
-                          },
-                        );
-                      }).paddingSymmetric(horizontal: 5)
-                    : SizedBox(),
-                (statusList[selectedStatusIndex] != ORDER_CANCELLED && statusList[selectedStatusIndex] != ORDER_ASSIGNED && statusList[selectedStatusIndex] != ORDER_PENDING)
-                    ? AppButton(
-                        elevation: 0,
-                        text: buttonText(statusList[selectedStatusIndex]),
-                        padding: .symmetric(vertical: 4, horizontal: 8),
-                        textStyle: boldTextStyle(color: Colors.white, size: 14),
-                        color: ColorUtils.colorPrimary,
-                        onTap: () {
-                          if (statusList[selectedStatusIndex] == ORDER_ACCEPTED) {
-                            onTapData(orderData: data, orderStatus: statusList[selectedStatusIndex]);
-                          } else if (statusList[selectedStatusIndex] == ORDER_ARRIVED) {
-                            onTapData(orderData: data, orderStatus: statusList[selectedStatusIndex]);
-                          } else if (statusList[selectedStatusIndex] == ORDER_DEPARTED) {
-                            int val = 0;
-                            return showInDialog(
-                              barrierDismissible: true,
-                              getContext,
-                              builder: (p0) {
-                                return StatefulBuilder(builder: (context, selectedImagesUpdate) {
-                                  // This is used to toggle the visibility of the reschedule form
-
-                                  return Form(
-                                    key: rescheduleFormKey,
-                                    child: SingleChildScrollView(
-                                      child: Container(
-                                        child: !appStore.isLoading
-                                            ? Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: .start,
-                                                crossAxisAlignment: .start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      // Reschedule button - shows the reschedule form
-                                                      commonButton(language.reschedule, size: 12, () {
-                                                        selectedImagesUpdate(() {
-                                                          val = 1;
-                                                          print("$val"); // This will make the reschedule form visible
-                                                        });
-                                                      }).expand(),
-
-                                                      2.width,
-
-                                                      // Departed button - triggers the API call and hides the form
-                                                      commonButton(
-                                                        language.confirmDelivery,
-                                                        size: 12,
-                                                        () async {
-                                                          if (context.mounted) {
-                                                            Navigator.pop(context);
-                                                          }
-                                                          onTapData(orderData: data, orderStatus: statusList[selectedStatusIndex]);
-                                                        },
-                                                      ).expand(),
-                                                    ],
-                                                  ).visible(val == 0),
-
-                                                  // Reschedule form (only visible when val == 1)
-                                                  Column(
-                                                    mainAxisAlignment: .start,
-                                                    crossAxisAlignment: .start,
-                                                    children: [
-                                                      Text(language.rescheduleTitle, style: boldTextStyle(), textAlign: TextAlign.start),
-                                                      10.height,
-                                                      Divider(color: dividerColor, height: 1),
-                                                      8.height,
-
-                                                      // Reason text field
-                                                      Text(language.reason, style: boldTextStyle()),
-                                                      12.height,
-                                                      AppTextField(
-                                                        isValidationRequired: true,
-                                                        controller: reasonTitleTextEditingController,
-                                                        textFieldType: TextFieldType.NAME,
-                                                        errorThisFieldRequired: language.fieldRequiredMsg,
-                                                        decoration: commonInputDecoration(hintText: language.reason),
-                                                      ),
-                                                      8.height,
-
-                                                      // Date picker
-                                                      Text(language.date, style: boldTextStyle()),
-                                                      12.height,
-                                                      DateTimePicker(
-                                                        controller: pickDateController,
-                                                        type: DateTimePickerType.date,
-                                                        initialDate: DateTime.now(),
-                                                        firstDate: DateTime.now(),
-                                                        lastDate: DateTime.now().add(Duration(days: 30)),
-                                                        onChanged: (value) {
-                                                          pickDate = DateTime.parse(value);
-                                                        },
-                                                        validator: (value) {
-                                                          if (value!.isEmpty) return language.fieldRequiredMsg;
-                                                          return null;
-                                                        },
-                                                        decoration: commonInputDecoration(suffixIcon: Icons.calendar_today, hintText: language.date),
-                                                      ),
-
-                                                      16.height,
-
-                                                      // Buttons inside the reschedule form
-                                                      Row(
-                                                        children: [
-                                                          commonButton(language.cancel, size: 14, () {
-                                                            finish(getContext, 0); // Close the dialog
-                                                          }).expand(),
-
-                                                          6.width,
-
-                                                          // Reschedule button inside the form
-                                                          commonButton(language.reschedule, size: 14, () async {
-                                                            if (rescheduleFormKey.currentState!.validate()) {
-                                                              // Trigger the reschedule API call
-                                                              // Example API call
-                                                              Map request = {
-                                                                "order_id": data.id,
-                                                                "reason": reasonTitleTextEditingController.text.toString(),
-                                                                "date": DateFormat('yyyy-MM-dd').format(pickDate!),
-                                                              };
-                                                              appStore.setLoading(true);
-                                                              await rescheduleOrder(request).then((value) {
-                                                                toast(value.message);
-                                                                appStore.setLoading(false);
-                                                                finish(context);
-                                                              });
-                                                            }
-                                                          }).expand(),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ).visible(val == 1),
-                                                  // This makes the form visible based on the value of "val"
-                                                ],
-                                              )
-                                            : Observer(builder: (context) => loaderWidget().visible(appStore.isLoading)).center(),
-                                      ),
-                                    ),
-                                  );
-                                });
-                              },
-                            );
-                            //    onTapData(orderData: data, orderStatus: statusList[selectedStatusIndex]);
-                          } else {
-                            showConfirmDialogCustom(
-                              context,
-                              primaryColor: ColorUtils.colorPrimary,
-                              dialogType: DialogType.CONFIRMATION,
-                              title: orderTitle(statusList[selectedStatusIndex]),
-                              positiveText: language.yes,
-                              negativeText: language.no,
-                              onAccept: (c) async {
-                                appStore.setLoading(true);
-                                await onTapData(orderData: data, orderStatus: statusList[selectedStatusIndex]);
-                                appStore.setLoading(false);
-                                // finish(context);
-                              },
-                            );
-                          }
-                        },
-                      )
-                        .visible(statusList[selectedStatusIndex] != ORDER_DELIVERED && statusList[selectedStatusIndex] != ORDER_SHIPPED)
-                        .paddingOnly(right: appStore.selectedLanguage == "ar" ? 10 : 0)
-                    : SizedBox()
               ],
             ),
             8.height,
-            Column(
-              crossAxisAlignment: .start,
-              children: [
-                if (data.pickupDatetime != null)
-                  Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Text(language.picked, style: secondaryTextStyle(size: 12)),
-                      4.height,
-                      Text('${language.at} ${printDateWithoutAt("${data.pickupDatetime!}Z")}', style: secondaryTextStyle(size: 12)),
-                    ],
-                  ),
-                4.height,
-                Row(
-                  children: [
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            OrderDetailScreen(orderId: data.id!).launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop, duration: Duration(milliseconds: 400));
-                          },
-                          child: Row(
-                            children: [
-                              ImageIcon(AssetImage(ic_from), size: 24, color: ColorUtils.colorPrimary),
-                              12.width,
-                              Text('${data.pickupPoint!.address}', style: primaryTextStyle(size: 14)).expand(),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ).expand(),
-                    12.width,
-                    if (data.pickupPoint!.contactNumber != null && data.status != COMPLETED)
-                      Icon(Ionicons.ios_call_outline, size: 20, color: ColorUtils.colorPrimary).onTap(() {
-                        commonLaunchUrl('tel:${data.pickupPoint!.contactNumber}');
-                      }),
-                  ],
-                ),
-                if (data.pickupDatetime == null && data.pickupPoint!.endTime != null && data.pickupPoint!.startTime != null)
-                  Row(
-                    children: [
-                      Text('${language.note} ${language.courierWillPickupAt} ${DateFormat('dd MMM yyyy').format(DateTime.parse(data.pickupPoint!.startTime!).toLocal())} ${language.from} ${DateFormat('hh:mm').format(DateTime.parse(data.pickupPoint!.startTime!).toLocal())} ${language.to} ${DateFormat('hh:mm').format(DateTime.parse(data.pickupPoint!.endTime!).toLocal())}',
-                              style: secondaryTextStyle(size: 12, color: Colors.red), maxLines: 2, overflow: TextOverflow.ellipsis)
-                          .expand(),
-                    ],
-                  ),
-              ],
-            ),
-            16.height,
-            Column(
-              crossAxisAlignment: .start,
-              children: [
-                if (data.deliveryDatetime != null)
-                  Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Text(language.delivered, style: secondaryTextStyle(size: 12)),
-                      4.height,
-                      Text('${language.at} ${printDateWithoutAt("${data.deliveryDatetime!}Z")}', style: secondaryTextStyle(size: 12)),
-                    ],
-                  ),
-                4.height,
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        OrderDetailScreen(orderId: data.id!).launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop, duration: Duration(milliseconds: 400));
-                      },
-                      child: Row(
-                        children: [
-                          ImageIcon(AssetImage(ic_to), size: 24, color: ColorUtils.colorPrimary),
-                          12.width,
-                          Text('${data.deliveryPoint!.address}', style: primaryTextStyle(size: 14), textAlign: TextAlign.start).expand(),
-                        ],
-                      ),
-                    ).expand(),
-                    12.width,
-                    if (data.deliveryPoint!.contactNumber != null && data.status != COMPLETED)
-                      Icon(Ionicons.ios_call_outline, size: 20, color: ColorUtils.colorPrimary).onTap(() {
-                        commonLaunchUrl('tel:${data.deliveryPoint!.contactNumber}');
-                      }),
-                  ],
-                ),
-                if (data.deliveryDatetime == null && data.deliveryPoint!.endTime != null && data.deliveryPoint!.startTime != null)
-                  Text('${language.note} ${language.courierWillDeliverAt} ${DateFormat('dd MMM yyyy').format(DateTime.parse(data.deliveryPoint!.startTime!).toLocal())} ${language.from} ${DateFormat('hh:mm').format(DateTime.parse(data.deliveryPoint!.startTime!).toLocal())} ${language.to} ${DateFormat('hh:mm').format(DateTime.parse(data.deliveryPoint!.endTime!).toLocal())}',
-                          style: secondaryTextStyle(color: Colors.red, size: 12))
-                      .paddingOnly(top: 4),
-                if (data.reScheduleDateTime != null)
-                  Text('${language.note} ${language.rescheduleMsg} ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.parse(data.reScheduleDateTime!))} ',
-                          style: secondaryTextStyle(color: Colors.red, size: 12))
-                      .paddingOnly(top: 4)
-              ],
-            ),
-            Divider(height: 30, thickness: 1, color: context.dividerColor),
+            // To Location
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  decoration: boxDecorationWithRoundedCorners(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: ColorUtils.borderColor, width: appStore.isDarkMode ? 0.2 : 1),
-                      backgroundColor: context.cardColor),
-                  padding: .all(8),
-                  child: Image.asset(parcelTypeIcon(data.parcelType.validate()), height: 24, width: 24, color: Colors.grey),
-                ),
+                Icon(Icons.location_pin, color: Colors.red, size: 20),
                 8.width,
-                Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    Text(data.parcelType.validate(), style: boldTextStyle()),
-                    4.height,
-                    Row(
-                      children: [
-                        data.date != null ? Text(printDate("${data.date}"), style: secondaryTextStyle()).expand() : SizedBox(),
-                        Text('${printAmount(data.totalAmount ?? 0)}', style: boldTextStyle()),
-                      ],
-                    ),
-                  ],
-                ).expand(),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: .end,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: AppButton(
-                    elevation: 0,
-                    color: Colors.transparent,
-                    padding: .symmetric(vertical: 8, horizontal: 16),
-                    shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(defaultRadius), side: BorderSide(color: ColorUtils.colorPrimary)),
-                    child: Text(language.notifyUser, style: primaryTextStyle(color: ColorUtils.colorPrimary)),
-                    onTap: () {
-                      showConfirmDialogCustom(
-                        context,
-                        primaryColor: ColorUtils.colorPrimary,
-                        dialogType: DialogType.CONFIRMATION,
-                        title: language.areYouSureWantToArrive,
-                        positiveText: language.yes,
-                        negativeText: language.cancel,
-                        onAccept: (c) async {
-                          appStore.setLoading(true);
-                          await updateOrder(orderStatus: ORDER_ARRIVED, orderId: data.id).then((value) {
-                            toast(language.orderArrived);
-                          });
-                          appStore.setLoading(false);
-                          // finish(context);
-                          int i = statusList.indexWhere((item) => item == ORDER_ARRIVED);
-                          pageController.jumpToPage(i);
-                          getOrderListApiCall();
-                        },
-                      );
-                    },
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('To: ${data.deliveryPoint?.name.validate()}', style: boldTextStyle(size: 13)),
+                      2.height,
+                      Text('${data.deliveryPoint?.address.validate()}', style: secondaryTextStyle(size: 12)),
+                    ],
                   ),
-                ).paddingOnly(top: 10).visible(data.status == ORDER_ACCEPTED),
+                ),
+                if (data.deliveryPoint?.contactNumber != null && data.deliveryPoint!.contactNumber!.isNotEmpty)
+                  IconButton(
+                    icon: Icon(Icons.phone, color: ColorUtils.colorPrimary, size: 20),
+                    onPressed: () => commonLaunchUrl('tel:${data.deliveryPoint!.contactNumber}'),
+                  ),
               ],
             ),
+            10.height,
+            Divider(height: 1, color: context.dividerColor),
+            8.height,
+            // Parcel, Payment and Amount
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Parcel: ${data.parcelType.validate()}', style: secondaryTextStyle(size: 12)),
+                    4.height,
+                    Text('Payment: ${data.paymentType.validate().isNotEmpty ? data.paymentType : "Cash"} (${data.paymentStatus.validate().isNotEmpty ? data.paymentStatus : "Paid"})',
+                        style: boldTextStyle(size: 12, color: Colors.green)),
+                  ],
+                ),
+                Text('${printAmount(data.totalAmount ?? 0)}', style: boldTextStyle(size: 16, color: ColorUtils.colorPrimary)),
+              ],
+            ),
+            if (!isHistoryMode) ...[
+              12.height,
+              SizedBox(
+                width: double.infinity,
+                child: AppButton(
+                  text: 'Accept Order',
+                  color: ColorUtils.colorPrimary,
+                  textStyle: boldTextStyle(color: Colors.white, size: 14),
+                  onTap: () {
+                    showConfirmDialogCustom(
+                      context,
+                      primaryColor: ColorUtils.colorPrimary,
+                      dialogType: DialogType.CONFIRMATION,
+                      title: 'Accept this order for delivery?',
+                      positiveText: language.yes,
+                      negativeText: language.no,
+                      onAccept: (c) async {
+                        await acceptOrderWithOtp(data);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),
-      onTap: () {
-        OrderDetailScreen(orderId: data.id!).launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop, duration: Duration(milliseconds: 400));
-      },
     );
+  }
+
+  Future<void> acceptOrderWithOtp(OrderData data) async {
+    FlutterRingtonePlayer().stop();
+    final pickupContact = data.pickupPoint?.contactNumber.validate() ?? '';
+    if (pickupContact.isNotEmpty) {
+      sendOtp(
+        context,
+        phoneNumber: pickupContact,
+        onUpdate: (verificationId) async {
+          await showInDialog(
+            context,
+            barrierDismissible: false,
+            builder: (ctx) => OTPDialog(
+              phoneNumber: pickupContact,
+              verificationId: verificationId,
+              onUpdate: () async {
+                Map req = {'order_id': data.id, 'status': ORDER_ACCEPTED};
+                await updateOrderStatusForAssignedTab(req);
+                toast('Order Accepted!');
+                finish(context);
+              },
+            ),
+          );
+        },
+      );
+    } else {
+      Map req = {'order_id': data.id, 'status': ORDER_ACCEPTED};
+      await updateOrderStatusForAssignedTab(req);
+      toast('Order Accepted!');
+      finish(context);
+    }
   }
 
   Future<void> onTapData({required String orderStatus, required OrderData orderData}) async {

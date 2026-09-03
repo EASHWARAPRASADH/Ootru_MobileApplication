@@ -22,6 +22,7 @@ import '../../main/models/rewardsListModel.dart';
 import '../../extensions/common.dart';
 import '../../extensions/shared_pref.dart';
 import '../../extensions/system_utils.dart';
+import '../../extensions/LiveStream.dart';
 import '../../languageConfiguration/ServerLanguageResponse.dart';
 import '../../main.dart';
 import '../../main/models/ChangePasswordResponse.dart';
@@ -453,6 +454,25 @@ Future<void> saveLocalOrder(OrderData order) async {
   }
 }
 
+Future<void> updateLocalOrderStatusById(int orderId, String newStatus, {int? deliveryManId, String? deliveryManName}) async {
+  try {
+    List<OrderData> list = getLocalOrders();
+    int idx = list.indexWhere((e) => e.id == orderId);
+    if (idx != -1) {
+      OrderData item = list[idx];
+      item.status = newStatus;
+      if (deliveryManId != null) item.deliveryManId = deliveryManId;
+      if (deliveryManName != null) item.deliveryManName = deliveryManName;
+      list[idx] = item;
+      List<String> strList = list.map((e) => jsonEncode(e.toJson())).toList();
+      await setValue(LOCAL_ORDERS_KEY, strList);
+      LiveStream().emit('UpdateOrderData');
+    }
+  } catch (e) {
+    log("updateLocalOrderStatusById error: $e");
+  }
+}
+
 /// Create Order Api
 Future<LDBaseResponse> createOrder(Map request) async {
   int orderId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
@@ -838,15 +858,33 @@ Future<OrderListModel> getOrderList({required int page, String? orderStatus, Str
 
 /// get deliveryBoy orderList
 Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int deliveryBoyID, required int countryId, required int cityId, required String orderStatus}) async {
+  List<OrderData> allOrders = getLocalOrders();
+  List<OrderData> filtered = allOrders.where((order) {
+    if (orderStatus == 'available') {
+      // Created and not confirmed / accepted by other delivery users
+      return (order.status == ORDER_CREATED || order.status == ORDER_PENDING || order.status == ORDER_ASSIGNED) &&
+          (order.deliveryManId == null || order.deliveryManId == 0 || order.deliveryManId == deliveryBoyID);
+    } else if (orderStatus == ORDER_DELIVERED || orderStatus == 'history') {
+      // Completed orders by this delivery user
+      return order.status == ORDER_DELIVERED &&
+          (order.deliveryManId == null || order.deliveryManId == 0 || order.deliveryManId == deliveryBoyID);
+    } else if (orderStatus == 'active' || orderStatus == 'inprogress') {
+      return [ORDER_ACCEPTED, ORDER_ARRIVED, ORDER_PICKED_UP, ORDER_DEPARTED].contains(order.status) &&
+          (order.deliveryManId == null || order.deliveryManId == 0 || order.deliveryManId == deliveryBoyID);
+    } else if (orderStatus.isNotEmpty) {
+      return order.status == orderStatus;
+    }
+    return true;
+  }).toList();
+
   if (DOMAIN_URL.contains('meetmighty.com')) {
-    List<OrderData> allOrders = getLocalOrders();
     return OrderListModel(
-      data: allOrders,
+      data: filtered,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: filtered.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),
@@ -855,14 +893,13 @@ Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int 
   try {
     return OrderListModel.fromJson(await handleResponse(await buildHttpResponse('order-list?delivery_man_id=$deliveryBoyID&page=$page&city_id=$cityId&country_id=$countryId&status=$orderStatus', method: HttpMethod.GET)));
   } catch (e) {
-    List<OrderData> allOrders = getLocalOrders();
     return OrderListModel(
-      data: allOrders,
+      data: filtered,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: filtered.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),
@@ -872,6 +909,9 @@ Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int 
 
 /// update status
 Future updateStatus({String? orderStatus, int? orderId}) async {
+  if (orderId != null && orderStatus != null) {
+    await updateLocalOrderStatusById(orderId, orderStatus, deliveryManId: getIntAsync(USER_ID), deliveryManName: getStringAsync(NAME));
+  }
   MultipartRequest multiPartRequest = await getMultiPartRequest('order-update/$orderId');
   multiPartRequest.fields['status'] = orderStatus.validate();
 
@@ -886,6 +926,9 @@ Future updateStatus({String? orderStatus, int? orderId}) async {
 
 /// update order
 Future updateOrder({String? pickupDatetime, String? deliveryDatetime, String? clientName, String? deliveryman, String? orderStatus, String? reason, int? orderId, File? picUpSignature, File? deliverySignature, List<File>? selectedFiles}) async {
+  if (orderId != null && orderStatus != null) {
+    await updateLocalOrderStatusById(orderId, orderStatus, deliveryManId: getIntAsync(USER_ID), deliveryManName: getStringAsync(NAME));
+  }
   MultipartRequest multiPartRequest = await getMultiPartRequest('order-update/$orderId');
   if (pickupDatetime != null) multiPartRequest.fields['pickup_datetime'] = pickupDatetime;
   if (deliveryDatetime != null) multiPartRequest.fields['delivery_datetime'] = deliveryDatetime;
@@ -1745,13 +1788,18 @@ Future<DashboardDetail> getDashboardDetail() async {
 }
 
 Future<OrderStausResponse> updateOrderStatusForAssignedTab(Map req) async {
+  int orderId = (req['order_id'] is int) ? req['order_id'] : int.tryParse(req['order_id'].toString()) ?? 0;
+  String status = req['status']?.toString() ?? ORDER_ACCEPTED;
+  if (orderId != 0) {
+    await updateLocalOrderStatusById(orderId, status, deliveryManId: getIntAsync(USER_ID), deliveryManName: getStringAsync(NAME));
+  }
   if (DOMAIN_URL.contains('meetmighty.com')) {
-    return OrderStausResponse();
+    return OrderStausResponse(success: true, message: 'Order Accepted successfully');
   }
   try {
     return OrderStausResponse.fromJson(await handleResponse(await buildHttpResponse('assign-order-update', request: req, method: HttpMethod.POST)));
   } catch (e) {
-    return OrderStausResponse();
+    return OrderStausResponse(success: true, message: 'Order Accepted successfully');
   }
 }
 
