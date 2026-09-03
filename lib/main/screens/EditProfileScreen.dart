@@ -27,6 +27,8 @@ import '../components/CommonScaffoldComponent.dart';
 import '../models/LoginResponse.dart';
 import '../utils/Images.dart';
 import '../utils/dynamic_theme.dart';
+import '../../user/screens/DashboardScreen.dart';
+import '../../delivery/fragment/DHomeFragment.dart';
 import 'UserCitySelectScreen.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -136,7 +138,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         if (res.data != null) {
           appStore.setLoading(false);
           if (widget.isGoogle == true) {
-            UserCitySelectScreen().launch(context, isNewTask: true);
+            ensureDefaultCity();
+            autoDetectCityFromGps();
+            if (getStringAsync(USER_TYPE) == CLIENT) {
+              DashboardScreen().launch(context, isNewTask: true);
+            } else {
+              DHomeFragment().launch(context, isNewTask: true);
+            }
           } else {
             Navigator.pop(context);
           }

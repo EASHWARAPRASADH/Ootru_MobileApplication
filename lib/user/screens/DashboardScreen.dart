@@ -86,6 +86,7 @@ class DashboardScreenState extends State<DashboardScreen> with WidgetsBindingObs
   }
 
   Future<void> loadData() async {
+    autoDetectCityFromGps();
     await Future.wait<void>([
       getDashboardDetails(),
       init(),
@@ -204,27 +205,6 @@ class DashboardScreenState extends State<DashboardScreen> with WidgetsBindingObs
         preferredSize: Size(context.width(), 60),
         child: commonAppBarWidget(getTitle(),
             actions: [
-              Container(
-                margin: .symmetric(vertical: 12, horizontal: 12),
-                padding: .symmetric(horizontal: 8, vertical: 4),
-                decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.white24),
-                child: Row(
-                  children: [
-                    Icon(Ionicons.ios_location_outline, color: Colors.white, size: 18),
-                    8.width,
-                    Text(CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate(), style: primaryTextStyle(color: white)),
-                  ],
-                ).onTap(() {
-                  UserCitySelectScreen(
-                    isBack: true,
-                    onUpdate: () {
-                      setState(() {});
-                    },
-                  ).launch(context);
-                }, highlightColor: Colors.transparent, hoverColor: Colors.transparent, splashColor: Colors.transparent),
-              ),
-              4.width,
-              4.width,
               Stack(
                 clipBehavior: Clip.none,
                 children: [

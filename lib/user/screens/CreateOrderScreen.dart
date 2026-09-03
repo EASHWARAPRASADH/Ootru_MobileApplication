@@ -177,7 +177,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   getStaticDetailsForOrder() async {
-    await getCreateOrderDetails(getIntAsync(CITY_ID)).then((value) async {
+    ensureDefaultCity();
+    int currentCityId = getIntAsync(CITY_ID);
+    if (currentCityId == 0) currentCityId = 1;
+    await getCreateOrderDetails(currentCityId).then((value) async {
       appStore.setLoading(false);
       await setValue(CITY_DATA, value.cityDetail!.toJson());
       cityData = value.cityDetail;

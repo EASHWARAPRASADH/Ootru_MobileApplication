@@ -207,15 +207,14 @@ class SplashScreenState extends State<SplashScreen> {
 
               if (value.emailVerifiedAt.isEmptyOrNull || value.otpVerifyAt.isEmptyOrNull || (value.documentVerifiedAt.isEmptyOrNull && getStringAsync(USER_TYPE) == DELIVERY_MAN)) {
                 VerificationListScreen().launch(context);
-              } else if (CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate().isNotEmpty) {
+              } else {
+                ensureDefaultCity();
+                autoDetectCityFromGps();
                 if (getStringAsync(USER_TYPE) == CLIENT) {
                   DashboardScreen().launch(context, isNewTask: true);
                 } else {
-                  // DeliveryDashBoard().launch(context, isNewTask: true);
                   DHomeFragment().launch(context, isNewTask: true);
                 }
-              } else {
-                UserCitySelectScreen().launch(context, isNewTask: true);
               }
             }
           }).catchError((e) {

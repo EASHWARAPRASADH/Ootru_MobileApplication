@@ -15,6 +15,9 @@ import '../../extensions/extension_util/widget_extensions.dart';
 import '../../main/utils/dynamic_theme.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import '../models/CityListModel.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../extensions/common.dart';
 import '../../extensions/extension_util/device_extensions.dart';
@@ -558,5 +561,81 @@ getClaimStatus(String status) {
     return Text(status, style: boldTextStyle(color: rejectedColor));
   } else {
     return Text(status, style: boldTextStyle(color: completedColor));
+  }
+}
+
+Future<void> autoDetectCityFromGps() async {
+  try {
+    ensureDefaultCity();
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks.first;
+      String cityName = place.locality.validate().isNotEmpty
+          ? place.locality.validate()
+          : place.subAdministrativeArea.validate().isNotEmpty
+              ? place.subAdministrativeArea.validate()
+              : place.administrativeArea.validate().isNotEmpty
+                  ? place.administrativeArea.validate()
+                  : 'Local City';
+      String countryName = place.country.validate().isNotEmpty ? place.country.validate() : 'India';
+
+      int resolvedCityId = 1;
+      int resolvedCountryId = 1;
+      try {
+        CityListModel cityList = await getCityList(countryId: 1);
+        if (cityList.data != null && cityList.data!.isNotEmpty) {
+          var matched = cityList.data!.firstWhere(
+            (c) => c.name.validate().toLowerCase().contains(cityName.toLowerCase()) || cityName.toLowerCase().contains(c.name.validate().toLowerCase()),
+            orElse: () => cityList.data!.first,
+          );
+          resolvedCityId = matched.id ?? 1;
+          resolvedCountryId = matched.countryId ?? 1;
+          cityName = matched.name.validate().isNotEmpty ? matched.name.validate() : cityName;
+        }
+      } catch (e) {
+        log("City match fallback: $e");
+      }
+
+      CityModel cityModel = CityModel(
+        id: resolvedCityId,
+        name: cityName,
+        countryId: resolvedCountryId,
+        countryName: countryName,
+        status: 1,
+      );
+
+      await setValue(CITY_ID, resolvedCityId);
+      await setValue(COUNTRY_ID, resolvedCountryId);
+      await setValue(CITY_DATA, cityModel.toJson());
+      log("autoDetectCityFromGps resolved: $cityName (id: $resolvedCityId)");
+    }
+  } catch (e) {
+    log("autoDetectCityFromGps error: $e");
+    ensureDefaultCity();
+  }
+}
+
+void ensureDefaultCity() {
+  if (getIntAsync(CITY_ID) == 0 || getJSONAsync(CITY_DATA).isEmpty) {
+    CityModel defaultCity = CityModel(
+      id: 1,
+      name: 'Local City',
+      countryId: 1,
+      countryName: 'India',
+      status: 1,
+    );
+    setValue(CITY_ID, 1);
+    setValue(COUNTRY_ID, 1);
+    setValue(CITY_DATA, defaultCity.toJson());
   }
 }

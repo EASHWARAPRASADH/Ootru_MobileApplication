@@ -189,19 +189,12 @@ class _VerificationListScreenState extends State<VerificationListScreen> {
   }
 
   Future<void> goToDashboard() async {
-    if (data!.countryId != null && data!.cityId != null) {
-      await getCountryDetailApiCall(data!.countryId.validate());
-      getCityDetailApiCall(data!.cityId.validate(), context);
+    ensureDefaultCity();
+    autoDetectCityFromGps();
+    if (getStringAsync(USER_TYPE) == CLIENT) {
+      DashboardScreen().launch(context, isNewTask: true);
     } else {
-      if (CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate().isNotEmpty) {
-        if (getStringAsync(USER_TYPE) == CLIENT) {
-          DashboardScreen().launch(context, isNewTask: true);
-        } else {
-          DHomeFragment().launch(context, isNewTask: true);
-        }
-      } else {
-        UserCitySelectScreen().launch(context, isNewTask: true);
-      }
+      DHomeFragment().launch(context, isNewTask: true);
     }
   }
 
@@ -289,20 +282,18 @@ getCityDetailApiCall(int cityId, BuildContext context) async {
   await getCityDetail(cityId).then((value) async {
     appStore.setLoading(false);
     await setValue(CITY_DATA, value.data!.toJson());
-    if (CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate().isNotEmpty) {
-      if (getStringAsync(USER_TYPE) == CLIENT) {
-        DashboardScreen().launch(context, isNewTask: true);
-      } else {
-        // DeliveryDashBoard().launch(context, isNewTask: true);
-        DHomeFragment().launch(context, isNewTask: true);
-      }
+    if (getStringAsync(USER_TYPE) == CLIENT) {
+      DashboardScreen().launch(context, isNewTask: true);
     } else {
-      UserCitySelectScreen().launch(context, isNewTask: true);
+      DHomeFragment().launch(context, isNewTask: true);
     }
   }).catchError((error) {
     appStore.setLoading(false);
-    if (error.toString() == CITY_NOT_FOUND_EXCEPTION) {
-      UserCitySelectScreen().launch(getContext, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+    ensureDefaultCity();
+    if (getStringAsync(USER_TYPE) == CLIENT) {
+      DashboardScreen().launch(context, isNewTask: true);
+    } else {
+      DHomeFragment().launch(context, isNewTask: true);
     }
   });
 }

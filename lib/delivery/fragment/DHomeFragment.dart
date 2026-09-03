@@ -182,6 +182,7 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
     );
     startShake();
     init();
+    autoDetectCityFromGps();
     fetchActiveOrder();
     LiveStream().on('UpdateOrderData', (p0) {
       fetchActiveOrder();
@@ -645,24 +646,6 @@ class _DHomeFragmentState extends State<DHomeFragment> with TickerProviderStateM
         '${language.hey} ${getStringAsync(NAME)} 👋',
         showBack: false,
         actions: [
-          Container(
-            margin: .symmetric(vertical: 12, horizontal: 8),
-            padding: .symmetric(horizontal: 8, vertical: 4),
-            decoration: boxDecorationWithRoundedCorners(borderRadius: radius(defaultRadius), backgroundColor: Colors.white24),
-            child: Row(children: [
-              Icon(Ionicons.ios_location_outline, color: Colors.white, size: 18),
-              8.width,
-              Text(CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate(), style: primaryTextStyle(color: white)),
-            ]).onTap(() {
-              UserCitySelectScreen(
-                isBack: true,
-                onUpdate: () {
-                  currentPage = 1;
-                  setState(() {});
-                },
-              ).launch(context);
-            }, highlightColor: Colors.transparent, hoverColor: Colors.transparent, splashColor: Colors.transparent),
-          ),
           Stack(
             clipBehavior: Clip.none,
             children: [

@@ -124,12 +124,23 @@ class AuthServices {
           (userData?.data?.documentVerifiedAt.isEmptyOrNull == true && getStringAsync(USER_TYPE) == DELIVERY_MAN)) {
         VerificationListScreen().launch(context, isNewTask: true);
       } else {
-        UserCitySelectScreen().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+        ensureDefaultCity();
+        autoDetectCityFromGps();
+        if (getStringAsync(USER_TYPE) == CLIENT) {
+          DashboardScreen().launch(context, isNewTask: true);
+        } else {
+          DHomeFragment().launch(context, isNewTask: true);
+        }
       }
     } catch (error) {
       log("signUpWithEmailPassword error: $error");
       appStore.setLoading(false);
-      UserCitySelectScreen().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+      ensureDefaultCity();
+      if (getStringAsync(USER_TYPE) == CLIENT) {
+        DashboardScreen().launch(context, isNewTask: true);
+      } else {
+        DHomeFragment().launch(context, isNewTask: true);
+      }
     }
   }
 
@@ -414,12 +425,12 @@ class AuthServices {
 
       if (value.data!.contactNumber.isEmptyOrNull) {
         EditProfileScreen(isGoogle: true).launch(getContext, isNewTask: true);
-      } else {
-        if (value.data!.countryId != null && value.data!.cityId != null) {
-          await getCountryDetailApiCall(value.data!.countryId.validate());
-          getCityDetailApiCall(value.data!.cityId.validate());
+        ensureDefaultCity();
+        autoDetectCityFromGps();
+        if (getStringAsync(USER_TYPE) == CLIENT) {
+          DashboardScreen().launch(getContext, isNewTask: true);
         } else {
-          UserCitySelectScreen().launch(getContext, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+          DHomeFragment().launch(getContext, isNewTask: true);
         }
         if (value.data!.uid.isEmptyOrNull) updateUid(getStringAsync(UID)).catchError((error) {});
         if (value.data!.playerId.isEmptyOrNull) updatePlayerId().catchError((error) {});
@@ -553,11 +564,19 @@ getCityDetailApiCall(int cityId) async {
         VerificationListScreen().launch(getContext, isNewTask: true);
       }
     } else {
-      UserCitySelectScreen().launch(getContext, isNewTask: true);
+      ensureDefaultCity();
+      if (getStringAsync(USER_TYPE) == CLIENT) {
+        DashboardScreen().launch(getContext, isNewTask: true);
+      } else {
+        DHomeFragment().launch(getContext, isNewTask: true);
+      }
     }
   }).catchError((error) {
-    if (error.toString() == CITY_NOT_FOUND_EXCEPTION) {
-      UserCitySelectScreen().launch(getContext, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+    ensureDefaultCity();
+    if (getStringAsync(USER_TYPE) == CLIENT) {
+      DashboardScreen().launch(getContext, isNewTask: true);
+    } else {
+      DHomeFragment().launch(getContext, isNewTask: true);
     }
   });
 }
