@@ -68,13 +68,19 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> init() async {
     String phoneNum = getStringAsync(USER_CONTACT_NUMBER);
     emailController.text = getStringAsync(USER_EMAIL);
-    // usernameController.text = getStringAsync(USER_NAME);
     nameController.text = getStringAsync(NAME);
-    if (phoneNum.split(" ").length == 1) {
-      contactNumberController.text = phoneNum.split(" ").last;
-    } else {
-      countryCode = phoneNum.split(" ").first;
-      contactNumberController.text = phoneNum.split(" ").last;
+    if (phoneNum.isNotEmpty) {
+      if (phoneNum.contains(" ")) {
+        countryCode = phoneNum.split(" ").first;
+        contactNumberController.text = phoneNum.split(" ").last;
+      } else {
+        String digits = phoneNum.replaceAll(RegExp(r'[^\d]'), '');
+        if (digits.length > 10) {
+          contactNumberController.text = digits.substring(digits.length - 10);
+        } else {
+          contactNumberController.text = digits;
+        }
+      }
     }
     addressController.text = getStringAsync(USER_ADDRESS).validate();
   }
@@ -106,6 +112,10 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> save() async {
     appStore.setLoading(true);
+    // Immediately persist locally so values are never lost
+    await setValue(NAME, nameController.text.trim());
+    await setValue(USER_CONTACT_NUMBER, '$countryCode ${contactNumberController.text.trim()}');
+    await setValue(USER_ADDRESS, addressController.text.trim());
     await updateProfile(
       file: imageProfile != null ? File(imageProfile!.path.validate()) : null,
       name: nameController.text.validate(),
@@ -236,7 +246,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   AppTextField(
                     controller: contactNumberController,
                     textFieldType: TextFieldType.PHONE,
-                    readOnly: !widget.isGoogle.validate(),
+                    readOnly: !widget.isGoogle.validate() && contactNumberController.text.isNotEmpty,
                     focus: contactFocus,
                     nextFocus: addressFocus,
                     decoration: commonInputDecoration(
@@ -249,7 +259,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                               showCountryOnly: false,
                               dialogSize: Size(context.width() - 60, context.height() * 0.6),
                               showFlag: true,
-                              enabled: widget.isGoogle.validate(),
+                              enabled: widget.isGoogle.validate() || contactNumberController.text.isEmpty,
                               showFlagDialog: true,
                               showOnlyCountryWhenClosed: false,
                               alignLeft: false,
@@ -283,7 +293,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                       return null;
                     },
                     onTap: () {
-                      if (!widget.isGoogle.validate()) toast(language.notChangeMobileNo);
+                      if (!widget.isGoogle.validate() && contactNumberController.text.isNotEmpty) toast(language.notChangeMobileNo);
                     },
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,

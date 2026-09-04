@@ -243,6 +243,7 @@ Future<void> logout(BuildContext context, {bool isFromLogin = false, bool isDele
     await removeKey(FILTER_DATA);
     await removeKey(IS_VERIFIED_DELIVERY_MAN);
     await removeKey(OTP_VERIFIED);
+    await removeKey(LOCAL_ORDERS_KEY); // Clear local orders so next user starts fresh
     if (!getBoolAsync(REMEMBER_ME)) {
       await removeKey(USER_EMAIL);
       await removeKey(USER_PASSWORD);
@@ -790,8 +791,13 @@ Future<VehicleListModel> getVehicleList({String? type, int? perPage, int? page, 
 /// get OrderList
 Future<OrderListModel> getOrderList({required int page, String? orderStatus, String? fromDate, String? toDate, String? excludeStatus}) async {
   if (DOMAIN_URL.contains('meetmighty.com')) {
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
     List<OrderData> filtered = allOrders.where((order) {
+      // Only show orders belonging to current user
+      if (order.clientId != null && order.clientId != 0 && order.clientId != currentUserId) {
+        return false;
+      }
       if (orderStatus != null && orderStatus.isNotEmpty) {
         return order.status == orderStatus;
       }
@@ -831,8 +837,12 @@ Future<OrderListModel> getOrderList({required int page, String? orderStatus, Str
     return OrderListModel.fromJson(await handleResponse(await buildHttpResponse(endPoint, method: HttpMethod.GET)));
   } catch (e) {
     log("getOrderList fallback: $e");
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
     List<OrderData> filtered = allOrders.where((order) {
+      if (order.clientId != null && order.clientId != 0 && order.clientId != currentUserId) {
+        return false;
+      }
       if (orderStatus != null && orderStatus.isNotEmpty) {
         return order.status == orderStatus;
       }
@@ -1478,14 +1488,18 @@ Future<PageListModel> getPagesList() async {
 /// get completed OrderList
 Future<OrderListModel> getUserOrderHistoryList({required int page}) async {
   if (DOMAIN_URL.contains('meetmighty.com')) {
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
+    List<OrderData> userOrders = allOrders.where((order) =>
+      order.clientId == null || order.clientId == 0 || order.clientId == currentUserId
+    ).toList();
     return OrderListModel(
-      data: allOrders,
+      data: userOrders,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: userOrders.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),
@@ -1495,14 +1509,18 @@ Future<OrderListModel> getUserOrderHistoryList({required int page}) async {
     String endPoint = 'order-list?client_id=${getIntAsync(USER_ID)}&page=$page&status=completed&exclude_status=draft';
     return OrderListModel.fromJson(await handleResponse(await buildHttpResponse(endPoint, method: HttpMethod.GET)));
   } catch (e) {
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
+    List<OrderData> userOrders = allOrders.where((order) =>
+      order.clientId == null || order.clientId == 0 || order.clientId == currentUserId
+    ).toList();
     return OrderListModel(
-      data: allOrders,
+      data: userOrders,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: userOrders.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),

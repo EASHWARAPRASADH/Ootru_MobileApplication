@@ -93,6 +93,7 @@ class AuthServices {
       await setValue(OTP_VERIFIED, true);
       await setValue(EMAIL_VERIFIED, true);
       await setValue(IS_VERIFIED_DELIVERY_MAN, true);
+      await setValue(USER_CONTACT_NUMBER, mobileNumber ?? '');
 
       UserData userModel = UserData();
       userModel.uid = uid;
@@ -245,6 +246,7 @@ class AuthServices {
       log(getStringAsync(UID));
       setValue(USER_EMAIL, userModel.email.validate());
       setValue(IS_LOGGED_IN, true);
+      setValue(USER_CONTACT_NUMBER, loginDetail.data!.contactNumber.validate());
 
       log(userModel.toJson());
 
@@ -421,6 +423,7 @@ class AuthServices {
       }
 
       await setValue(USER_PROFILE_PHOTO, currentUser.photoURL.toString());
+      await setValue(USER_CONTACT_NUMBER, value.data!.contactNumber.validate());
       appStore.setLoading(false);
 
       if (value.data!.contactNumber.isEmptyOrNull) {

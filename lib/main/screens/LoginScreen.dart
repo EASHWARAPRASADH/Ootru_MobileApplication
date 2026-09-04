@@ -111,6 +111,10 @@ class LoginScreenState extends State<LoginScreen> {
         await setValue(IS_VERIFIED_DELIVERY_MAN, true);
         await setValue(USER_TOKEN, 'local_token_${DateTime.now().millisecondsSinceEpoch}');
         await setValue(USER_ID, getIntAsync(USER_ID, defaultValue: DateTime.now().millisecondsSinceEpoch ~/ 1000));
+        // Preserve existing phone number if already set (from registration)
+        if (getStringAsync(USER_CONTACT_NUMBER).isEmpty) {
+          await setValue(USER_CONTACT_NUMBER, '');
+        }
 
         if (mIsCheck) {
           await setValue(REMEMBER_ME, mIsCheck);

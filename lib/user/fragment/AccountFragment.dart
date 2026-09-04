@@ -144,7 +144,8 @@ class AccountFragmentState extends State<AccountFragment> {
                   ).paddingSymmetric(horizontal: 16).onTap(() {
                     EditProfileScreen().launch(context);
                   }),
-                  mTitle(language.ordersWalletMore),
+                  // WALLET_HIDDEN: mTitle(language.ordersWalletMore);
+                  mTitle('Orders & More'),
                   accountSettingItemWidget(ic_draft, language.drafts, () {
                     DraftOrderListScreen().launch(context);
                   }),

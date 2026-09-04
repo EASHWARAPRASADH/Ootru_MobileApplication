@@ -42,7 +42,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   void initState() {
     super.initState();
     getBankDetail();
-    getWalletData();
+    // WALLET_HIDDEN: getWalletData();
     getAddress();
   }
 
@@ -62,20 +62,21 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     });
   }
 
-  getWalletData() async {
-    appStore.setLoading(true);
-    await getWalletList(page: 1).then((value) {
-      appStore.setLoading(false);
-      onlineReceived = value.walletBalance!.onlineReceived.toString();
-      totalAmount = value.walletBalance!.totalAmount.toString();
-      totalWithdrawn = value.walletBalance!.totalWithdrawn.toString();
-      manualReceived = value.walletBalance!.manualReceived.toString();
-      setState(() {});
-    }).catchError((error) {
-      appStore.setLoading(false);
-      log(error.toString());
-    });
-  }
+  // WALLET_HIDDEN: wallet data fetching hidden but code preserved
+  // getWalletData() async {
+  //   appStore.setLoading(true);
+  //   await getWalletList(page: 1).then((value) {
+  //     appStore.setLoading(false);
+  //     onlineReceived = value.walletBalance!.onlineReceived.toString();
+  //     totalAmount = value.walletBalance!.totalAmount.toString();
+  //     totalWithdrawn = value.walletBalance!.totalWithdrawn.toString();
+  //     manualReceived = value.walletBalance!.manualReceived.toString();
+  //     setState(() {});
+  //   }).catchError((error) {
+  //     appStore.setLoading(false);
+  //     log(error.toString());
+  //   });
+  // }
 
   getAddress() async {
     final currentAddress =
@@ -185,51 +186,52 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                 ],
                               ),
                             ),
-                            12.height,
-                            Text(language.earningHistory, style: boldTextStyle(size: 16)),
-                            12.height,
-                            Container(
-                              decoration: boxDecorationWithRoundedCorners(
-                                  borderRadius: BorderRadius.circular(defaultRadius),
-                                  border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
-                                  backgroundColor: Colors.transparent),
-                              padding: .all(12),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: .spaceBetween,
-                                    children: [
-                                      Text(language.availableBalance, style: secondaryTextStyle()),
-                                      Text(totalAmount.validate(), style: primaryTextStyle(size: 14)),
-                                    ],
-                                  ),
-                                  8.height,
-                                  Row(
-                                    mainAxisAlignment: .spaceBetween,
-                                    children: [
-                                      Text(language.manualRecieved, style: secondaryTextStyle()),
-                                      Text(manualReceived.toString().validate(), style: primaryTextStyle(size: 14)),
-                                    ],
-                                  ),
-                                  8.height,
-                                  Row(
-                                    mainAxisAlignment: .spaceBetween,
-                                    children: [
-                                      Text(language.totalWithdrawn, style: secondaryTextStyle()),
-                                      Text(totalWithdrawn.validate(), style: primaryTextStyle(size: 14)),
-                                    ],
-                                  ),
-                                  8.height,
-                                  Row(
-                                    mainAxisAlignment: .spaceBetween,
-                                    children: [
-                                      Text(language.totalWithdrawn, style: secondaryTextStyle()),
-                                      Text(totalWithdrawn.validate(), style: primaryTextStyle(size: 14)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // WALLET_HIDDEN: Earning history UI hidden
+                            // 12.height,
+                            // Text(language.earningHistory, style: boldTextStyle(size: 16)),
+                            // 12.height,
+                            // Container(
+                            //   decoration: boxDecorationWithRoundedCorners(
+                            //       borderRadius: BorderRadius.circular(defaultRadius),
+                            //       border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
+                            //       backgroundColor: Colors.transparent),
+                            //   padding: .all(12),
+                            //   child: Column(
+                            //     children: [
+                            //       Row(
+                            //         mainAxisAlignment: .spaceBetween,
+                            //         children: [
+                            //           Text(language.availableBalance, style: secondaryTextStyle()),
+                            //           Text(totalAmount.validate(), style: primaryTextStyle(size: 14)),
+                            //         ],
+                            //       ),
+                            //       8.height,
+                            //       Row(
+                            //         mainAxisAlignment: .spaceBetween,
+                            //         children: [
+                            //           Text(language.manualRecieved, style: secondaryTextStyle()),
+                            //           Text(manualReceived.toString().validate(), style: primaryTextStyle(size: 14)),
+                            //         ],
+                            //       ),
+                            //       8.height,
+                            //       Row(
+                            //         mainAxisAlignment: .spaceBetween,
+                            //         children: [
+                            //           Text(language.totalWithdrawn, style: secondaryTextStyle()),
+                            //           Text(totalWithdrawn.validate(), style: primaryTextStyle(size: 14)),
+                            //         ],
+                            //       ),
+                            //       8.height,
+                            //       Row(
+                            //         mainAxisAlignment: .spaceBetween,
+                            //         children: [
+                            //           Text(language.totalWithdrawn, style: secondaryTextStyle()),
+                            //           Text(totalWithdrawn.validate(), style: primaryTextStyle(size: 14)),
+                            //         ],
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                             12.height,
                             Text(language.lastLocation, style: boldTextStyle(size: 16)),
                             12.height,

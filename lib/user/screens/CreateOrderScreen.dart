@@ -11,6 +11,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart' as fmap;
+import 'package:latlong2/latlong.dart' as osm;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mighty_delivery/extensions/colors.dart';
@@ -264,8 +266,23 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       await getCouponList();
       // Auto-fill pickup contact from logged-in user's profile (only for new orders)
       if (widget.orderData == null) {
-        final userName = getStringAsync(NAME);
-        final userContact = getStringAsync(USER_CONTACT_NUMBER);
+        String userName = getStringAsync(NAME);
+        String userContact = getStringAsync(USER_CONTACT_NUMBER);
+        if (userContact.isEmpty) {
+          try {
+            var uDetail = await getUserDetail(getIntAsync(USER_ID));
+            if (uDetail.contactNumber != null && uDetail.contactNumber!.isNotEmpty) {
+              userContact = uDetail.contactNumber!;
+              await setValue(USER_CONTACT_NUMBER, userContact);
+            }
+            if (userName.isEmpty && uDetail.name != null && uDetail.name!.isNotEmpty) {
+              userName = uDetail.name!;
+              await setValue(NAME, userName);
+            }
+          } catch (e) {
+            log("getUserDetail fallback error: $e");
+          }
+        }
         if (pickPersonNameCont.text.isEmpty && userName.isNotEmpty) {
           pickPersonNameCont.text = userName;
         }
@@ -2033,59 +2050,121 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(defaultRadius),
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    markers: markers.isNotEmpty
-                        ? markers.map((e) => e).toSet()
-                        : {
-                            Marker(
-                              markerId: MarkerId("pick"),
-                              position: LatLng(pLat, pLong),
-                              infoWindow: InfoWindow(title: language.sourceLocation),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-                            ),
-                            Marker(
-                              markerId: MarkerId("drop"),
-                              position: LatLng(dLat, dLong),
-                              infoWindow: InfoWindow(title: language.destinationLocation),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+              child: (googleMapAPIKey.isNotEmpty && googleMapAPIKey != 'GOOGLE_MAPS_API_KEY')
+                  ? Stack(
+                      children: [
+                        GoogleMap(
+                          markers: markers.isNotEmpty
+                              ? markers.map((e) => e).toSet()
+                              : {
+                                  Marker(
+                                    markerId: MarkerId("pick"),
+                                    position: LatLng(pLat, pLong),
+                                    infoWindow: InfoWindow(title: language.sourceLocation),
+                                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+                                  ),
+                                  Marker(
+                                    markerId: MarkerId("drop"),
+                                    position: LatLng(dLat, dLong),
+                                    infoWindow: InfoWindow(title: language.destinationLocation),
+                                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+                                  ),
+                                },
+                          polylines: _polylines,
+                          mapType: MapType.normal,
+                          cameraTargetBounds: CameraTargetBounds.unbounded,
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng((pLat + dLat) / 2, (pLong + dLong) / 2),
+                            zoom: 12,
+                          ),
+                          onMapCreated: onMapCreated,
+                          tiltGesturesEnabled: true,
+                          scrollGesturesEnabled: true,
+                          zoomGesturesEnabled: true,
+                          zoomControlsEnabled: true,
+                          rotateGesturesEnabled: true,
+                          myLocationButtonEnabled: false,
+                          gestureRecognizers: {
+                            Factory<OneSequenceGestureRecognizer>(
+                              () => EagerGestureRecognizer(),
                             ),
                           },
-                    polylines: _polylines,
-                    mapType: MapType.normal,
-                    cameraTargetBounds: CameraTargetBounds.unbounded,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng((pLat + dLat) / 2, (pLong + dLong) / 2),
-                      zoom: 12,
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: FloatingActionButton.small(
+                            heroTag: 'recenter_route_btn',
+                            backgroundColor: ColorUtils.colorPrimary,
+                            onPressed: () {
+                              setMapFitToCenter(_polylines);
+                            },
+                            child: Icon(Icons.center_focus_strong, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Stack(
+                      children: [
+                        fmap.FlutterMap(
+                          options: fmap.MapOptions(
+                            initialCenter: osm.LatLng((pLat + dLat) / 2, (pLong + dLong) / 2),
+                            initialZoom: 12.0,
+                          ),
+                          children: [
+                            fmap.TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.mighty.delivery',
+                            ),
+                            if (polylineCoordinates.isNotEmpty)
+                              fmap.PolylineLayer(
+                                polylines: [
+                                  fmap.Polyline(
+                                    points: polylineCoordinates.map((e) => osm.LatLng(e.latitude, e.longitude)).toList(),
+                                    strokeWidth: 5,
+                                    color: ColorUtils.colorPrimary,
+                                  ),
+                                ],
+                              ),
+                            fmap.MarkerLayer(
+                              markers: [
+                                fmap.Marker(
+                                  point: osm.LatLng(pLat, pLong),
+                                  width: 44,
+                                  height: 44,
+                                  child: Icon(Icons.location_on, color: Colors.green, size: 40),
+                                ),
+                                fmap.Marker(
+                                  point: osm.LatLng(dLat, dLong),
+                                  width: 44,
+                                  height: 44,
+                                  child: Icon(Icons.location_on, color: Colors.red, size: 40),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: boxDecorationWithRoundedCorners(
+                              backgroundColor: Colors.black.withOpacity(0.65),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.route, color: Colors.white, size: 14),
+                                4.width,
+                                Text("Live Route Preview", style: primaryTextStyle(color: Colors.white, size: 11)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onMapCreated: onMapCreated,
-                    tiltGesturesEnabled: true,
-                    scrollGesturesEnabled: true,
-                    zoomGesturesEnabled: true,
-                    zoomControlsEnabled: true,
-                    rotateGesturesEnabled: true,
-                    myLocationButtonEnabled: false,
-                    gestureRecognizers: {
-                      Factory<OneSequenceGestureRecognizer>(
-                        () => EagerGestureRecognizer(),
-                      ),
-                    },
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    right: 10,
-                    child: FloatingActionButton.small(
-                      heroTag: 'recenter_route_btn',
-                      backgroundColor: ColorUtils.colorPrimary,
-                      onPressed: () {
-                        setMapFitToCenter(_polylines);
-                      },
-                      child: Icon(Icons.center_focus_strong, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
@@ -2941,58 +3020,16 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     toast(language.insuranceAmountValidation);
                     return;
                   }
+                  // WALLET_HIDDEN: Wallet balance check disabled, direct order creation
+                  /*
                   if (isSelected == 3 &&
-                      //      (appStore.availableBal < (totalAmountResponse!.totalAmount! + insuranceAmount))) {
                       (appStore.availableBal <
                           (totalAmountResponse!.totalAmount! +
                               insuranceAmount))) {
-                    showInDialog(
-                      getContext,
-                      contentPadding: .all(16),
-                      builder: (p0) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(language.balanceInsufficientCashPayment,
-                                style: primaryTextStyle(size: 16),
-                                textAlign: TextAlign.center),
-                            30.height,
-                            Row(
-                              children: [
-                                commonButton(language.cancel, () {
-                                  finish(getContext, 0);
-                                }).expand(),
-                                6.width,
-                                commonButton(language.process, () {
-                                  //      if (appStore.isInsuranceAllowed == true && insuranceSelectedOption == 0)
-                                  // createOrderApiCall(ORDER_CREATED);
-                                  // finish(getContext, 1);
-                                  showConfirmDialogCustom(
-                                    context,
-                                    title: language.createOrderConfirmationMsg,
-                                    note: language
-                                        .pleaseAvoidSendingProhibitedItems,
-                                    positiveText: language.yes,
-                                    primaryColor: ColorUtils.colorPrimary,
-                                    negativeText: language.no,
-                                    onAccept: (v) {
-                                      createOrderApiCall(ORDER_CREATED);
-                                      finish(getContext);
-                                    },
-                                  );
-                                }).expand(),
-                                6.width,
-                                commonButton(language.draft, () {
-                                  createOrderApiCall(ORDER_DRAFT);
-                                  finish(getContext, 2);
-                                }).expand(),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
+                    showInDialog(...);
+                  } else
+                  */
+                  {
                     showConfirmDialogCustom(
                       context,
                       title: language.createOrderConfirmationMsg,

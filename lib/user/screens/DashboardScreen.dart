@@ -285,15 +285,12 @@ class DashboardScreenState extends State<DashboardScreen> with WidgetsBindingObs
       ),
       floatingActionButton: FloatingActionButton(
         shape: RoundedRectangleBorder(borderRadius: radius(40)),
-        backgroundColor: appStore.availableBal >= 0 ? ColorUtils.colorPrimary : textSecondaryColorGlobal,
+        backgroundColor: ColorUtils.colorPrimary,
         child: Icon(AntDesign.plus, color: Colors.white),
         onPressed: () {
-          if (appStore.availableBal >= 0) {
-            CreateOrderScreen().launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
-          } else {
-            toast(language.balanceInsufficient);
-            // WALLET_HIDDEN: WalletScreen().launch(context); // preserved below
-          }
+          CreateOrderScreen().launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
+          // WALLET_HIDDEN: wallet balance check removed but code preserved
+          // if (appStore.availableBal >= 0) { ... } else { toast(language.balanceInsufficient); }
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
