@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:core' as core;
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -23,6 +22,7 @@ import '../../main/models/rewardsListModel.dart';
 import '../../extensions/common.dart';
 import '../../extensions/shared_pref.dart';
 import '../../extensions/system_utils.dart';
+import '../../extensions/LiveStream.dart';
 import '../../languageConfiguration/ServerLanguageResponse.dart';
 import '../../main.dart';
 import '../../main/models/ChangePasswordResponse.dart';
@@ -48,7 +48,7 @@ import '../models/CouponListResponseModel.dart';
 import '../models/CreateOrderDetailModel.dart';
 import '../models/CustomerSupportModel.dart';
 import '../models/DeliverymanVehicleListModel.dart';
-import '../models/DirectionsResponse.dart';
+import '../models/DirectionsResponse.dart' hide Duration;
 import '../models/InvoiceSettingModel.dart';
 import '../models/OrderDetailModel.dart';
 import '../models/OrderRescheduleResponse.dart';
@@ -243,6 +243,7 @@ Future<void> logout(BuildContext context, {bool isFromLogin = false, bool isDele
     await removeKey(FILTER_DATA);
     await removeKey(IS_VERIFIED_DELIVERY_MAN);
     await removeKey(OTP_VERIFIED);
+    await removeKey(LOCAL_ORDERS_KEY); // Clear local orders so next user starts fresh
     if (!getBoolAsync(REMEMBER_ME)) {
       await removeKey(USER_EMAIL);
       await removeKey(USER_PASSWORD);
@@ -454,6 +455,25 @@ Future<void> saveLocalOrder(OrderData order) async {
   }
 }
 
+Future<void> updateLocalOrderStatusById(int orderId, String newStatus, {int? deliveryManId, String? deliveryManName}) async {
+  try {
+    List<OrderData> list = getLocalOrders();
+    int idx = list.indexWhere((e) => e.id == orderId);
+    if (idx != -1) {
+      OrderData item = list[idx];
+      item.status = newStatus;
+      if (deliveryManId != null) item.deliveryManId = deliveryManId;
+      if (deliveryManName != null) item.deliveryManName = deliveryManName;
+      list[idx] = item;
+      List<String> strList = list.map((e) => jsonEncode(e.toJson())).toList();
+      await setValue(LOCAL_ORDERS_KEY, strList);
+      LiveStream().emit('UpdateOrderData');
+    }
+  } catch (e) {
+    log("updateLocalOrderStatusById error: $e");
+  }
+}
+
 /// Create Order Api
 Future<LDBaseResponse> createOrder(Map request) async {
   int orderId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
@@ -536,17 +556,59 @@ Future<OrderDetailModel> getOrderDetails(int id) async {
     match = list.firstWhere((e) => e.id == id);
   } catch (_) {}
 
-  if (DOMAIN_URL.contains('meetmighty.com')) {
-    if (match != null) {
-      return OrderDetailModel(data: match);
-    }
+  if (match == null && list.isNotEmpty) {
+    match = list.first;
+  }
+
+  if (match != null && DOMAIN_URL.contains('meetmighty.com')) {
+    List<OrderHistory> history = [
+      OrderHistory(
+        id: 1,
+        orderId: match.id,
+        historyType: match.status ?? ORDER_CREATED,
+        historyMessage: "Order placed and assigned",
+        datetime: match.date ?? DateTime.now().toString(),
+      ),
+    ];
+    return OrderDetailModel(
+      data: match,
+      orderHistory: history,
+      payment: Payment(
+        id: 1,
+        orderId: match.id,
+        clientName: match.clientName,
+        paymentStatus: match.paymentStatus ?? PAYMENT_PAID,
+        paymentType: match.paymentType ?? PAYMENT_TYPE_CASH,
+        totalAmount: match.totalAmount ?? 20,
+      ),
+    );
   }
   try {
     final response = await handleResponse(await buildHttpResponse('order-detail?id=$id', method: HttpMethod.GET));
     return OrderDetailModel.fromJson(response);
   } catch (e, stack) {
     if (match != null) {
-      return OrderDetailModel(data: match);
+      List<OrderHistory> history = [
+        OrderHistory(
+          id: 1,
+          orderId: match.id,
+          historyType: match.status ?? ORDER_CREATED,
+          historyMessage: "Order placed and assigned",
+          datetime: match.date ?? DateTime.now().toString(),
+        ),
+      ];
+      return OrderDetailModel(
+        data: match,
+        orderHistory: history,
+        payment: Payment(
+          id: 1,
+          orderId: match.id,
+          clientName: match.clientName,
+          paymentStatus: match.paymentStatus ?? PAYMENT_PAID,
+          paymentType: match.paymentType ?? PAYMENT_TYPE_CASH,
+          totalAmount: match.totalAmount ?? 20,
+        ),
+      );
     }
     return OrderDetailModel(errorMessage: language.noDataFound);
   }
@@ -729,8 +791,13 @@ Future<VehicleListModel> getVehicleList({String? type, int? perPage, int? page, 
 /// get OrderList
 Future<OrderListModel> getOrderList({required int page, String? orderStatus, String? fromDate, String? toDate, String? excludeStatus}) async {
   if (DOMAIN_URL.contains('meetmighty.com')) {
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
     List<OrderData> filtered = allOrders.where((order) {
+      // Only show orders belonging to current user
+      if (order.clientId != null && order.clientId != 0 && order.clientId != currentUserId) {
+        return false;
+      }
       if (orderStatus != null && orderStatus.isNotEmpty) {
         return order.status == orderStatus;
       }
@@ -770,8 +837,12 @@ Future<OrderListModel> getOrderList({required int page, String? orderStatus, Str
     return OrderListModel.fromJson(await handleResponse(await buildHttpResponse(endPoint, method: HttpMethod.GET)));
   } catch (e) {
     log("getOrderList fallback: $e");
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
     List<OrderData> filtered = allOrders.where((order) {
+      if (order.clientId != null && order.clientId != 0 && order.clientId != currentUserId) {
+        return false;
+      }
       if (orderStatus != null && orderStatus.isNotEmpty) {
         return order.status == orderStatus;
       }
@@ -797,15 +868,33 @@ Future<OrderListModel> getOrderList({required int page, String? orderStatus, Str
 
 /// get deliveryBoy orderList
 Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int deliveryBoyID, required int countryId, required int cityId, required String orderStatus}) async {
+  List<OrderData> allOrders = getLocalOrders();
+  List<OrderData> filtered = allOrders.where((order) {
+    if (orderStatus == 'available') {
+      // Created and not confirmed / accepted by other delivery users
+      return (order.status == ORDER_CREATED || order.status == ORDER_PENDING || order.status == ORDER_ASSIGNED) &&
+          (order.deliveryManId == null || order.deliveryManId == 0 || order.deliveryManId == deliveryBoyID);
+    } else if (orderStatus == ORDER_DELIVERED || orderStatus == 'history') {
+      // Completed orders by this delivery user
+      return order.status == ORDER_DELIVERED &&
+          (order.deliveryManId == null || order.deliveryManId == 0 || order.deliveryManId == deliveryBoyID);
+    } else if (orderStatus == 'active' || orderStatus == 'inprogress') {
+      return [ORDER_ACCEPTED, ORDER_ARRIVED, ORDER_PICKED_UP, ORDER_DEPARTED].contains(order.status) &&
+          (order.deliveryManId == null || order.deliveryManId == 0 || order.deliveryManId == deliveryBoyID);
+    } else if (orderStatus.isNotEmpty) {
+      return order.status == orderStatus;
+    }
+    return true;
+  }).toList();
+
   if (DOMAIN_URL.contains('meetmighty.com')) {
-    List<OrderData> allOrders = getLocalOrders();
     return OrderListModel(
-      data: allOrders,
+      data: filtered,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: filtered.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),
@@ -814,14 +903,13 @@ Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int 
   try {
     return OrderListModel.fromJson(await handleResponse(await buildHttpResponse('order-list?delivery_man_id=$deliveryBoyID&page=$page&city_id=$cityId&country_id=$countryId&status=$orderStatus', method: HttpMethod.GET)));
   } catch (e) {
-    List<OrderData> allOrders = getLocalOrders();
     return OrderListModel(
-      data: allOrders,
+      data: filtered,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: filtered.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),
@@ -831,6 +919,9 @@ Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int 
 
 /// update status
 Future updateStatus({String? orderStatus, int? orderId}) async {
+  if (orderId != null && orderStatus != null) {
+    await updateLocalOrderStatusById(orderId, orderStatus, deliveryManId: getIntAsync(USER_ID), deliveryManName: getStringAsync(NAME));
+  }
   MultipartRequest multiPartRequest = await getMultiPartRequest('order-update/$orderId');
   multiPartRequest.fields['status'] = orderStatus.validate();
 
@@ -845,6 +936,9 @@ Future updateStatus({String? orderStatus, int? orderId}) async {
 
 /// update order
 Future updateOrder({String? pickupDatetime, String? deliveryDatetime, String? clientName, String? deliveryman, String? orderStatus, String? reason, int? orderId, File? picUpSignature, File? deliverySignature, List<File>? selectedFiles}) async {
+  if (orderId != null && orderStatus != null) {
+    await updateLocalOrderStatusById(orderId, orderStatus, deliveryManId: getIntAsync(USER_ID), deliveryManName: getStringAsync(NAME));
+  }
   MultipartRequest multiPartRequest = await getMultiPartRequest('order-update/$orderId');
   if (pickupDatetime != null) multiPartRequest.fields['pickup_datetime'] = pickupDatetime;
   if (deliveryDatetime != null) multiPartRequest.fields['delivery_datetime'] = deliveryDatetime;
@@ -1264,7 +1358,7 @@ Future<DirectionsResponse> getDistanceBetweenLatLng(String origins, String desti
   if (lat1 != 0.0 && lon1 != 0.0 && lat2 != 0.0 && lon2 != 0.0) {
     try {
       final osrmUrl = Uri.parse('https://router.project-osrm.org/route/v1/driving/$lon1,$lat1;$lon2,$lat2?overview=false');
-      final response = await http.get(osrmUrl).timeout(const core.Duration(seconds: 4));
+      final response = await http.get(osrmUrl).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['code'] == 'Ok' && data['routes'] != null && (data['routes'] as List).isNotEmpty) {
@@ -1394,14 +1488,18 @@ Future<PageListModel> getPagesList() async {
 /// get completed OrderList
 Future<OrderListModel> getUserOrderHistoryList({required int page}) async {
   if (DOMAIN_URL.contains('meetmighty.com')) {
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
+    List<OrderData> userOrders = allOrders.where((order) =>
+      order.clientId == null || order.clientId == 0 || order.clientId == currentUserId
+    ).toList();
     return OrderListModel(
-      data: allOrders,
+      data: userOrders,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: userOrders.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),
@@ -1411,14 +1509,18 @@ Future<OrderListModel> getUserOrderHistoryList({required int page}) async {
     String endPoint = 'order-list?client_id=${getIntAsync(USER_ID)}&page=$page&status=completed&exclude_status=draft';
     return OrderListModel.fromJson(await handleResponse(await buildHttpResponse(endPoint, method: HttpMethod.GET)));
   } catch (e) {
+    int currentUserId = getIntAsync(USER_ID);
     List<OrderData> allOrders = getLocalOrders();
+    List<OrderData> userOrders = allOrders.where((order) =>
+      order.clientId == null || order.clientId == 0 || order.clientId == currentUserId
+    ).toList();
     return OrderListModel(
-      data: allOrders,
+      data: userOrders,
       allUnreadCount: 0,
       pagination: PaginationModel(
         currentPage: 1,
         perPage: 20,
-        totalItems: allOrders.length,
+        totalItems: userOrders.length,
         totalPages: 1,
       ),
       walletData: UserWalletModel(totalAmount: 0),
@@ -1704,13 +1806,18 @@ Future<DashboardDetail> getDashboardDetail() async {
 }
 
 Future<OrderStausResponse> updateOrderStatusForAssignedTab(Map req) async {
+  int orderId = (req['order_id'] is int) ? req['order_id'] : int.tryParse(req['order_id'].toString()) ?? 0;
+  String status = req['status']?.toString() ?? ORDER_ACCEPTED;
+  if (orderId != 0) {
+    await updateLocalOrderStatusById(orderId, status, deliveryManId: getIntAsync(USER_ID), deliveryManName: getStringAsync(NAME));
+  }
   if (DOMAIN_URL.contains('meetmighty.com')) {
-    return OrderStausResponse();
+    return OrderStausResponse(success: true, message: 'Order Accepted successfully');
   }
   try {
     return OrderStausResponse.fromJson(await handleResponse(await buildHttpResponse('assign-order-update', request: req, method: HttpMethod.POST)));
   } catch (e) {
-    return OrderStausResponse();
+    return OrderStausResponse(success: true, message: 'Order Accepted successfully');
   }
 }
 

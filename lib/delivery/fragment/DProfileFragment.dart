@@ -167,7 +167,8 @@ class DProfileFragmentState extends State<DProfileFragment> {
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       children: [
-                        mTitle(language.ordersWalletMore),
+                        // WALLET_HIDDEN: mTitle(language.ordersWalletMore),
+                        mTitle('Orders & More'),
                         Container(
                           decoration: boxDecorationWithRoundedCorners(borderRadius: BorderRadius.circular(defaultRadius), border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)), backgroundColor: Colors.transparent),
                           padding: .symmetric(horizontal: 16, vertical: 4),
@@ -216,9 +217,10 @@ class DProfileFragmentState extends State<DProfileFragment> {
                         accountSettingItemWidget(ic_refer_history, language.referralHistory, () {
                           ReferralHistoryScreen().launch(context);
                         }),
-                        accountSettingItemWidget(ic_wallet, language.wallet, () {
-                          WalletScreen().launch(context);
-                        }),
+                        // WALLET_HIDDEN: wallet menu hidden but code preserved
+                        // accountSettingItemWidget(ic_wallet, language.wallet, () {
+                        //   WalletScreen().launch(context);
+                        // }),
                         accountSettingItemWidget(ic_wallet, language.paytrHistory, () {
                           PaytrPaymentHistoryscreen().launch(context);
                         }),

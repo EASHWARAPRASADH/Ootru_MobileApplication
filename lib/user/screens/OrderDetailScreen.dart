@@ -50,6 +50,7 @@ import '../../user/components/CancelOrderDialog.dart';
 import '../../user/screens/ReturnOrderScreen.dart';
 import '../components/OrderCardComponent.dart';
 import 'OrderHistoryScreen.dart';
+import 'OrderTrackingScreen.dart';
 import 'ReviewScreen.dart';
 import 'packaging_symbols_info.dart';
 
@@ -107,11 +108,16 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
   orderDetailApiCall() async {
     appStore.setLoading(true);
     await getOrderDetails(widget.orderId).then((value) {
-      if (value.errorMessage != null && value.errorMessage!.isNotEmpty) {
+      if (value.data == null && (value.errorMessage != null && value.errorMessage!.isNotEmpty)) {
         toast(value.errorMessage);
         return;
       }
-      orderData = value.data!;
+      orderData = value.data;
+      if (orderData == null) {
+        toast(language.noDataFound);
+        return;
+      }
+
       if (orderData!.vehicleData != null) {
         vehicleDataitle = "${language.name} : ${orderData!.vehicleData!.title}, ${language.price} : ${appStore.currencySymbol}${orderData!.vehicleData!.price.validate()}, "
             "${language.capacity} : ${orderData!.vehicleData!.capacity.validate()},${language.perKmCharge} : "
@@ -119,9 +125,9 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
       }
 
       print("Order History::: ${value.orderHistory}");
-      orderHistory = value.orderHistory!;
+      orderHistory = value.orderHistory ?? [];
       if (value.courierCompanyDetail != null) {
-        courierDetails = value.courierCompanyDetail!;
+        courierDetails = value.courierCompanyDetail;
       }
       payment = value.payment ?? Payment();
       list.clear();
@@ -131,9 +137,9 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
         });
       }
       if (orderData!.fixedCharges.validate() != 0) {
-        list.add(ExtraChargeRequestModel(key: FIXED_CHARGES, value: orderData!.fixedCharges!));
+        list.add(ExtraChargeRequestModel(key: FIXED_CHARGES, value: orderData!.fixedCharges ?? 0));
       }
-      if (value.data!.cityDetails != null) {
+      if (value.data?.cityDetails != null) {
         list.add(ExtraChargeRequestModel(key: MIN_DISTANCE, value: value.data!.cityDetails!.minDistance));
         list.add(ExtraChargeRequestModel(key: MIN_WEIGHT, value: value.data!.cityDetails!.minWeight));
         list.add(ExtraChargeRequestModel(key: PER_DISTANCE_CHARGE, value: value.data!.cityDetails!.perDistanceCharges));
@@ -190,20 +196,24 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   canUserCancelOrder() {
-    DateTime orderDate = DateTime.parse("${orderData!.date!}").toLocal();
-    DateTime currentDate = DateTime.parse(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())).toLocal();
-    Duration difference = currentDate.difference(orderDate);
-    int differenceInMinutes = currentDate.difference(orderDate).inMinutes;
-    canCancel = differenceInMinutes < cancelOrderDuration;
-    if (difference.inMinutes < 60 && difference.inMinutes >= 0) {
-      setState(() {
-        remainingTime = Duration(hours: 1) - difference;
-        startTimer();
-      });
-    } else {
-      setState(() {
-        remainingTime = Duration.zero;
-      });
+    try {
+      DateTime orderDate = orderData?.date != null ? DateTime.tryParse(orderData!.date!)?.toLocal() ?? DateTime.now() : DateTime.now();
+      DateTime currentDate = DateTime.now();
+      Duration difference = currentDate.difference(orderDate);
+      int differenceInMinutes = difference.inMinutes;
+      canCancel = differenceInMinutes < cancelOrderDuration;
+      if (difference.inMinutes < 60 && difference.inMinutes >= 0) {
+        setState(() {
+          remainingTime = Duration(hours: 1) - difference;
+          startTimer();
+        });
+      } else {
+        setState(() {
+          remainingTime = Duration.zero;
+        });
+      }
+    } catch (e) {
+      log("canUserCancelOrder error: $e");
     }
   }
 
@@ -420,6 +430,75 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                         Column(
                           crossAxisAlignment: .start,
                           children: [
+                            Container(
+                              margin: .only(bottom: 16),
+                              decoration: boxDecorationWithRoundedCorners(
+                                borderRadius: BorderRadius.circular(defaultRadius),
+                                border: Border.all(color: ColorUtils.colorPrimary, width: 1.5),
+                                backgroundColor: ColorUtils.colorPrimary.withOpacity(0.06),
+                              ),
+                              padding: .all(14),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: .all(10),
+                                    decoration: BoxDecoration(
+                                      color: ColorUtils.colorPrimary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.navigation_rounded, color: Colors.white, size: 22),
+                                  ),
+                                  12.width,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(language.trackOrder, style: boldTextStyle(size: 15, color: ColorUtils.colorPrimary)),
+                                          6.width,
+                                          Container(
+                                            width: 8,
+                                            height: 8,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      4.height,
+                                      Text(
+                                        orderData!.status == ORDER_ACCEPTED || orderData!.status == ORDER_ASSIGNED || orderData!.status == ORDER_TRANSFER
+                                            ? language.courierWillPickupAt
+                                            : language.courierWillDeliverAt,
+                                        style: secondaryTextStyle(size: 12),
+                                      ),
+                                    ],
+                                  ).expand(),
+                                  AppButton(
+                                    elevation: 0,
+                                    height: 32,
+                                    color: ColorUtils.colorPrimary,
+                                    padding: .symmetric(horizontal: 12),
+                                    text: language.track,
+                                    textStyle: primaryTextStyle(color: Colors.white, size: 12),
+                                    onTap: () {
+                                      OrderTrackingScreen(orderData: orderData!).launch(context);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ).onTap(() {
+                              OrderTrackingScreen(orderData: orderData!).launch(context);
+                            }).visible(orderData!.status != ORDER_DELIVERED &&
+                                orderData!.status != ORDER_CANCELLED &&
+                                orderData!.status != ORDER_DRAFT &&
+                                (orderData!.deliveryManId != null ||
+                                    orderData!.status == ORDER_ACCEPTED ||
+                                    orderData!.status == ORDER_ASSIGNED ||
+                                    orderData!.status == ORDER_PICKED_UP ||
+                                    orderData!.status == ORDER_DEPARTED ||
+                                    orderData!.status == ORDER_ARRIVED)),
                             AppButton(
                               elevation: 0,
                               height: 35,
@@ -553,8 +632,144 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                       ).expand(),
                                     ],
                                   ),
-                                  8.height,
-                                  Column(
+                                   8.height,
+                                   if (orderData!.status != ORDER_DELIVERED && orderData!.status != ORDER_CANCELLED) ...[
+                                     Builder(builder: (_) {
+                                       String pOtp = getStringAsync('pickup_otp_${orderData!.id}');
+                                       if (pOtp.isEmpty) {
+                                         pOtp = (1000 + (orderData!.id.validate() % 9000)).toString();
+                                         setValue('pickup_otp_${orderData!.id}', pOtp);
+                                       }
+                                       String dOtp = getStringAsync('delivery_otp_${orderData!.id}');
+                                       if (dOtp.isEmpty) {
+                                         dOtp = (1000 + ((orderData!.id.validate() * 7) % 9000)).toString();
+                                         setValue('delivery_otp_${orderData!.id}', dOtp);
+                                       }
+                                       return Container(
+                                         margin: EdgeInsets.symmetric(vertical: 8),
+                                         padding: EdgeInsets.all(12),
+                                         decoration: boxDecorationWithRoundedCorners(
+                                           backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08),
+                                           borderRadius: BorderRadius.circular(defaultRadius),
+                                           border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.35)),
+                                         ),
+                                         child: Column(
+                                           crossAxisAlignment: CrossAxisAlignment.start,
+                                           children: [
+                                             Row(
+                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                               children: [
+                                                 Row(
+                                                   children: [
+                                                     Icon(Icons.verified_user_outlined, color: ColorUtils.colorPrimary, size: 18),
+                                                     6.width,
+                                                     Text("Verification OTPs", style: boldTextStyle(size: 13, color: ColorUtils.colorPrimary)),
+                                                   ],
+                                                 ),
+                                                 Container(
+                                                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                   decoration: boxDecorationWithRoundedCorners(
+                                                     backgroundColor: ColorUtils.colorPrimary,
+                                                     borderRadius: BorderRadius.circular(10),
+                                                   ),
+                                                   child: Text("Active", style: primaryTextStyle(color: Colors.white, size: 11)),
+                                                 ),
+                                               ],
+                                             ),
+                                             8.height,
+                                             Row(
+                                               children: [
+                                                 Expanded(
+                                                   child: Container(
+                                                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                     decoration: boxDecorationWithRoundedCorners(
+                                                       backgroundColor: context.cardColor,
+                                                       borderRadius: BorderRadius.circular(8),
+                                                       border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                                     ),
+                                                     child: Column(
+                                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                                       children: [
+                                                         Text("Pickup OTP", style: secondaryTextStyle(size: 11)),
+                                                         4.height,
+                                                         Row(
+                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                           children: [
+                                                             Text(pOtp, style: boldTextStyle(size: 18, color: ColorUtils.colorPrimary)),
+                                                             InkWell(
+                                                               onTap: () {
+                                                                 final contact = orderData!.pickupPoint?.contactNumber.validate() ?? '';
+                                                                 sendSmsViaDevice(
+                                                                   phoneNumber: contact,
+                                                                   message: 'Your MightyDelivery Pickup OTP for Order #${orderData!.id} is $pOtp',
+                                                                 );
+                                                               },
+                                                               child: Container(
+                                                                 padding: EdgeInsets.all(4),
+                                                                 decoration: boxDecorationWithRoundedCorners(
+                                                                   backgroundColor: ColorUtils.colorPrimary.withOpacity(0.12),
+                                                                   borderRadius: BorderRadius.circular(4),
+                                                                 ),
+                                                                 child: Icon(Icons.sms_outlined, size: 15, color: ColorUtils.colorPrimary),
+                                                               ),
+                                                             ),
+                                                           ],
+                                                         ),
+                                                       ],
+                                                     ),
+                                                   ),
+                                                 ),
+                                                 10.width,
+                                                 Expanded(
+                                                   child: Container(
+                                                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                     decoration: boxDecorationWithRoundedCorners(
+                                                       backgroundColor: context.cardColor,
+                                                       borderRadius: BorderRadius.circular(8),
+                                                       border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                                     ),
+                                                     child: Column(
+                                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                                       children: [
+                                                         Text("Delivery OTP", style: secondaryTextStyle(size: 11)),
+                                                         4.height,
+                                                         Row(
+                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                           children: [
+                                                             Text(dOtp, style: boldTextStyle(size: 18, color: Colors.blue.shade700)),
+                                                             InkWell(
+                                                               onTap: () {
+                                                                 final contact = orderData!.deliveryPoint?.contactNumber.validate() ?? '';
+                                                                 sendSmsViaDevice(
+                                                                   phoneNumber: contact,
+                                                                   message: 'Your MightyDelivery Delivery OTP for Order #${orderData!.id} is $dOtp',
+                                                                 );
+                                                               },
+                                                               child: Container(
+                                                                 padding: EdgeInsets.all(4),
+                                                                 decoration: boxDecorationWithRoundedCorners(
+                                                                   backgroundColor: Colors.blue.withOpacity(0.12),
+                                                                   borderRadius: BorderRadius.circular(4),
+                                                                 ),
+                                                                 child: Icon(Icons.sms_outlined, size: 15, color: Colors.blue.shade700),
+                                                               ),
+                                                             ),
+                                                           ],
+                                                         ),
+                                                       ],
+                                                     ),
+                                                   ),
+                                                 ),
+                                               ],
+                                             ),
+                                             6.height,
+                                             Text("Share the OTP with the delivery partner when they arrive.", style: secondaryTextStyle(size: 11)),
+                                           ],
+                                         ),
+                                       );
+                                     }),
+                                   ],
+                                   Column(
                                     crossAxisAlignment: .start,
                                     children: [
                                       Row(

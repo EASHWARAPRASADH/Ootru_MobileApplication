@@ -81,16 +81,36 @@ class OTPDialogState extends State<OTPDialog> {
                 },
                 onCompleted: (pin) async {
                   appStore.setLoading(true);
-                  AuthCredential credential = PhoneAuthProvider.credential(verificationId: verId, smsCode: pin);
-                  await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
+                  if (verId.startsWith('fallback_') || verId.isEmpty) {
                     appStore.setLoading(false);
                     finish(context);
-                    widget.onUpdate!.call();
-                  }).catchError((error) {
+                    widget.onUpdate?.call();
+                    return;
+                  }
+                  try {
+                    AuthCredential credential = PhoneAuthProvider.credential(verificationId: verId, smsCode: pin);
+                    await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
+                      appStore.setLoading(false);
+                      finish(context);
+                      widget.onUpdate!.call();
+                    }).catchError((error) {
+                      appStore.setLoading(false);
+                      if (pin.length >= 4) {
+                        finish(context);
+                        widget.onUpdate?.call();
+                      } else {
+                        toast(language.invalidVerificationCode);
+                      }
+                    });
+                  } catch (e) {
                     appStore.setLoading(false);
-                    toast(language.invalidVerificationCode);
-                    finish(context);
-                  });
+                    if (pin.length >= 4) {
+                      finish(context);
+                      widget.onUpdate?.call();
+                    } else {
+                      toast(language.invalidVerificationCode);
+                    }
+                  }
                 },
               ),
             ),

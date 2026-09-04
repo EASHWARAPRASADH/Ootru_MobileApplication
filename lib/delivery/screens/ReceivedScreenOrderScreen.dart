@@ -364,34 +364,30 @@ class ReceivedScreenOrderScreenState extends State<ReceivedScreenOrderScreen> {
                             if (!mIsCheck && (widget.orderData!.paymentId == null || widget.orderData!.paymentId == 0) && widget.isShowPayment) {
                               return toast(language.pleaseConfirmPayment);
                             } else {
-                              if (appStore.isOtpVerifyOnPickupDelivery == true) {
-                                sendOtp(
-                                  context,
-                                  phoneNumber: widget.orderData!.status == ORDER_DEPARTED ? widget.orderData!.deliveryPoint!.contactNumber.validate() : widget.orderData!.pickupPoint!.contactNumber.validate(),
-                                  onUpdate: (verificationId) async {
-                                    await showInDialog(context,
-                                        builder: (context) => OTPDialog(
-                                            phoneNumber: widget.orderData!.status == ORDER_DEPARTED ? widget.orderData!.deliveryPoint!.contactNumber.validate() : widget.orderData!.pickupPoint!.contactNumber.validate(),
-                                            onUpdate: () async {
-                                              if (_image != null && _image!.isNotEmpty) {
-                                                await saveProofData();
-                                                await saveOrderData();
-                                              } else {
-                                                saveOrderData();
-                                              }
-                                            },
-                                            verificationId: verificationId),
-                                        barrierDismissible: false);
-                                  },
-                                );
-                              } else {
-                                if (_image != null && _image!.isNotEmpty) {
-                                  await saveProofData();
-                                  await saveOrderData();
-                                } else {
-                                  saveOrderData();
-                                }
-                              }
+                              // OTP always required — send to pickup or delivery contact
+                              sendOtp(
+                                context,
+                                phoneNumber: widget.orderData!.status == ORDER_DEPARTED
+                                    ? widget.orderData!.deliveryPoint!.contactNumber.validate()
+                                    : widget.orderData!.pickupPoint!.contactNumber.validate(),
+                                onUpdate: (verificationId) async {
+                                  await showInDialog(context,
+                                      builder: (context) => OTPDialog(
+                                          phoneNumber: widget.orderData!.status == ORDER_DEPARTED
+                                              ? widget.orderData!.deliveryPoint!.contactNumber.validate()
+                                              : widget.orderData!.pickupPoint!.contactNumber.validate(),
+                                          onUpdate: () async {
+                                            if (_image != null && _image!.isNotEmpty) {
+                                              await saveProofData();
+                                              await saveOrderData();
+                                            } else {
+                                              saveOrderData();
+                                            }
+                                          },
+                                          verificationId: verificationId),
+                                      barrierDismissible: false);
+                                },
+                              );
                             }
                           },
                         ).expand(),

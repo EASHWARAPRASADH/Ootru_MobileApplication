@@ -13,6 +13,7 @@ class OrderDetailModel {
 
   OrderDetailModel({
     this.data,
+    this.payment,
     this.orderHistory,
     this.clientDetail,
     this.deliveryManDetail,

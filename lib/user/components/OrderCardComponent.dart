@@ -19,6 +19,7 @@ import 'package:pdfx/pdfx.dart' as pdf;
 import '../../extensions/app_button.dart';
 import '../../extensions/common.dart';
 import '../../extensions/decorations.dart';
+import '../../extensions/shared_pref.dart';
 import '../../extensions/text_styles.dart';
 import '../../main.dart';
 import '../../main/utils/Common.dart';
@@ -94,6 +95,29 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
                     Row(
                       children: [
                         Text('# ${widget.item.id}', style: boldTextStyle(size: 14)).expand(),
+                        if (widget.item.status != ORDER_DELIVERED && widget.item.status != ORDER_CANCELLED)
+                          Builder(builder: (_) {
+                            String pOtp = getStringAsync('pickup_otp_${widget.item.id}');
+                            if (pOtp.isEmpty) {
+                              pOtp = (1000 + (widget.item.id.validate() % 9000)).toString();
+                            }
+                            return Container(
+                              margin: EdgeInsets.only(right: 8),
+                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: boxDecorationWithRoundedCorners(
+                                backgroundColor: ColorUtils.colorPrimary.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.pin, size: 12, color: ColorUtils.colorPrimary),
+                                  2.width,
+                                  Text("OTP: $pOtp", style: boldTextStyle(size: 11, color: ColorUtils.colorPrimary)),
+                                ],
+                              ),
+                            );
+                          }),
                         if (widget.item.status != ORDER_CANCELLED) Text(printAmount(widget.item.totalAmount ?? 0), style: boldTextStyle()),
                       ],
                     ),
@@ -254,7 +278,16 @@ class _OrderCardComponentState extends State<OrderCardComponent> {
                   onTap: () {
                     OrderTrackingScreen(orderData: widget.item).launch(context);
                   },
-                ).visible((widget.item.status == ORDER_DEPARTED) && appStore.userType != DELIVERY_MAN),
+                ).visible((widget.item.status == ORDER_ACCEPTED ||
+                        widget.item.status == ORDER_ASSIGNED ||
+                        widget.item.status == ORDER_PICKED_UP ||
+                        widget.item.status == ORDER_DEPARTED ||
+                        widget.item.status == ORDER_ARRIVED ||
+                        widget.item.deliveryManId != null) &&
+                    widget.item.status != ORDER_CANCELLED &&
+                    widget.item.status != ORDER_DELIVERED &&
+                    widget.item.status != ORDER_DRAFT &&
+                    appStore.userType != DELIVERY_MAN),
               ],
             ),
           ],

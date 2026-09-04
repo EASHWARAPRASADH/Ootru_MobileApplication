@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
+import 'package:flutter_contacts/flutter_contacts.dart'; // for contact picker
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart' as fmap;
+import 'package:latlong2/latlong.dart' as osm;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mighty_delivery/extensions/colors.dart';
@@ -45,6 +48,7 @@ import '../../main/models/PaymentModel.dart';
 import '../../main/models/TotalAmountResponse.dart';
 import '../../main/models/VehicleModel.dart';
 import '../../main/network/RestApis.dart';
+import '../../main/services/AuthServices.dart'; // for sendOtp
 import '../../main/utils/Common.dart';
 import '../../main/utils/Constants.dart';
 import '../../main/utils/Images.dart';
@@ -52,6 +56,7 @@ import '../../main/utils/Widgets.dart';
 import '../../main/utils/dynamic_theme.dart';
 import '../../user/components/CreateOrderConfirmationDialog.dart';
 import '../../user/screens/DashboardScreen.dart';
+import '../../extensions/app_button.dart'; // for AppButton
 import 'GoogleMapScreen.dart';
 import 'PaymentScreen.dart';
 
@@ -105,6 +110,26 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
 
   String deliverCountryCode = defaultPhoneCode;
   String pickupCountryCode = defaultPhoneCode;
+
+  String selectedWeightUnit = 'kg';
+  List<String> weightUnitList = ['kg', 'grams', 'mg'];
+
+  double getEffectiveWeightInKg() {
+    double raw = double.tryParse(weightController.text) ?? 1.0;
+    if (selectedWeightUnit == 'grams') {
+      return (raw / 1000.0).clamp(0.001, 100000.0);
+    } else if (selectedWeightUnit == 'mg') {
+      return (raw / 1000000.0).clamp(0.00001, 100000.0);
+    }
+    return raw.clamp(0.01, 100000.0);
+  }
+
+  double get weightStepAmount {
+    if (selectedWeightUnit == 'grams') return 50.0;
+    if (selectedWeightUnit == 'mg') return 500.0;
+    return 1.0;
+  }
+
 
   DateTime? pickFromDateTime,
       pickToDateTime,
@@ -174,7 +199,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   getStaticDetailsForOrder() async {
-    await getCreateOrderDetails(getIntAsync(CITY_ID)).then((value) async {
+    ensureDefaultCity();
+    int currentCityId = getIntAsync(CITY_ID);
+    if (currentCityId == 0) currentCityId = 1;
+    await getCreateOrderDetails(currentCityId).then((value) async {
       appStore.setLoading(false);
       await setValue(CITY_DATA, value.cityDetail!.toJson());
       cityData = value.cityDetail;
@@ -256,6 +284,48 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       await getStaticDetailsForOrder();
       getAddressData = await getAddressList(page: 1);
       await getCouponList();
+      // Auto-fill pickup contact from logged-in user's profile (only for new orders)
+      if (widget.orderData == null) {
+        String userName = getStringAsync(NAME);
+        String userContact = getStringAsync(USER_CONTACT_NUMBER);
+        if (userContact.isEmpty) {
+          try {
+            var uDetail = await getUserDetail(getIntAsync(USER_ID));
+            if (uDetail.contactNumber != null && uDetail.contactNumber!.isNotEmpty) {
+              userContact = uDetail.contactNumber!;
+              await setValue(USER_CONTACT_NUMBER, userContact);
+            }
+            if (userName.isEmpty && uDetail.name != null && uDetail.name!.isNotEmpty) {
+              userName = uDetail.name!;
+              await setValue(NAME, userName);
+            }
+          } catch (e) {
+            log("getUserDetail fallback error: $e");
+          }
+        }
+        if (pickPersonNameCont.text.isEmpty && userName.isNotEmpty) {
+          pickPersonNameCont.text = userName;
+        }
+        if (pickPhoneCont.text.isEmpty && userContact.isNotEmpty) {
+          // Strip any country code prefix if present (e.g. "+91 9876543210" → "9876543210")
+          String digits = userContact.replaceAll(RegExp(r'[^\d]'), '');
+          // If longer than 10 digits, strip country code (typically 1-3 digits)
+          if (digits.length > 10) {
+            digits = digits.substring(digits.length - 10);
+          }
+          pickPhoneCont.text = digits;
+        }
+        // Auto-fill pickup address from user profile address or live location
+        if (pickAddressCont.text.isEmpty) {
+          String userAddress = getStringAsync(USER_ADDRESS);
+          if (userAddress.isNotEmpty) {
+            pickAddressCont.text = userAddress;
+          } else {
+            fetchLiveLocation(isPickup: true);
+          }
+        }
+        setState(() {});
+      }
       if (widget.orderData != null) {
         if (widget.orderData!.totalWeight != 0)
           weightController.text = widget.orderData!.totalWeight!.toString();
@@ -396,7 +466,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       try {
         var response = await http.get(
           Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng'),
-          headers: {'User-Agent': 'MightyDelivery/1.0'},
+          headers: {'User-Agent': 'Freeleft/1.0'},
         ).timeout(Duration(seconds: 2));
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body);
@@ -455,7 +525,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       if (vId != null) "vehicle_id": vId,
       "is_insurance":
           insuranceSelectedOption == 0 && appStore.isInsuranceAllowed == "1",
-      "total_weight": double.tryParse(weightController.text) ?? 1.0,
+      "total_weight": getEffectiveWeightInKg(),
       "total_distance": totalDistance,
       "insurance_amount": insuranceAmountController.text.isEmpty
           ? 0
@@ -565,7 +635,9 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       "packaging_symbols": packaging_symbols,
       "extra_charges": extraChargeList,
       "parcel_type": parcelTypeCont.text,
-      "total_weight": weightController.text.toDouble(),
+      "total_weight": getEffectiveWeightInKg(),
+      "weight_unit": selectedWeightUnit,
+      "raw_weight": weightController.text.toDouble(),
       "total_distance":
           totalDistance.toStringAsFixed(digitAfterDecimal).validate(),
       "payment_collect_from": paymentCollectFrom,
@@ -596,28 +668,166 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       appStore.setLoading(false);
       toast(value.message);
       LiveStream().emit('UpdateOrderData');
-      if (isSelected == 2) {
-        finish(context);
-        PaymentScreen(
-          orderId: value.orderId.validate(),
-          totalAmount: (totalAmountResponse!.totalAmount!),
-          isOnline: true,
-        ).launch(context);
-      } else if (isSelected == 3) {
-        log("-----available balance ${appStore.availableBal.toString()}-----------${totalAmountResponse!.totalAmount}----------${insuranceAmount}----------${(totalAmountResponse!.totalAmount! + insuranceAmount)}");
-        if (appStore.availableBal > (totalAmountResponse!.totalAmount!)) {
-          await savePaymentApiCall(
-              paymentType: PAYMENT_TYPE_WALLET,
-              paymentStatus: PAYMENT_PAID,
-              totalAmount: (calculateTotalAmount()).toString(),
-              orderID: value.orderId.toString());
-        }
-        finish(context);
-        DashboardScreen().launch(context, isNewTask: true);
-      } else {
-        finish(context);
-        DashboardScreen().launch(context, isNewTask: true);
+      // Generate 4-digit pickup OTP and delivery OTP
+      final pickupOtp = (1000 + (DateTime.now().millisecondsSinceEpoch % 9000)).toString();
+      final deliveryOtp = (1000 + ((DateTime.now().millisecondsSinceEpoch ~/ 7) % 9000)).toString();
+      final pickupContact = '$pickupCountryCode${pickPhoneCont.text.trim()}';
+      final deliveryContact = '$deliverCountryCode${deliverPhoneCont.text.trim()}';
+      // Store OTPs in SharedPreferences keyed by orderId
+      await setValue('pickup_otp_${value.orderId}', pickupOtp);
+      await setValue('delivery_otp_${value.orderId}', deliveryOtp);
+
+      // Attempt sending OTP via SMS to both pickup contact and delivery receiver
+      if (pickupContact.trim().isNotEmpty) {
+        sendOtp(context, phoneNumber: pickupContact, onUpdate: (verificationId) {});
       }
+      if (deliveryContact.trim().isNotEmpty) {
+        sendOtp(context, phoneNumber: deliveryContact, onUpdate: (verificationId) {});
+      }
+
+      // Show comprehensive OTP dialog with SMS dispatch buttons for both contacts
+      showInDialog(
+        context,
+        barrierDismissible: false,
+        builder: (ctx) => SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 48),
+              10.height,
+              Text('Order Created!', style: boldTextStyle(size: 18)),
+              4.height,
+              Text('Order #${value.orderId}', style: secondaryTextStyle(size: 13)),
+              14.height,
+
+              // Pickup OTP Card (Sender)
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: boxDecorationWithRoundedCorners(
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                  backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08),
+                  border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.35)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Pickup OTP (Sender)', style: secondaryTextStyle(size: 12)),
+                        Icon(Icons.lock_clock, size: 16, color: ColorUtils.colorPrimary),
+                      ],
+                    ),
+                    6.height,
+                    Text(
+                      pickupOtp,
+                      style: boldTextStyle(size: 26, color: ColorUtils.colorPrimary),
+                      textAlign: TextAlign.center,
+                    ),
+                    4.height,
+                    Text(pickupContact, style: secondaryTextStyle(size: 11)),
+                    8.height,
+                    AppButton(
+                      width: context.width(),
+                      height: 34,
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      color: ColorUtils.colorPrimary,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.sms, color: Colors.white, size: 15),
+                          6.width,
+                          Text('Send SMS to Sender', style: boldTextStyle(color: Colors.white, size: 11)),
+                        ],
+                      ),
+                      onTap: () {
+                        sendSmsViaDevice(
+                          phoneNumber: pickupContact,
+                          message: 'Your MightyDelivery Pickup OTP for Order #${value.orderId} is $pickupOtp',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              12.height,
+
+              // Delivery OTP Card (Receiver)
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: boxDecorationWithRoundedCorners(
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                  backgroundColor: Colors.blue.withOpacity(0.08),
+                  border: Border.all(color: Colors.blue.withOpacity(0.35)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Delivery OTP (Receiver)', style: secondaryTextStyle(size: 12)),
+                        Icon(Icons.verified, size: 16, color: Colors.blue.shade700),
+                      ],
+                    ),
+                    6.height,
+                    Text(
+                      deliveryOtp,
+                      style: boldTextStyle(size: 26, color: Colors.blue.shade700),
+                      textAlign: TextAlign.center,
+                    ),
+                    4.height,
+                    Text(deliveryContact, style: secondaryTextStyle(size: 11)),
+                    8.height,
+                    AppButton(
+                      width: context.width(),
+                      height: 34,
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      color: Colors.blue.shade700,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.sms, color: Colors.white, size: 15),
+                          6.width,
+                          Text('Send SMS to Receiver', style: boldTextStyle(color: Colors.white, size: 11)),
+                        ],
+                      ),
+                      onTap: () {
+                        sendSmsViaDevice(
+                          phoneNumber: deliveryContact,
+                          message: 'Your MightyDelivery Delivery OTP for Order #${value.orderId} is $deliveryOtp',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              14.height,
+              AppButton(
+                width: context.width(),
+                text: 'OK',
+                color: ColorUtils.colorPrimary,
+                textStyle: boldTextStyle(color: Colors.white),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  if (isSelected == 2) {
+                    finish(context);
+                    PaymentScreen(
+                      orderId: value.orderId.validate(),
+                      totalAmount: (totalAmountResponse!.totalAmount!),
+                      isOnline: true,
+                    ).launch(context);
+                  } else if (isSelected == 3) {
+                    finish(context);
+                    DashboardScreen().launch(context, isNewTask: true);
+                  } else {
+                    finish(context);
+                    DashboardScreen().launch(context, isNewTask: true);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      );
     }).catchError((error) {
       appStore.setLoading(false);
       toast(error.toString());
@@ -719,7 +929,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       try {
         final res = await http.get(
           Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(pickAddressCont.text.trim())}&format=json&limit=1'),
-          headers: {'User-Agent': 'MightyDeliveryApp/1.0'},
+          headers: {'User-Agent': 'FreeleftApp/1.0'},
         ).timeout(Duration(seconds: 3));
         if (res.statusCode == 200) {
           var data = jsonDecode(res.body);
@@ -738,7 +948,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       try {
         final res = await http.get(
           Uri.parse('https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(deliverAddressCont.text.trim())}&format=json&limit=1'),
-          headers: {'User-Agent': 'MightyDeliveryApp/1.0'},
+          headers: {'User-Agent': 'FreeleftApp/1.0'},
         ).timeout(Duration(seconds: 3));
         if (res.statusCode == 200) {
           var data = jsonDecode(res.body);
@@ -1133,7 +1343,6 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
             children: [
               Text(language.weight, style: primaryTextStyle()).expand(),
               3.width,
-              //   Text(" (${appStore.distanceUnit})", style: secondaryTextStyle()).expand(),
               Container(
                 decoration: BoxDecoration(
                     border: Border.all(
@@ -1150,20 +1359,27 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                                   : Colors.grey)
                           .paddingAll(12)
                           .onTap(() {
-                        if (weightController.text.toDouble() > 1) {
-                          weightController.text =
-                              (weightController.text.toDouble() - 1).toString();
+                        double current = double.tryParse(weightController.text) ?? 1.0;
+                        if (current > weightStepAmount) {
+                          double next = current - weightStepAmount;
+                          weightController.text = next == next.roundToDouble() ? next.toInt().toString() : next.toStringAsFixed(1);
+                        } else {
+                          weightController.text = weightStepAmount == weightStepAmount.roundToDouble() ? weightStepAmount.toInt().toString() : weightStepAmount.toString();
                         }
+                        getStaticDetailsForOrder();
                       }),
                       VerticalDivider(
                           thickness: 1, color: context.dividerColor),
                       Container(
-                        width: 50,
+                        width: 55,
                         child: AppTextField(
                           controller: weightController,
                           textAlign: TextAlign.center,
-                          maxLength: 5,
+                          maxLength: 6,
                           textFieldType: TextFieldType.PHONE,
+                          onChanged: (val) {
+                            getStaticDetailsForOrder();
+                          },
                           decoration: InputDecoration(
                             counterText: '',
                             focusedBorder: UnderlineInputBorder(
@@ -1181,10 +1397,53 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                                   : Colors.grey)
                           .paddingAll(12)
                           .onTap(() {
-                        weightController.text =
-                            (weightController.text.toDouble() + 1).toString();
+                        double current = double.tryParse(weightController.text) ?? 1.0;
+                        double next = current + weightStepAmount;
+                        weightController.text = next == next.roundToDouble() ? next.toInt().toString() : next.toStringAsFixed(1);
+                        getStaticDetailsForOrder();
                       }),
                     ],
+                  ),
+                ),
+              ),
+              8.width,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: ColorUtils.borderColor,
+                    width: appStore.isDarkMode ? 0.2 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedWeightUnit,
+                    isDense: true,
+                    items: weightUnitList.map((String unit) {
+                      return DropdownMenuItem<String>(
+                        value: unit,
+                        child: Text(
+                          unit,
+                          style: boldTextStyle(size: 14, color: ColorUtils.colorPrimary),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? val) {
+                      if (val != null && val != selectedWeightUnit) {
+                        setState(() {
+                          selectedWeightUnit = val;
+                          if (val == 'grams' && (double.tryParse(weightController.text) ?? 1) <= 5) {
+                            weightController.text = '500';
+                          } else if (val == 'mg' && (double.tryParse(weightController.text) ?? 1) <= 10) {
+                            weightController.text = '1000';
+                          } else if (val == 'kg' && (double.tryParse(weightController.text) ?? 1) > 100) {
+                            weightController.text = '1';
+                          }
+                        });
+                        getStaticDetailsForOrder();
+                      }
+                    },
                   ),
                 ),
               ),
@@ -1559,7 +1818,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       crossAxisAlignment: .start,
       children: [
         Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1567,7 +1826,11 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                 Text(language.deliveryLocation, style: primaryTextStyle()),
                 InkWell(
                   onTap: () async {
-                    await fetchLiveLocation(isPickup: false);
+                    // "Pin the Location" — opens map picker for delivery location
+                    bool isLocationEnabledNow = await checkAndRequestLocationServices(context);
+                    if (isLocationEnabledNow) {
+                      await showMapScreen(isPick: false, isSaveAddress: false);
+                    }
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
@@ -1580,10 +1843,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.my_location, color: ColorUtils.colorPrimary, size: 14),
+                        Icon(Icons.location_pin, color: ColorUtils.colorPrimary, size: 14),
                         6.width,
                         Text(
-                          "Fetch Live Location",
+                          "Pin the Location",
                           style: boldTextStyle(color: ColorUtils.colorPrimary, size: 12),
                         ),
                       ],
@@ -1666,7 +1929,6 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
               nextFocus: deliverDesFocus,
               textFieldType: TextFieldType.PHONE,
               decoration: commonInputDecoration(
-                suffixIcon: Icons.phone,
                 prefixIcon: IntrinsicHeight(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1705,10 +1967,142 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     ],
                   ),
                 ),
+                // Use dateTime slot as a widget suffix for the contacts icon
+                dateTime: GestureDetector(
+                  onTap: () async {
+                    // Open device contact picker
+                    if (await FlutterContacts.requestPermission(readonly: true)) {
+                      final contacts = await FlutterContacts.getContacts(withProperties: true);
+                      if (!mounted) return;
+                      List<Contact> filteredContacts = List.from(contacts);
+                      TextEditingController searchCtrl = TextEditingController();
+                      await showModalBottomSheet(
+                        context: context,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(defaultRadius)),
+                        ),
+                        isScrollControlled: true,
+                        builder: (ctx) {
+                          return StatefulBuilder(
+                            builder: (context, setModalState) {
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                                ),
+                                child: DraggableScrollableSheet(
+                                  expand: false,
+                                  maxChildSize: 0.9,
+                                  initialChildSize: 0.75,
+                                  minChildSize: 0.4,
+                                  builder: (_, scrollCtrl) {
+                                    return Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Select Contact', style: boldTextStyle(size: 16)),
+                                              Text('${filteredContacts.length} contacts', style: secondaryTextStyle(size: 12)),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                          child: AppTextField(
+                                            controller: searchCtrl,
+                                            textFieldType: TextFieldType.OTHER,
+                                            decoration: commonInputDecoration(
+                                              hintText: "Search by name or phone...",
+                                              prefixIcon: Icon(Icons.search, color: ColorUtils.colorPrimary, size: 20),
+                                            ),
+                                            onChanged: (val) {
+                                              setModalState(() {
+                                                if (val.trim().isEmpty) {
+                                                  filteredContacts = List.from(contacts);
+                                                } else {
+                                                  final q = val.trim().toLowerCase();
+                                                  filteredContacts = contacts.where((c) {
+                                                    final nameMatch = c.displayName.toLowerCase().contains(q);
+                                                    final phoneMatch = c.phones.any((p) => p.number.replaceAll(RegExp(r'[^\d]'), '').contains(q));
+                                                    return nameMatch || phoneMatch;
+                                                  }).toList();
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        8.height,
+                                        Expanded(
+                                          child: filteredContacts.isEmpty
+                                              ? Center(
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.person_search_outlined, size: 48, color: Colors.grey),
+                                                      8.height,
+                                                      Text("No contacts found", style: secondaryTextStyle()),
+                                                    ],
+                                                  ),
+                                                )
+                                              : ListView.builder(
+                                                  controller: scrollCtrl,
+                                                  itemCount: filteredContacts.length,
+                                                  itemBuilder: (_, i) {
+                                                    final c = filteredContacts[i];
+                                                    final phone = c.phones.isNotEmpty
+                                                        ? c.phones.first.number.replaceAll(RegExp(r'[^\d]'), '')
+                                                        : '';
+                                                    return ListTile(
+                                                      leading: CircleAvatar(
+                                                        backgroundColor: ColorUtils.colorPrimary.withOpacity(0.2),
+                                                        child: Text(
+                                                          c.displayName.isNotEmpty ? c.displayName[0].toUpperCase() : '?',
+                                                          style: boldTextStyle(color: ColorUtils.colorPrimary),
+                                                        ),
+                                                      ),
+                                                      title: Text(c.displayName, style: primaryTextStyle()),
+                                                      subtitle: phone.isNotEmpty ? Text(phone, style: secondaryTextStyle()) : null,
+                                                      onTap: () {
+                                                        Navigator.pop(ctx);
+                                                        if (phone.isNotEmpty) {
+                                                          // Strip country code if >10 digits
+                                                          String digits = phone;
+                                                          if (digits.length > 10) {
+                                                            digits = digits.substring(digits.length - 10);
+                                                          }
+                                                          deliverPhoneCont.text = digits;
+                                                        }
+                                                        if (c.displayName.isNotEmpty) {
+                                                          deliverPersonNameCont.text = c.displayName;
+                                                        }
+                                                        setState(() {});
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    } else {
+                      toast('Contacts permission denied');
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Icon(Icons.contacts_outlined, color: ColorUtils.colorPrimary, size: 22),
+                  ),
+                ),
               ),
               validator: (value) {
                 if (value!.trim().isEmpty) return language.fieldRequiredMsg;
-                //if (value!.length < 8 || value.length > 15) return "please enter valid mobile number";
                 if (value.trim().length < minContactLength ||
                     value.trim().length > maxContactLength)
                   return language.phoneNumberInvalid;
@@ -1886,59 +2280,121 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(defaultRadius),
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    markers: markers.isNotEmpty
-                        ? markers.map((e) => e).toSet()
-                        : {
-                            Marker(
-                              markerId: MarkerId("pick"),
-                              position: LatLng(pLat, pLong),
-                              infoWindow: InfoWindow(title: language.sourceLocation),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-                            ),
-                            Marker(
-                              markerId: MarkerId("drop"),
-                              position: LatLng(dLat, dLong),
-                              infoWindow: InfoWindow(title: language.destinationLocation),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+              child: (googleMapAPIKey.isNotEmpty && googleMapAPIKey != 'GOOGLE_MAPS_API_KEY')
+                  ? Stack(
+                      children: [
+                        GoogleMap(
+                          markers: markers.isNotEmpty
+                              ? markers.map((e) => e).toSet()
+                              : {
+                                  Marker(
+                                    markerId: MarkerId("pick"),
+                                    position: LatLng(pLat, pLong),
+                                    infoWindow: InfoWindow(title: language.sourceLocation),
+                                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+                                  ),
+                                  Marker(
+                                    markerId: MarkerId("drop"),
+                                    position: LatLng(dLat, dLong),
+                                    infoWindow: InfoWindow(title: language.destinationLocation),
+                                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+                                  ),
+                                },
+                          polylines: _polylines,
+                          mapType: MapType.normal,
+                          cameraTargetBounds: CameraTargetBounds.unbounded,
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng((pLat + dLat) / 2, (pLong + dLong) / 2),
+                            zoom: 12,
+                          ),
+                          onMapCreated: onMapCreated,
+                          tiltGesturesEnabled: true,
+                          scrollGesturesEnabled: true,
+                          zoomGesturesEnabled: true,
+                          zoomControlsEnabled: true,
+                          rotateGesturesEnabled: true,
+                          myLocationButtonEnabled: false,
+                          gestureRecognizers: {
+                            Factory<OneSequenceGestureRecognizer>(
+                              () => EagerGestureRecognizer(),
                             ),
                           },
-                    polylines: _polylines,
-                    mapType: MapType.normal,
-                    cameraTargetBounds: CameraTargetBounds.unbounded,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng((pLat + dLat) / 2, (pLong + dLong) / 2),
-                      zoom: 12,
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: FloatingActionButton.small(
+                            heroTag: 'recenter_route_btn',
+                            backgroundColor: ColorUtils.colorPrimary,
+                            onPressed: () {
+                              setMapFitToCenter(_polylines);
+                            },
+                            child: Icon(Icons.center_focus_strong, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Stack(
+                      children: [
+                        fmap.FlutterMap(
+                          options: fmap.MapOptions(
+                            initialCenter: osm.LatLng((pLat + dLat) / 2, (pLong + dLong) / 2),
+                            initialZoom: 12.0,
+                          ),
+                          children: [
+                            fmap.TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.mighty.delivery',
+                            ),
+                            if (polylineCoordinates.isNotEmpty)
+                              fmap.PolylineLayer(
+                                polylines: [
+                                  fmap.Polyline(
+                                    points: polylineCoordinates.map((e) => osm.LatLng(e.latitude, e.longitude)).toList(),
+                                    strokeWidth: 5,
+                                    color: ColorUtils.colorPrimary,
+                                  ),
+                                ],
+                              ),
+                            fmap.MarkerLayer(
+                              markers: [
+                                fmap.Marker(
+                                  point: osm.LatLng(pLat, pLong),
+                                  width: 44,
+                                  height: 44,
+                                  child: Icon(Icons.location_on, color: Colors.green, size: 40),
+                                ),
+                                fmap.Marker(
+                                  point: osm.LatLng(dLat, dLong),
+                                  width: 44,
+                                  height: 44,
+                                  child: Icon(Icons.location_on, color: Colors.red, size: 40),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: boxDecorationWithRoundedCorners(
+                              backgroundColor: Colors.black.withOpacity(0.65),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.route, color: Colors.white, size: 14),
+                                4.width,
+                                Text("Live Route Preview", style: primaryTextStyle(color: Colors.white, size: 11)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onMapCreated: onMapCreated,
-                    tiltGesturesEnabled: true,
-                    scrollGesturesEnabled: true,
-                    zoomGesturesEnabled: true,
-                    zoomControlsEnabled: true,
-                    rotateGesturesEnabled: true,
-                    myLocationButtonEnabled: false,
-                    gestureRecognizers: {
-                      Factory<OneSequenceGestureRecognizer>(
-                        () => EagerGestureRecognizer(),
-                      ),
-                    },
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    right: 10,
-                    child: FloatingActionButton.small(
-                      heroTag: 'recenter_route_btn',
-                      backgroundColor: ColorUtils.colorPrimary,
-                      onPressed: () {
-                        setMapFitToCenter(_polylines);
-                      },
-                      child: Icon(Icons.center_focus_strong, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
@@ -1969,18 +2425,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                 8.height,
                 rowWidget(
                     title: language.weight,
-                    value: () {
-                      String weightUnit = "kg";
-                      try {
-                        var countryJson = getJSONAsync(COUNTRY_DATA);
-                        if (countryJson != null && countryJson.isNotEmpty) {
-                          weightUnit = CountryModel.fromJson(countryJson).weightType.validate(value: "kg");
-                        }
-                      } catch (e) {
-                        weightUnit = "kg";
-                      }
-                      return '${weightController.text} $weightUnit';
-                    }()),
+                    value: '${weightController.text} $selectedWeightUnit'),
                 8.height,
                 rowWidget(
                     title: language.numberOfParcels,
@@ -2743,9 +3188,19 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     );
                     await getDistance();
                     await setPolylines();
+                    // Force map camera to fit the route after polylines are ready
+                    if (googleMapController != null && _polylines.isNotEmpty) {
+                      setMapFitToCenter(_polylines);
+                    }
                     appStore.setLoading(false);
                     selectedTabIndex = 3;
                     setState(() {});
+                    // Re-trigger map update after tab is visible
+                    Future.delayed(Duration(milliseconds: 400), () {
+                      if (mounted && googleMapController != null && _polylines.isNotEmpty) {
+                        setMapFitToCenter(_polylines);
+                      }
+                    });
                   }
                   return;
                 }
@@ -2784,58 +3239,16 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     toast(language.insuranceAmountValidation);
                     return;
                   }
+                  // WALLET_HIDDEN: Wallet balance check disabled, direct order creation
+                  /*
                   if (isSelected == 3 &&
-                      //      (appStore.availableBal < (totalAmountResponse!.totalAmount! + insuranceAmount))) {
                       (appStore.availableBal <
                           (totalAmountResponse!.totalAmount! +
                               insuranceAmount))) {
-                    showInDialog(
-                      getContext,
-                      contentPadding: .all(16),
-                      builder: (p0) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(language.balanceInsufficientCashPayment,
-                                style: primaryTextStyle(size: 16),
-                                textAlign: TextAlign.center),
-                            30.height,
-                            Row(
-                              children: [
-                                commonButton(language.cancel, () {
-                                  finish(getContext, 0);
-                                }).expand(),
-                                6.width,
-                                commonButton(language.process, () {
-                                  //      if (appStore.isInsuranceAllowed == true && insuranceSelectedOption == 0)
-                                  // createOrderApiCall(ORDER_CREATED);
-                                  // finish(getContext, 1);
-                                  showConfirmDialogCustom(
-                                    context,
-                                    title: language.createOrderConfirmationMsg,
-                                    note: language
-                                        .pleaseAvoidSendingProhibitedItems,
-                                    positiveText: language.yes,
-                                    primaryColor: ColorUtils.colorPrimary,
-                                    negativeText: language.no,
-                                    onAccept: (v) {
-                                      createOrderApiCall(ORDER_CREATED);
-                                      finish(getContext);
-                                    },
-                                  );
-                                }).expand(),
-                                6.width,
-                                commonButton(language.draft, () {
-                                  createOrderApiCall(ORDER_DRAFT);
-                                  finish(getContext, 2);
-                                }).expand(),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
+                    showInDialog(...);
+                  } else
+                  */
+                  {
                     showConfirmDialogCustom(
                       context,
                       title: language.createOrderConfirmationMsg,

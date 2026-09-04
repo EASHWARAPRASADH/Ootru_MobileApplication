@@ -107,11 +107,16 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
   orderDetailApiCall() async {
     appStore.setLoading(true);
     await getOrderDetails(widget.orderId).then((value) {
-      if (value.errorMessage != null && value.errorMessage!.isNotEmpty) {
+      if (value.data == null && (value.errorMessage != null && value.errorMessage!.isNotEmpty)) {
         toast(value.errorMessage);
         return;
       }
-      orderData = value.data!;
+      orderData = value.data;
+      if (orderData == null) {
+        toast(language.noDataFound);
+        return;
+      }
+
       if (orderData!.vehicleData != null) {
         vehicleDataitle = "${language.name} : ${orderData!.vehicleData!.title}, ${language.price} : ${appStore.currencySymbol}${orderData!.vehicleData!.price.validate()}, "
             "${language.capacity} : ${orderData!.vehicleData!.capacity.validate()},${language.perKmCharge} : "
@@ -119,9 +124,9 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
       }
 
       print("Order History::: ${value.orderHistory}");
-      orderHistory = value.orderHistory!;
+      orderHistory = value.orderHistory ?? [];
       if (value.courierCompanyDetail != null) {
-        courierDetails = value.courierCompanyDetail!;
+        courierDetails = value.courierCompanyDetail;
       }
       payment = value.payment ?? Payment();
       list.clear();
@@ -131,9 +136,9 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
         });
       }
       if (orderData!.fixedCharges.validate() != 0) {
-        list.add(ExtraChargeRequestModel(key: FIXED_CHARGES, value: orderData!.fixedCharges!));
+        list.add(ExtraChargeRequestModel(key: FIXED_CHARGES, value: orderData!.fixedCharges ?? 0));
       }
-      if (value.data!.cityDetails != null) {
+      if (value.data?.cityDetails != null) {
         list.add(ExtraChargeRequestModel(key: MIN_DISTANCE, value: value.data!.cityDetails!.minDistance));
         list.add(ExtraChargeRequestModel(key: MIN_WEIGHT, value: value.data!.cityDetails!.minWeight));
         list.add(ExtraChargeRequestModel(key: PER_DISTANCE_CHARGE, value: value.data!.cityDetails!.perDistanceCharges));
@@ -190,20 +195,24 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   canUserCancelOrder() {
-    DateTime orderDate = DateTime.parse("${orderData!.date!}").toLocal();
-    DateTime currentDate = DateTime.parse(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())).toLocal();
-    Duration difference = currentDate.difference(orderDate);
-    int differenceInMinutes = currentDate.difference(orderDate).inMinutes;
-    canCancel = differenceInMinutes < cancelOrderDuration;
-    if (difference.inMinutes < 60 && difference.inMinutes >= 0) {
-      setState(() {
-        remainingTime = Duration(hours: 1) - difference;
-        startTimer();
-      });
-    } else {
-      setState(() {
-        remainingTime = Duration.zero;
-      });
+    try {
+      DateTime orderDate = orderData?.date != null ? DateTime.tryParse(orderData!.date!)?.toLocal() ?? DateTime.now() : DateTime.now();
+      DateTime currentDate = DateTime.now();
+      Duration difference = currentDate.difference(orderDate);
+      int differenceInMinutes = difference.inMinutes;
+      canCancel = differenceInMinutes < cancelOrderDuration;
+      if (difference.inMinutes < 60 && difference.inMinutes >= 0) {
+        setState(() {
+          remainingTime = Duration(hours: 1) - difference;
+          startTimer();
+        });
+      } else {
+        setState(() {
+          remainingTime = Duration.zero;
+        });
+      }
+    } catch (e) {
+      log("canUserCancelOrder error: $e");
     }
   }
 

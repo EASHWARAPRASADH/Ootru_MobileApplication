@@ -215,10 +215,10 @@ class RegisterScreenState extends State<RegisterScreen> {
                               ),
                               searchStyle: primaryTextStyle(),
                               onInit: (c) {
-                                countryCode = c!.dialCode!;
+                                countryCode = c?.dialCode ?? defaultPhoneCode;
                               },
                               onChanged: (c) {
-                                countryCode = c.dialCode!;
+                                countryCode = c?.dialCode ?? defaultPhoneCode;
                               },
                             ),
                             VerticalDivider(
@@ -228,7 +228,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value!.trim().isEmpty)
+                      if (value == null || value.trim().isEmpty)
                         return language.fieldRequiredMsg;
                       // if (value.trim().length < minContactLength || value.trim().length > maxContactLength) return language.contactLength;
                       return null;
@@ -274,7 +274,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                           activeColor: ColorUtils.colorPrimary,
                           value: isAcceptedTc,
                           onChanged: (bool? value) async {
-                            isAcceptedTc = value!;
+                            isAcceptedTc = value ?? false;
                             setState(() {});
                           },
                         ),

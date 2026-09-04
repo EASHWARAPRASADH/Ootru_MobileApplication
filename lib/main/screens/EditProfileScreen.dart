@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../../extensions/extension_util/bool_extensions.dart';
 import '../../extensions/extension_util/context_extensions.dart';
 import '../../extensions/extension_util/int_extensions.dart';
@@ -27,6 +29,8 @@ import '../components/CommonScaffoldComponent.dart';
 import '../models/LoginResponse.dart';
 import '../utils/Images.dart';
 import '../utils/dynamic_theme.dart';
+import '../../user/screens/DashboardScreen.dart';
+import '../../delivery/fragment/DHomeFragment.dart';
 import 'UserCitySelectScreen.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -66,15 +70,58 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> init() async {
     String phoneNum = getStringAsync(USER_CONTACT_NUMBER);
     emailController.text = getStringAsync(USER_EMAIL);
-    // usernameController.text = getStringAsync(USER_NAME);
     nameController.text = getStringAsync(NAME);
-    if (phoneNum.split(" ").length == 1) {
-      contactNumberController.text = phoneNum.split(" ").last;
-    } else {
-      countryCode = phoneNum.split(" ").first;
-      contactNumberController.text = phoneNum.split(" ").last;
+    if (phoneNum.isNotEmpty) {
+      if (phoneNum.contains(" ")) {
+        countryCode = phoneNum.split(" ").first;
+        contactNumberController.text = phoneNum.split(" ").last;
+      } else {
+        String digits = phoneNum.replaceAll(RegExp(r'[^\d]'), '');
+        if (digits.length > 10) {
+          contactNumberController.text = digits.substring(digits.length - 10);
+        } else {
+          contactNumberController.text = digits;
+        }
+      }
     }
     addressController.text = getStringAsync(USER_ADDRESS).validate();
+    if (addressController.text.isEmpty) {
+      fetchLiveAddress(showToast: false);
+    }
+  }
+
+  Future<void> fetchLiveAddress({bool showToast = true}) async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        if (showToast) toast("Location permission is required to fetch live address");
+        return;
+      }
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high).timeout(Duration(seconds: 4));
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        List<String> parts = [];
+        if (place.street != null && place.street!.isNotEmpty && !place.street!.contains('+')) parts.add(place.street!);
+        if (place.subLocality != null && place.subLocality!.isNotEmpty && !parts.contains(place.subLocality)) parts.add(place.subLocality!);
+        if (place.locality != null && place.locality!.isNotEmpty && !parts.contains(place.locality)) parts.add(place.locality!);
+        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty && !parts.contains(place.administrativeArea)) parts.add(place.administrativeArea!);
+        if (place.postalCode != null && place.postalCode!.isNotEmpty) parts.add(place.postalCode!);
+        String fullAddress = parts.isNotEmpty ? parts.join(', ') : (place.locality ?? '');
+        if (fullAddress.isNotEmpty) {
+          addressController.text = fullAddress;
+          await setValue(USER_ADDRESS, fullAddress);
+          if (showToast) toast("Live location address fetched!");
+        }
+      }
+    } catch (e) {
+      log("fetchLiveAddress error: $e");
+    } finally {
+      if (mounted) setState(() {});
+    }
   }
 
   Widget profileImage() {
@@ -104,6 +151,10 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> save() async {
     appStore.setLoading(true);
+    // Immediately persist locally so values are never lost
+    await setValue(NAME, nameController.text.trim());
+    await setValue(USER_CONTACT_NUMBER, '$countryCode ${contactNumberController.text.trim()}');
+    await setValue(USER_ADDRESS, addressController.text.trim());
     await updateProfile(
       file: imageProfile != null ? File(imageProfile!.path.validate()) : null,
       name: nameController.text.validate(),
@@ -136,7 +187,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         if (res.data != null) {
           appStore.setLoading(false);
           if (widget.isGoogle == true) {
-            UserCitySelectScreen().launch(context, isNewTask: true);
+            ensureDefaultCity();
+            autoDetectCityFromGps();
+            if (getStringAsync(USER_TYPE) == CLIENT) {
+              DashboardScreen().launch(context, isNewTask: true);
+            } else {
+              DHomeFragment().launch(context, isNewTask: true);
+            }
           } else {
             Navigator.pop(context);
           }
@@ -228,7 +285,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   AppTextField(
                     controller: contactNumberController,
                     textFieldType: TextFieldType.PHONE,
-                    readOnly: !widget.isGoogle.validate(),
+                    readOnly: !widget.isGoogle.validate() && contactNumberController.text.isNotEmpty,
                     focus: contactFocus,
                     nextFocus: addressFocus,
                     decoration: commonInputDecoration(
@@ -241,7 +298,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                               showCountryOnly: false,
                               dialogSize: Size(context.width() - 60, context.height() * 0.6),
                               showFlag: true,
-                              enabled: widget.isGoogle.validate(),
+                              enabled: widget.isGoogle.validate() || contactNumberController.text.isEmpty,
                               showFlagDialog: true,
                               showOnlyCountryWhenClosed: false,
                               alignLeft: false,
@@ -275,7 +332,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                       return null;
                     },
                     onTap: () {
-                      if (!widget.isGoogle.validate()) toast(language.notChangeMobileNo);
+                      if (!widget.isGoogle.validate() && contactNumberController.text.isNotEmpty) toast(language.notChangeMobileNo);
                     },
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
@@ -283,14 +340,41 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   16.height,
                   if (!widget.isGoogle.validate()) ...[
-                    Text(language.address, style: primaryTextStyle()),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(language.address, style: primaryTextStyle()),
+                        InkWell(
+                          onTap: () async {
+                            await fetchLiveAddress(showToast: true);
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: boxDecorationWithRoundedCorners(
+                              backgroundColor: ColorUtils.colorPrimary.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.my_location, color: ColorUtils.colorPrimary, size: 14),
+                                4.width,
+                                Text("Fetch Live Location", style: boldTextStyle(color: ColorUtils.colorPrimary, size: 12)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     8.height,
                     AppTextField(
                       controller: addressController,
                       textFieldType: TextFieldType.MULTILINE,
                       focus: addressFocus,
                       textInputAction: TextInputAction.done,
-                      decoration: commonInputDecoration(),
+                      decoration: commonInputDecoration(hintText: "Enter address or fetch live location"),
                       errorThisFieldRequired: language.fieldRequiredMsg,
                     ),
                     16.height,

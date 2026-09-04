@@ -84,7 +84,7 @@ class SplashScreenState extends State<SplashScreen> {
                   ),
                   10.height,
                   Text(
-                    "Please turn on your device location services to continue using Mighty Delivery. Location is required to process your deliveries.",
+                    "Please turn on your device location services to continue using Freeleft. Location is required to process your deliveries.",
                     style: secondaryTextStyle(size: 14),
                     textAlign: TextAlign.center,
                   ),
@@ -207,15 +207,14 @@ class SplashScreenState extends State<SplashScreen> {
 
               if (value.emailVerifiedAt.isEmptyOrNull || value.otpVerifyAt.isEmptyOrNull || (value.documentVerifiedAt.isEmptyOrNull && getStringAsync(USER_TYPE) == DELIVERY_MAN)) {
                 VerificationListScreen().launch(context);
-              } else if (CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate().isNotEmpty) {
+              } else {
+                ensureDefaultCity();
+                autoDetectCityFromGps();
                 if (getStringAsync(USER_TYPE) == CLIENT) {
                   DashboardScreen().launch(context, isNewTask: true);
                 } else {
-                  // DeliveryDashBoard().launch(context, isNewTask: true);
                   DHomeFragment().launch(context, isNewTask: true);
                 }
-              } else {
-                UserCitySelectScreen().launch(context, isNewTask: true);
               }
             }
           }).catchError((e) {
@@ -256,7 +255,7 @@ class SplashScreenState extends State<SplashScreen> {
                   40.height,
                   Image.asset(ic_logo, height: 80, width: 80, fit: BoxFit.fill).cornerRadiusWithClipRRect(defaultRadius),
                   16.height,
-                  Text(language.appName == "$defaultKeyNotFoundValue(9)" ? mAppName : language.appName, style: boldTextStyle(size: 20), textAlign: TextAlign.center).expand(),
+                  Text(mAppName, style: boldTextStyle(size: 20), textAlign: TextAlign.center).expand(),
                   Text('v ${snap.data!.version.validate()}', style: secondaryTextStyle(size: 12)),
                   16.height,
                 ],

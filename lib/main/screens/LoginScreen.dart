@@ -111,6 +111,10 @@ class LoginScreenState extends State<LoginScreen> {
         await setValue(IS_VERIFIED_DELIVERY_MAN, true);
         await setValue(USER_TOKEN, 'local_token_${DateTime.now().millisecondsSinceEpoch}');
         await setValue(USER_ID, getIntAsync(USER_ID, defaultValue: DateTime.now().millisecondsSinceEpoch ~/ 1000));
+        // Preserve existing phone number if already set (from registration)
+        if (getStringAsync(USER_CONTACT_NUMBER).isEmpty) {
+          await setValue(USER_CONTACT_NUMBER, '');
+        }
 
         if (mIsCheck) {
           await setValue(REMEMBER_ME, mIsCheck);
@@ -184,28 +188,26 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   getCityDetailApiCall(int cityId) async {
-    await getCityDetail(cityId).then((value) async {
-      await setValue(CITY_DATA, value.data!.toJson());
-      if (CityModel.fromJson(getJSONAsync(CITY_DATA)).name.validate().isNotEmpty) {
-        if (getBoolAsync(OTP_VERIFIED) && getBoolAsync(EMAIL_VERIFIED) && (getBoolAsync(IS_VERIFIED_DELIVERY_MAN) || getStringAsync(USER_TYPE) == CLIENT)) {
-          if (getStringAsync(USER_TYPE) == CLIENT) {
-            DashboardScreen().launch(context, isNewTask: true);
-          } else {
-            // DeliveryDashBoard().launch(context, isNewTask: true);
-            DHomeFragment().launch(context, isNewTask: true);
-          }
-        } else {
-          VerificationListScreen().launch(context, isNewTask: true);
-          // VerificationScreen().launch(context, isNewTask: true);
+    ensureDefaultCity();
+    autoDetectCityFromGps();
+    try {
+      await getCityDetail(cityId).then((value) async {
+        if (value.data != null) {
+          await setValue(CITY_DATA, value.data!.toJson());
         }
+      });
+    } catch (e) {
+      log("City detail fallback: $e");
+    }
+    if (getBoolAsync(OTP_VERIFIED) && getBoolAsync(EMAIL_VERIFIED) && (getBoolAsync(IS_VERIFIED_DELIVERY_MAN) || getStringAsync(USER_TYPE) == CLIENT)) {
+      if (getStringAsync(USER_TYPE) == CLIENT) {
+        DashboardScreen().launch(context, isNewTask: true);
       } else {
-        UserCitySelectScreen().launch(context, isNewTask: true);
+        DHomeFragment().launch(context, isNewTask: true);
       }
-    }).catchError((error) {
-      if (error.toString() == CITY_NOT_FOUND_EXCEPTION) {
-        UserCitySelectScreen().launch(getContext, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
-      }
-    });
+    } else {
+      VerificationListScreen().launch(context, isNewTask: true);
+    }
   }
 
   void googleSignIn() async {

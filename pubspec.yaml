@@ -39,6 +39,7 @@ dependencies:
   timeline_tile: ^2.0.0
   country_code_picker: ^3.0.0
   chewie: 1.8.2
+  flutter_contacts: ^1.1.9+1  # for delivery contact picker feature
 
   # Dotted Line
   dotted_line: ^3.2.2
@@ -68,6 +69,8 @@ dependencies:
   flutter_polyline_points: ^2.1.0
   maps_launcher: ^2.2.0
   google_maps_place_picker_mb: ^3.1.2
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
 
   # PUSH NOTIFICATION
   onesignal_flutter: ^5.3.0

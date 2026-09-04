@@ -144,13 +144,15 @@ class AccountFragmentState extends State<AccountFragment> {
                   ).paddingSymmetric(horizontal: 16).onTap(() {
                     EditProfileScreen().launch(context);
                   }),
-                  mTitle(language.ordersWalletMore),
+                  // WALLET_HIDDEN: mTitle(language.ordersWalletMore);
+                  mTitle('Orders & More'),
                   accountSettingItemWidget(ic_draft, language.drafts, () {
                     DraftOrderListScreen().launch(context);
                   }),
-                  accountSettingItemWidget(ic_wallet, language.wallet, () {
-                    WalletScreen().launch(context);
-                  }),
+                  // WALLET_HIDDEN: wallet menu hidden but code preserved
+                  // accountSettingItemWidget(ic_wallet, language.wallet, () {
+                  //   WalletScreen().launch(context);
+                  // }),
                   accountSettingItemWidget(ic_wallet, language.paytrHistory, () {
                     PaytrPaymentHistoryscreen().launch(context);
                   }),
