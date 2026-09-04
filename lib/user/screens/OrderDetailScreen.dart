@@ -696,7 +696,23 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                            children: [
                                                              Text(pOtp, style: boldTextStyle(size: 18, color: ColorUtils.colorPrimary)),
-                                                             Icon(Icons.lock_clock, size: 16, color: ColorUtils.colorPrimary),
+                                                             InkWell(
+                                                               onTap: () {
+                                                                 final contact = orderData!.pickupPoint?.contactNumber.validate() ?? '';
+                                                                 sendSmsViaDevice(
+                                                                   phoneNumber: contact,
+                                                                   message: 'Your MightyDelivery Pickup OTP for Order #${orderData!.id} is $pOtp',
+                                                                 );
+                                                               },
+                                                               child: Container(
+                                                                 padding: EdgeInsets.all(4),
+                                                                 decoration: boxDecorationWithRoundedCorners(
+                                                                   backgroundColor: ColorUtils.colorPrimary.withOpacity(0.12),
+                                                                   borderRadius: BorderRadius.circular(4),
+                                                                 ),
+                                                                 child: Icon(Icons.sms_outlined, size: 15, color: ColorUtils.colorPrimary),
+                                                               ),
+                                                             ),
                                                            ],
                                                          ),
                                                        ],
@@ -721,7 +737,23 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                            children: [
                                                              Text(dOtp, style: boldTextStyle(size: 18, color: Colors.blue.shade700)),
-                                                             Icon(Icons.verified, size: 16, color: Colors.blue.shade700),
+                                                             InkWell(
+                                                               onTap: () {
+                                                                 final contact = orderData!.deliveryPoint?.contactNumber.validate() ?? '';
+                                                                 sendSmsViaDevice(
+                                                                   phoneNumber: contact,
+                                                                   message: 'Your MightyDelivery Delivery OTP for Order #${orderData!.id} is $dOtp',
+                                                                 );
+                                                               },
+                                                               child: Container(
+                                                                 padding: EdgeInsets.all(4),
+                                                                 decoration: boxDecorationWithRoundedCorners(
+                                                                   backgroundColor: Colors.blue.withOpacity(0.12),
+                                                                   borderRadius: BorderRadius.circular(4),
+                                                                 ),
+                                                                 child: Icon(Icons.sms_outlined, size: 15, color: Colors.blue.shade700),
+                                                               ),
+                                                             ),
                                                            ],
                                                          ),
                                                        ],

@@ -639,3 +639,26 @@ void ensureDefaultCity() {
     setValue(CITY_DATA, defaultCity.toJson());
   }
 }
+
+Future<bool> sendSmsViaDevice({required String phoneNumber, required String message}) async {
+  try {
+    String cleanPhone = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
+    final Uri smsUri = Uri(
+      scheme: 'sms',
+      path: cleanPhone,
+      queryParameters: <String, String>{
+        'body': message,
+      },
+    );
+    if (await canLaunchUrl(smsUri)) {
+      return await launchUrl(smsUri);
+    } else {
+      final Uri fallbackUri = Uri.parse('sms:$cleanPhone?body=${Uri.encodeComponent(message)}');
+      return await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+    }
+  } catch (e) {
+    log("sendSmsViaDevice error: $e");
+    return false;
+  }
+}
+

@@ -111,6 +111,26 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
   String deliverCountryCode = defaultPhoneCode;
   String pickupCountryCode = defaultPhoneCode;
 
+  String selectedWeightUnit = 'kg';
+  List<String> weightUnitList = ['kg', 'grams', 'mg'];
+
+  double getEffectiveWeightInKg() {
+    double raw = double.tryParse(weightController.text) ?? 1.0;
+    if (selectedWeightUnit == 'grams') {
+      return (raw / 1000.0).clamp(0.001, 100000.0);
+    } else if (selectedWeightUnit == 'mg') {
+      return (raw / 1000000.0).clamp(0.00001, 100000.0);
+    }
+    return raw.clamp(0.01, 100000.0);
+  }
+
+  double get weightStepAmount {
+    if (selectedWeightUnit == 'grams') return 50.0;
+    if (selectedWeightUnit == 'mg') return 500.0;
+    return 1.0;
+  }
+
+
   DateTime? pickFromDateTime,
       pickToDateTime,
       deliverFromDateTime,
@@ -505,7 +525,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       if (vId != null) "vehicle_id": vId,
       "is_insurance":
           insuranceSelectedOption == 0 && appStore.isInsuranceAllowed == "1",
-      "total_weight": double.tryParse(weightController.text) ?? 1.0,
+      "total_weight": getEffectiveWeightInKg(),
       "total_distance": totalDistance,
       "insurance_amount": insuranceAmountController.text.isEmpty
           ? 0
@@ -615,7 +635,9 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       "packaging_symbols": packaging_symbols,
       "extra_charges": extraChargeList,
       "parcel_type": parcelTypeCont.text,
-      "total_weight": weightController.text.toDouble(),
+      "total_weight": getEffectiveWeightInKg(),
+      "weight_unit": selectedWeightUnit,
+      "raw_weight": weightController.text.toDouble(),
       "total_distance":
           totalDistance.toStringAsFixed(digitAfterDecimal).validate(),
       "payment_collect_from": paymentCollectFrom,
@@ -646,7 +668,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       appStore.setLoading(false);
       toast(value.message);
       LiveStream().emit('UpdateOrderData');
-      // Generate 4-digit pickup OTP and show to order creator + send SMS to pickup contact
+      // Generate 4-digit pickup OTP and delivery OTP
       final pickupOtp = (1000 + (DateTime.now().millisecondsSinceEpoch % 9000)).toString();
       final deliveryOtp = (1000 + ((DateTime.now().millisecondsSinceEpoch ~/ 7) % 9000)).toString();
       final pickupContact = '$pickupCountryCode${pickPhoneCont.text.trim()}';
@@ -654,64 +676,156 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       // Store OTPs in SharedPreferences keyed by orderId
       await setValue('pickup_otp_${value.orderId}', pickupOtp);
       await setValue('delivery_otp_${value.orderId}', deliveryOtp);
-      // Send OTP via SMS to pickup contact (Firebase Phone Auth)
-      sendOtp(context, phoneNumber: pickupContact, onUpdate: (verificationId) {});
-      // Show OTP on screen for order creator
+
+      // Attempt sending OTP via SMS to both pickup contact and delivery receiver
+      if (pickupContact.trim().isNotEmpty) {
+        sendOtp(context, phoneNumber: pickupContact, onUpdate: (verificationId) {});
+      }
+      if (deliveryContact.trim().isNotEmpty) {
+        sendOtp(context, phoneNumber: deliveryContact, onUpdate: (verificationId) {});
+      }
+
+      // Show comprehensive OTP dialog with SMS dispatch buttons for both contacts
       showInDialog(
         context,
         barrierDismissible: false,
-        builder: (ctx) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 48),
-            16.height,
-            Text('Order Created!', style: boldTextStyle(size: 18)),
-            8.height,
-            Text('Your Pickup OTP', style: secondaryTextStyle(size: 14)),
-            12.height,
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: boxDecorationWithRoundedCorners(
-                borderRadius: BorderRadius.circular(defaultRadius),
-                backgroundColor: ColorUtils.colorPrimary.withOpacity(0.1),
-                border: Border.all(color: ColorUtils.colorPrimary),
+        builder: (ctx) => SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 48),
+              10.height,
+              Text('Order Created!', style: boldTextStyle(size: 18)),
+              4.height,
+              Text('Order #${value.orderId}', style: secondaryTextStyle(size: 13)),
+              14.height,
+
+              // Pickup OTP Card (Sender)
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: boxDecorationWithRoundedCorners(
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                  backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08),
+                  border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.35)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Pickup OTP (Sender)', style: secondaryTextStyle(size: 12)),
+                        Icon(Icons.lock_clock, size: 16, color: ColorUtils.colorPrimary),
+                      ],
+                    ),
+                    6.height,
+                    Text(
+                      pickupOtp,
+                      style: boldTextStyle(size: 26, color: ColorUtils.colorPrimary),
+                      textAlign: TextAlign.center,
+                    ),
+                    4.height,
+                    Text(pickupContact, style: secondaryTextStyle(size: 11)),
+                    8.height,
+                    AppButton(
+                      width: context.width(),
+                      height: 34,
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      color: ColorUtils.colorPrimary,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.sms, color: Colors.white, size: 15),
+                          6.width,
+                          Text('Send SMS to Sender', style: boldTextStyle(color: Colors.white, size: 11)),
+                        ],
+                      ),
+                      onTap: () {
+                        sendSmsViaDevice(
+                          phoneNumber: pickupContact,
+                          message: 'Your MightyDelivery Pickup OTP for Order #${value.orderId} is $pickupOtp',
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-              child: Text(
-                pickupOtp,
-                style: boldTextStyle(size: 36, color: ColorUtils.colorPrimary),
-                textAlign: TextAlign.center,
+              12.height,
+
+              // Delivery OTP Card (Receiver)
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: boxDecorationWithRoundedCorners(
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                  backgroundColor: Colors.blue.withOpacity(0.08),
+                  border: Border.all(color: Colors.blue.withOpacity(0.35)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Delivery OTP (Receiver)', style: secondaryTextStyle(size: 12)),
+                        Icon(Icons.verified, size: 16, color: Colors.blue.shade700),
+                      ],
+                    ),
+                    6.height,
+                    Text(
+                      deliveryOtp,
+                      style: boldTextStyle(size: 26, color: Colors.blue.shade700),
+                      textAlign: TextAlign.center,
+                    ),
+                    4.height,
+                    Text(deliveryContact, style: secondaryTextStyle(size: 11)),
+                    8.height,
+                    AppButton(
+                      width: context.width(),
+                      height: 34,
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      color: Colors.blue.shade700,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.sms, color: Colors.white, size: 15),
+                          6.width,
+                          Text('Send SMS to Receiver', style: boldTextStyle(color: Colors.white, size: 11)),
+                        ],
+                      ),
+                      onTap: () {
+                        sendSmsViaDevice(
+                          phoneNumber: deliveryContact,
+                          message: 'Your MightyDelivery Delivery OTP for Order #${value.orderId} is $deliveryOtp',
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            12.height,
-            Text(
-              'Share this OTP with the delivery person when they pick up your parcel. The OTP has also been sent via SMS to:\n$pickupContact',
-              style: secondaryTextStyle(size: 12),
-              textAlign: TextAlign.center,
-            ),
-            16.height,
-            AppButton(
-              text: 'OK',
-              color: ColorUtils.colorPrimary,
-              textStyle: boldTextStyle(color: Colors.white),
-              onTap: () {
-                Navigator.pop(ctx);
-                if (isSelected == 2) {
-                  finish(context);
-                  PaymentScreen(
-                    orderId: value.orderId.validate(),
-                    totalAmount: (totalAmountResponse!.totalAmount!),
-                    isOnline: true,
-                  ).launch(context);
-                } else if (isSelected == 3) {
-                  finish(context);
-                  DashboardScreen().launch(context, isNewTask: true);
-                } else {
-                  finish(context);
-                  DashboardScreen().launch(context, isNewTask: true);
-                }
-              },
-            ),
-          ],
+              14.height,
+              AppButton(
+                width: context.width(),
+                text: 'OK',
+                color: ColorUtils.colorPrimary,
+                textStyle: boldTextStyle(color: Colors.white),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  if (isSelected == 2) {
+                    finish(context);
+                    PaymentScreen(
+                      orderId: value.orderId.validate(),
+                      totalAmount: (totalAmountResponse!.totalAmount!),
+                      isOnline: true,
+                    ).launch(context);
+                  } else if (isSelected == 3) {
+                    finish(context);
+                    DashboardScreen().launch(context, isNewTask: true);
+                  } else {
+                    finish(context);
+                    DashboardScreen().launch(context, isNewTask: true);
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       );
     }).catchError((error) {
@@ -1229,7 +1343,6 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
             children: [
               Text(language.weight, style: primaryTextStyle()).expand(),
               3.width,
-              //   Text(" (${appStore.distanceUnit})", style: secondaryTextStyle()).expand(),
               Container(
                 decoration: BoxDecoration(
                     border: Border.all(
@@ -1246,20 +1359,27 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                                   : Colors.grey)
                           .paddingAll(12)
                           .onTap(() {
-                        if (weightController.text.toDouble() > 1) {
-                          weightController.text =
-                              (weightController.text.toDouble() - 1).toString();
+                        double current = double.tryParse(weightController.text) ?? 1.0;
+                        if (current > weightStepAmount) {
+                          double next = current - weightStepAmount;
+                          weightController.text = next == next.roundToDouble() ? next.toInt().toString() : next.toStringAsFixed(1);
+                        } else {
+                          weightController.text = weightStepAmount == weightStepAmount.roundToDouble() ? weightStepAmount.toInt().toString() : weightStepAmount.toString();
                         }
+                        getStaticDetailsForOrder();
                       }),
                       VerticalDivider(
                           thickness: 1, color: context.dividerColor),
                       Container(
-                        width: 50,
+                        width: 55,
                         child: AppTextField(
                           controller: weightController,
                           textAlign: TextAlign.center,
-                          maxLength: 5,
+                          maxLength: 6,
                           textFieldType: TextFieldType.PHONE,
+                          onChanged: (val) {
+                            getStaticDetailsForOrder();
+                          },
                           decoration: InputDecoration(
                             counterText: '',
                             focusedBorder: UnderlineInputBorder(
@@ -1277,10 +1397,53 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                                   : Colors.grey)
                           .paddingAll(12)
                           .onTap(() {
-                        weightController.text =
-                            (weightController.text.toDouble() + 1).toString();
+                        double current = double.tryParse(weightController.text) ?? 1.0;
+                        double next = current + weightStepAmount;
+                        weightController.text = next == next.roundToDouble() ? next.toInt().toString() : next.toStringAsFixed(1);
+                        getStaticDetailsForOrder();
                       }),
                     ],
+                  ),
+                ),
+              ),
+              8.width,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: ColorUtils.borderColor,
+                    width: appStore.isDarkMode ? 0.2 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedWeightUnit,
+                    isDense: true,
+                    items: weightUnitList.map((String unit) {
+                      return DropdownMenuItem<String>(
+                        value: unit,
+                        child: Text(
+                          unit,
+                          style: boldTextStyle(size: 14, color: ColorUtils.colorPrimary),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? val) {
+                      if (val != null && val != selectedWeightUnit) {
+                        setState(() {
+                          selectedWeightUnit = val;
+                          if (val == 'grams' && (double.tryParse(weightController.text) ?? 1) <= 5) {
+                            weightController.text = '500';
+                          } else if (val == 'mg' && (double.tryParse(weightController.text) ?? 1) <= 10) {
+                            weightController.text = '1000';
+                          } else if (val == 'kg' && (double.tryParse(weightController.text) ?? 1) > 100) {
+                            weightController.text = '1';
+                          }
+                        });
+                        getStaticDetailsForOrder();
+                      }
+                    },
                   ),
                 ),
               ),
@@ -2262,18 +2425,7 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                 8.height,
                 rowWidget(
                     title: language.weight,
-                    value: () {
-                      String weightUnit = "kg";
-                      try {
-                        var countryJson = getJSONAsync(COUNTRY_DATA);
-                        if (countryJson != null && countryJson.isNotEmpty) {
-                          weightUnit = CountryModel.fromJson(countryJson).weightType.validate(value: "kg");
-                        }
-                      } catch (e) {
-                        weightUnit = "kg";
-                      }
-                      return '${weightController.text} $weightUnit';
-                    }()),
+                    value: '${weightController.text} $selectedWeightUnit'),
                 8.height,
                 rowWidget(
                     title: language.numberOfParcels,
