@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Laravel') }}</title>
-    <link rel="icon" type="image/x-icon" href="{{ getSingleMedia(appSettingData('get'),'site_favicon',null) }}">
+    <title>{{ config('app.name', 'Aspigrow') }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}?v=2">
+    <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}?v=2">
     <link rel="stylesheet" href="{{ asset('frontend-website/assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/@fortawesome/fontawesome-free/css/all.min.css') }}"/>
     <link href="{{ asset('frontend-website/assets/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -23,9 +24,9 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-6 col-md-6">
-                <div class="d-flex justify-content-center align-items-center admin-login-container">
-                    <img src="{{ getSingleMediaSettingImage(getSettingFirstData('app_content','app_logo_image'),'app_logo_image') }}" class="rounded-circle p-3 admin-logo-img" width="100">
-                </div>
+                    <div class="rounded-circle p-3 admin-logo-img d-flex align-items-center justify-content-center bg-primary text-white shadow-sm" style="width: 80px; height: 80px; font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;">
+                        AG
+                    </div>
                 <div class="mt-3 offset-lg-2 offset-md-1 offset-sm-2 mb-3">
                     <h2>{{ __('message.login') }}</h2>
                     <p class="mb-1 mt-3">{{ __('message.welcome_to') }}

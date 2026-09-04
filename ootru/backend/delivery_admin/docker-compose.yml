@@ -1,0 +1,60 @@
+﻿services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: delivery_admin_app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: delivery_admin
+      DB_USERNAME: delivery_user
+      DB_PASSWORD: delivery_password
+    depends_on:
+      - db
+    networks:
+      - delivery_network
+
+  db:
+    image: mysql:8.0
+    container_name: delivery_admin_db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: delivery_admin
+      MYSQL_USER: delivery_user
+      MYSQL_PASSWORD: delivery_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - delivery_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: delivery_admin_pma
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_password
+    depends_on:
+      - db
+    networks:
+      - delivery_network
+
+volumes:
+  dbdata:
+    driver: local
+
+networks:
+  delivery_network:
+    driver: bridge

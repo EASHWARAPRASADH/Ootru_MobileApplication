@@ -1,4 +1,6 @@
-<link rel="icon" type="image/x-icon" href="{{ getSingleMedia(appSettingData('get'),'site_favicon',null) }}">
+<link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}?v=2">
+<link rel="alternate icon" type="image/png" href="{{ asset('images/favicon.ico') }}?v=2">
+<link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}?v=2">
 <link rel="stylesheet" href="{{ asset('frontend-website/assets/css/style.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend-website/assets/css/bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('frontend-website/assets/css/toastr.css') }}">

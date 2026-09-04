@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <p>{{ $app_settings->site_copyright ?? '' }}</p>
+                    <p>&copy; 2027 Aspigrow. All Rights Reserved. | Freeleft</p>
                     <div>
                         <a class="gray-text text-decoration-none footer-p"
                             href="{{ $app_settings->facebook_url ?? 'javascript:void(0)' }}"
