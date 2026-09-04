@@ -3,10 +3,8 @@
         <nav class="navbar navbar-expand-lg navbar-light p-0">
             <div class="mm-navbar-logo d-flex align-items-center justify-content-between">
                 <i class="fas fa-bars wrapper-menu"></i>
-                <a href="{{ asset('/') }}" class="header-logo">
-                    <img src="{{ getSingleMedia(appSettingData('get'),'site_logo',null) }}" class="img-fluid mode light-img rounded-normal site_logo_preview " alt="logo">
-                    <img src="{{ getSingleMedia(appSettingData('get'),'site_dark_logo',null) }}" class="img-fluid mode dark-img rounded-normal darkmode-logo site_dark_logo_preview" alt="dark-logo">
-                    <!-- <h4 class="ml-1"><b>{{ env('APP_NAME') }}</b></h4> -->
+                <a href="{{ asset('/') }}" class="header-logo d-flex align-items-center text-decoration-none">
+                    <h3 class="logo-title font-weight-bold text-primary mb-0 ml-2" style="font-weight: 800; font-size: 1.45rem; letter-spacing: 0.5px; color: var(--site-color) !important;">Aspigrow</h3>
                 </a>
             </div>
             <div class="mm-search-bar device-search m-auto">

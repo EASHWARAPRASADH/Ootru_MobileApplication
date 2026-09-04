@@ -1,4 +1,6 @@
-<link rel="shortcut icon" class="site_favicon_preview" href="{{ getSingleMedia(appSettingData('get'), 'site_favicon', null) }}" />
+<link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}?v=2">
+<link rel="alternate icon" type="image/png" href="{{ asset('images/favicon.ico') }}?v=2">
+<link rel="shortcut icon" class="site_favicon_preview" href="{{ asset('images/favicon.ico') }}?v=2" />
 <link rel="stylesheet" href="{{ asset('css/backend-bundle.min.css') }}"/>
 <link rel="stylesheet" href="{{ asset('css/backend.css') }}"/>
 @if(mighty_language_direction() == 'rtl')

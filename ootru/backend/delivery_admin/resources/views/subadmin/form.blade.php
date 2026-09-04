@@ -17,19 +17,19 @@
                     <div class="card-body">
                         <div class="form-group">
                             <div class="crm-profile-img-edit position-relative">
-                                <img src="{{ $profileImage ?? asset('images/user/1.jpg')}}" alt="User-Profile" id="profile_image_preview"class=" profile_image_preview crm-profile-pic rounded-circle avatar-100">
+                                <img src="{{ $profileImage ?? asset('images/user/1.jpg')}}" alt="User-Profile" id="profile_image_preview" class="profile_image_preview crm-profile-pic rounded-circle avatar-100">
                                 <div class="crm-p-image bg-primary">
                                     <svg class="upload-button" width="14" height="14" viewBox="0 0 24 24">
                                         <path fill="#ffffff" d="M14.06,9L15,9.94L5.92,19H5V18.08L14.06,9M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.66,3M14.06,6.19L3,17.25V21H6.75L17.81,9.94L14.06,6.19Z" />
                                     </svg>
-                                    <input class="file-upload custom-file-input" type="file" accept="image/*" name="profile_image" data--target = "profile_image_preview">
+                                    <input class="file-upload custom-file-input" type="file" accept="image/*" name="profile_image" data--target="profile_image_preview">
                                 </div>
                             </div>
                             <div class="img-extension mt-3">
                                 <div class="d-inline-block align-items-center">
                                     <span>{{ __('message.only') }}</span>
                                     @foreach(config('constant.IMAGE_EXTENTIONS') as $extention)
-                                        <a href="javascript:void();">.{{ __('message.'.$extention) }}</a>
+                                        <a href="javascript:void(0);">.{{ __('message.'.$extention) }}</a>
                                     @endforeach
                                     <span>{{ __('message.allowed') }}</span>
                                 </div>
@@ -37,8 +37,8 @@
                         </div>
                         <div class="form-group mt-3">
                             <div class="grid" style="--bs-gap: 1rem">
-                                {{ html()->label(__('message.role') . ' <span class="text-danger">*</span>', 'role')->class('form-control-label') }}
-                                {{ html()->select('user_type', $roles, old('user_type'))
+                                {{ html()->label(__('message.role') . ' <span class="text-danger">*</span>', 'user_type')->class('form-control-label') }}
+                                {{ html()->select('user_type', $roles, old('user_type', isset($data) ? $data->user_type : null))
                                     ->class('select2js form-group role')
                                     ->attribute('data-placeholder', __('message.select_name', ['select' => __('message.role')]))
                                     ->attribute('required', true) }}
@@ -62,42 +62,36 @@
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     {{ html()->label(__('message.name').' <span class="text-danger">*</span>', 'name')->class('form-control-label') }}
-                                    {{ html()->text('name', old('name'))
+                                    {{ html()->text('name', old('name', isset($data) ? $data->name : null))
                                         ->placeholder(__('message.name'))
                                         ->class('form-control')
                                         ->attribute('required', true) }}
                                 </div>
 
-                                @php
-                                    $readonly = isset($id) ? 'readonly' : '';
-                                @endphp
-
                                 <div class="form-group col-md-6">
                                     {{ html()->label(__('message.email').' <span class="text-danger">*</span>', 'email')->class('form-control-label') }}
-                                    {{ html()->email('email', isset($id) ? optional($data)->email : old('email'))
+                                    {{ html()->email('email', old('email', isset($data) ? $data->email : null))
                                         ->placeholder(__('message.email'))
                                         ->class('form-control')
-                                        ->attribute('required', true)
-                                        ->attribute($readonly, '') }}
+                                        ->attribute('required', true) }}
                                 </div>
 
                                 <div class="form-group col-md-6">
                                     {{ html()->label(__('message.username').' <span class="text-danger">*</span>', 'username')->class('form-control-label') }}
-                                    {{ html()->text('username', isset($id) ? optional($data)->username : old('username'))
+                                    {{ html()->text('username', old('username', isset($data) ? $data->username : null))
                                         ->placeholder(__('message.username'))
                                         ->class('form-control')
-                                        ->attribute('required', true)
-                                        ->attribute($readonly, '') }}
+                                        ->attribute('required', true) }}
                                 </div>
 
-                                @if(!isset($id))
                                 <div class="form-group col-md-6">
-                                    {{ html()->label(__('message.password').' <span class="text-danger">*</span>', 'password')->class('form-control-label') }}
+                                    {{ html()->label(__('message.password') . (isset($id) ? ' (leave blank to keep current)' : ' <span class="text-danger">*</span>'), 'password')->class('form-control-label') }}
                                     <div class="input-group">
                                         {{ html()->password('password')
                                             ->class('form-control')
-                                            ->placeholder(__('message.password'))
-                                            ->attribute('id', 'password') }}
+                                            ->placeholder(isset($id) ? __('message.password') : __('message.password'))
+                                            ->attribute('id', 'password')
+                                            ->attribute(isset($id) ? 'data-optional' : 'required', 'true') }}
                                         <div class="input-group-append">
                                             <span class="input-group-text hide-show-password" style="cursor: pointer;">
                                                 <i class="fas fa-eye-slash"></i>
@@ -105,22 +99,20 @@
                                         </div>
                                     </div>
                                 </div>
-                                @endif
 
                                 <div class="form-group col-md-6">
                                     {{ html()->label(__('message.contact_number').' <span class="text-danger">*</span>', 'contact_number')->class('form-control-label') }}
-                                    {{ html()->text('contact_number', isset($id) ? optional($data)->contact_number : old('contact_number'))
+                                    {{ html()->text('contact_number', old('contact_number', isset($data) ? $data->contact_number : null))
                                         ->placeholder(__('message.contact_number'))
                                         ->class('form-control')
                                         ->attribute('id', 'phone')
-                                        ->attribute('required', true)
-                                        ->attribute($readonly, '') }}
+                                        ->attribute('required', true) }}
                                 </div>
                             </div>
 
                             <hr>
 
-                            {{ html()->submit(__('message.save'))->class('btn btn-md btn-primary float-right') }}
+                            {{ html()->submit(isset($id) ? __('message.update') : __('message.save'))->class('btn btn-md btn-primary float-right') }}
                         </div>
                     </div>
                 </div>
@@ -147,4 +139,4 @@
             });
         </script>
     @endsection
-</x-app-layout>
+</x-master-layout>

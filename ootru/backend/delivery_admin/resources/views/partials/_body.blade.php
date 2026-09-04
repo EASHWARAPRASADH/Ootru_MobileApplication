@@ -1,5 +1,5 @@
-<div id="loading">
-    @include('partials._body_loader')
+<!-- Fast Page Navigation: Disable blocking preloader -->
+<div id="loading" style="display: none !important;">
 </div>
 @include('partials._body_header')
 <head>

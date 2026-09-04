@@ -7,7 +7,31 @@
     use App\Models\Setting;
     use App\Models\CustomerSupport;
     use Carbon\Carbon;
-    $MyNavBar = \Menu::make('MenuList', function ($menu) use ($url) {
+    use Illuminate\Support\Facades\Cache;
+
+    $sidebarCounts = Cache::remember('admin_sidebar_counts_' . (auth()->id() ?? 1), 15, function() {
+        return [
+            'order_create' => Order::where('status', 'create')->count(),
+            'order_schedule' => Order::where(function ($q) {
+                $q->whereDate('pickup_point->start_time', '>', now()->toDateString())->orWhereDate(
+                    'delivery_point->start_time',
+                    '>',
+                    now()->toDateString()
+                );
+            })->count(),
+            'client_pending' => User::where('user_type', 'client')->where('status', 1)->where(function ($query) {
+                $query->where('is_autoverified_document', 0)->orWhere('is_autoverified_email', 0)->orWhere('is_autoverified_mobile', 0);
+            })->count(),
+            'delivery_man_pending' => User::where('user_type', 'delivery_man')->where('status', 1)->where(function ($query) {
+                $query->where('is_autoverified_document', 0)->orWhere('is_autoverified_email', 0)->orWhere('is_autoverified_mobile', 0);
+            })->count(),
+            'withdraw_requested' => WithdrawRequest::where('status', 'requested')->count() ?? 0,
+            'claims_pending' => Claims::where('status', 'pending')->count() ?? 0,
+            'customer_support_pending' => CustomerSupport::where('status', 'pending')->count() ?? 0,
+        ];
+    });
+
+    $MyNavBar = \Menu::make('MenuList', function ($menu) use ($url, $sidebarCounts) {
         //Admin Dashboard
 
         if (
@@ -17,22 +41,25 @@
             $menu
                 ->add('<span>' . __('message.view_site') . '</span>', ['route' => 'frontend-section'])
                 ->prepend('<i class="fa fa-arrow-left"></i>')
+                ->data('permission', 'view_site')
                 ->link->attr(['class' => '']);
 
             $menu
                 ->add('<span>' . __('message.dispatch') . '</span>', ['class' => '', 'route' => 'order.create'])
                 ->prepend('<i class="fa fa-plus"></i>')
-                ->data('permission', 'order-add')
+                ->data('permission', 'dispatch')
                 ->link->attr(['class' => '']);
 
             $menu
                 ->add('<span>' . __('message.high_demanding_areas') . '</span>', ['route' => 'high_demanding_areas'])
                 ->prepend('<i class="fa fa-thumbtack"></i>')
+                ->data('permission', 'high_demanding_areas')
                 ->link->attr(['class' => '']);
 
             $menu
                 ->add('<span>' . __('message.dashboard') . '</span>', ['route' => 'home'])
                 ->prepend('<i class="fas fa-home"></i>')
+                ->data('permission', 'dashboard-view')
                 ->link->attr(['class' => '']);
 
             $menu
@@ -87,14 +114,8 @@
                 ->prepend('<i class="fas fa-list"></i>')
                 ->link->attr(['class' => '']);
 
-            $requestCount = Order::where('status', 'create')->count();
-            $scheduleCount = Order::where(function ($q) {
-                $q->whereDate('pickup_point->start_time', '>', now()->toDateString())->orWhereDate(
-                    'delivery_point->start_time',
-                    '>',
-                    now()->toDateString(),
-                );
-            })->count();
+            $requestCount = $sidebarCounts['order_create'];
+            $scheduleCount = $sidebarCounts['order_schedule'];
 
             $schedule =
                 '<span class="badge badge-pill badge-primary p-1 mr-3 animate__animated animate__flash">' .
@@ -271,15 +292,7 @@
             //     ->prepend('<i class="fa-solid fa-clipboard-list"></i>')
             //     ->link->attr(['class' => '']);
 
-            $clientPendingCount = User::where('user_type', 'client')
-                ->where('status', 1)
-                ->where(function ($query) {
-                    $query->whereNull('email_verified_at')->orWhereNull('otp_verify_at');
-                })
-                ->where(function ($query) {
-                    $query->whereNotNull('email_verified_at')->orWhereNotNull('otp_verify_at');
-                })
-                ->count();
+            $clientPendingCount = $sidebarCounts['client_pending'];
             if ($clientPendingCount == 0) {
                 $menu
                     ->add('<span>' . __('message.users') . '</span>', ['class' => ''])
@@ -383,21 +396,7 @@
                 ->prepend('<i class="fas fa-list"></i>')
                 ->link->attr(['class' => '']);
 
-            $deliveryManPendingCount = User::where('user_type', 'delivery_man')
-                ->where('status', 1)
-                ->where(function ($query) {
-                    $query
-                        ->whereNull('email_verified_at')
-                        ->orWhereNull('otp_verify_at')
-                        ->orWhereNull('document_verified_at');
-                })
-                ->where(function ($query) {
-                    $query
-                        ->whereNotNull('email_verified_at')
-                        ->orWhereNotNull('otp_verify_at')
-                        ->orWhereNotNull('document_verified_at');
-                })
-                ->count();
+            $deliveryManPendingCount = $sidebarCounts['delivery_man_pending'];
             if ($deliveryManPendingCount == 0) {
                 $menu
                     ->add('<span>' . __('message.delivery_man') . '</span>', ['class' => ''])
@@ -591,7 +590,7 @@
                 ->prepend('<i class="fas fa-list"></i>')
                 ->link->attr(['class' => '']);
 
-            $requestCount = WithdrawRequest::where('status', 'requested')->count() ?? 0;
+            $requestCount = $sidebarCounts['withdraw_requested'];
             if ($requestCount == 0) {
                 $menu
                     ->add('<span>' . __('message.withdrawrequest') . '</span>', ['class' => ''])
@@ -623,7 +622,7 @@
                 ->prepend('<i class="fas fa-list"></i>')
                 ->link->attr(['class' => '']);
 
-            $requestCount = WithdrawRequest::where('status', 'requested')->count() ?? 0;
+            $requestCount = $sidebarCounts['withdraw_requested'];
             if ($requestCount == 0) {
                 $menu->withdrawrequest
                     ->add('<span>' . __('message.list_form_title', ['form' => __('message.pending')]) . '</span>', [
@@ -818,7 +817,7 @@
                 ->add('<span>' . __('message.mail_templated') . '</span>', ['class' => ''])
                 ->prepend('<i class="fa-solid fa-envelope-open-text"></i>')
                 ->nickname('ordermail')
-                ->data('permission', 'order-list')
+                ->data('permission', 'ordermail-list')
                 ->link->attr(['class' => ''])
                 ->href('#ordermail');
 
@@ -827,7 +826,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'create'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['create_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -836,7 +835,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'active'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['active_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -845,7 +844,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'courier_arrived'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['arrived_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -854,7 +853,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'courier_picked_up'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['pickup_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -863,7 +862,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'return'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['return_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -872,7 +871,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'cancelled'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['cancel_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -881,7 +880,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'courier_assigned'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['assigned_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -890,7 +889,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'shipped'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['shipped_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -899,7 +898,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'completed'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['completed_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -908,7 +907,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'courier_departed'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['departed_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -917,7 +916,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordermail.index', 'mails_type' => 'reschedule'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['reschedule_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -926,7 +925,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['otpVerify_template', 'mails_type' => 'otp_verification_mail'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['otp_verification_mail', 'ordermail-list'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -934,7 +933,7 @@
                 ->add('<span>' . __('message.sms_templated') . '</span>', ['class' => ''])
                 ->prepend('<i class="fa-solid fa-envelope-open-text"></i>')
                 ->nickname('ordersms')
-                ->data('permission', 'order-list')
+                ->data('permission', 'ordersms')
                 ->link->attr(['class' => ''])
                 ->href('#ordersms');
 
@@ -943,7 +942,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'order_confirmation'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['order_confirmation', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -952,7 +951,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'you_have_parcel'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['you_have_a_parcel', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -961,7 +960,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'out_for_delivery'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['out_for_delivery', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -970,7 +969,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'delivered_successfully'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['delivered_successfully', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -979,7 +978,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'delivery_attempt_failed'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['delivery_attempt_failed', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -988,7 +987,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'new_delivery_assignment'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['new_delivery_assignment', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -997,7 +996,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'pickup_verification_code'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['pickup_verification_code', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -1006,7 +1005,7 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'delivery_verification_code'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['delivery_verification_code', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
@@ -1015,19 +1014,21 @@
                     'class' => 'sidebar-layout',
                     'route' => ['ordersms.index', 'sms_type' => 'emergency'],
                 ])
-                ->data('permission', 'order-list')
+                ->data('permission', ['emergency_sms', 'ordersms'])
                 ->prepend('<i class="fa-solid fa-inbox"></i>')
                 ->link->attr(['class' => '']);
 
             $menu
                 ->add('<span>' . __('message.reference_program') . '</span>', ['route' => 'reference-list'])
                 ->prepend('<i class="fa-solid fa-handshake-simple"></i>')
+                ->data('permission', 'users-list')
                 ->link->attr(['class' => '']);
 
             $menu
                 ->add('<span>' . __('message.print_label') . '</span>', ['class' => ''])
                 ->prepend('<i class="fa-solid fa-print"></i>')
                 ->nickname('orderprint')
+                ->data('permission', 'order-list')
                 ->link->attr(['class' => ''])
                 ->href('#orderprint');
 
@@ -1036,16 +1037,11 @@
                     'class' => 'sidebar-layout',
                     'route' => 'orderprint-datatable',
                 ])
-                ->data('permission', 'country-list')
+                ->data('permission', 'order-list')
                 ->prepend('<i class="fas fa-list"></i>')
                 ->link->attr(['class' => '']);
 
-            // $menu->add('<span>'.__('message.claims_management').'</span>', ['route' => 'claims.index'])
-            //     ->prepend('<i class="fa-solid fa-clipboard-question"></i>')
-            //     ->link->attr(['class' => '']);
-
-            $requestCount = Claims::where('status', 'pending')->count() ?? 0;
-            // dd($requestCount);
+            $requestCount = $sidebarCounts['claims_pending'];
             $count =
                 '<span class="badge badge-pill badge-primary p-1 mr-3 animate__animated animate__flash" id="requestCount">' .
                 $requestCount .
@@ -1108,7 +1104,7 @@
                     'route' => ['claims.index', 'claims_type' => 'approved'],
                 ])
                 ->data('permission', 'claims-list')
-                ->prepend('<i class="fa fa-calendar-check"></i>')
+                ->prepend('<i class="fa-calendar-check fa"></i>')
                 ->link->attr(['class' => '']);
 
             $menu->claims_management
@@ -1129,7 +1125,7 @@
                 ->prepend('<i class="fa fa-ban"></i>')
                 ->link->attr(['class' => '']);
 
-            $requestCount = CustomerSupport::where('status', 'pending')->count() ?? 0;
+            $requestCount = $sidebarCounts['customer_support_pending'];
             $count =
                 '<span class="badge badge-pill badge-primary p-1 mr-3 animate__animated animate__flash" id="requestCount">' .
                 $requestCount .
@@ -1210,15 +1206,21 @@
                     'class' => 'sidebar-layout',
                     'route' => 'coupon.index',
                 ])
-                ->data('permission', 'city-list')
+                ->data('permission', 'coupon-list')
                 ->prepend('<i class="fas fa-list"></i>')
+                ->link->attr(['class' => '']);
+
+            $menu
+                ->add('<span>' . __('message.emergency') . '</span>', ['class' => '', 'route' => 'emergency.index'])
+                ->prepend('<i class="fa fa-cart-plus"></i>')
+                ->data('permission', 'emergency-list')
                 ->link->attr(['class' => '']);
 
             $menu
                 ->add('<span>' . __('message.app_language_setting') . '</span>', ['class' => ''])
                 ->prepend('<i class="fa fa-language"></i>')
                 ->nickname('app_language_setting')
-                ->data('permission', '')
+                ->data('permission', 'screen-list')
                 ->link->attr(['class' => ''])
                 ->href('#app_language_setting');
 
@@ -1229,12 +1231,6 @@
                 ])
                 ->data('permission', 'screen-list')
                 ->prepend('<i class="fas fa-list"></i>')
-                ->link->attr(['class' => '']);
-
-            $menu
-                ->add('<span>' . __('message.emergency') . '</span>', ['class' => '', 'route' => 'emergency.index'])
-                ->prepend('<i class="fa fa-cart-plus"></i>')
-                ->data('permission', 'emergency-list')
                 ->link->attr(['class' => '']);
 
             $menu->app_language_setting
@@ -1511,6 +1507,7 @@
             $menu
                 ->add('<span>' . __('message.rest_api') . '</span>', ['route' => 'rest-api.index'])
                 ->prepend('<i class="fa-solid fa-repeat"></i>')
+                ->data('permission', 'rest_api')
                 ->link->attr(['class' => '']);
         }
 
@@ -1755,11 +1752,8 @@
 
 <div class="mm-sidebar sidebar-default">
     <div class="mm-sidebar-logo d-flex align-items-center justify-content-between">
-        <a href="{{ route('home') }}" class="header-logo">
-            <img src="{{ getSingleMedia(appSettingData('get'), 'site_logo', null) }}"
-                class="img-fluid mode light-img rounded-normal light-logo site_logo_preview" alt="logo">
-            <img src="{{ getSingleMedia(appSettingData('get'), 'site_dark_logo', null) }}"
-                class="img-fluid mode dark-img rounded-normal darkmode-logo site_dark_logo_preview" alt="dark-logo">
+        <a href="{{ route('home') }}" class="header-logo d-flex align-items-center text-decoration-none">
+            <h3 class="logo-title font-weight-bold text-primary mb-0" style="font-weight: 800; font-size: 1.45rem; letter-spacing: 0.5px; color: var(--site-color) !important;">Aspigrow</h3>
         </a>
         <div class="side-menu-bt-sidebar">
             <i class="fas fa-bars wrapper-menu"></i>

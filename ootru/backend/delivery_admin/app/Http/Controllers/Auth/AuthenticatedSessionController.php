@@ -68,9 +68,11 @@ class AuthenticatedSessionController extends Controller
 
         if (isset($request->signinModal) && $request->signinModal === "signinModal") {
             if ($user->hasRole('admin')) {
-                return redirect()->route('home')->with('user_type', 'admin');
+                Auth::logout();
+                return redirect()->route('frontend-section')->with('user_type', 'admin');
             } elseif ($user->hasRole('delivery_man')) {
-                return redirect()->route('home')->with('user_type', 'delivery_man');
+                Auth::logout();
+                return redirect()->route('frontend-section')->with('user_type', 'delivery_man');
             } elseif ($user->hasRole('client')) {
                 return redirect()->route('home')->with('user_type', 'client');
             }

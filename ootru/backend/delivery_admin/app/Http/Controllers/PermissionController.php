@@ -21,7 +21,50 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permission = Permission::orderBy('id','ASC')->whereNull('parent_id')->with('subpermission')->get();
+        $sidebarOrder = [
+            'dashboard',
+            'country',
+            'city',
+            'order',
+            'users',
+            'subadmin',
+            'deliveryman',
+            'deliverymandocument',
+            'document',
+            'vehicle',
+            'extracharge',
+            'parcel_type',
+            'staticdata',
+            'couriercompanies',
+            'push notification',
+            'report',
+            'mail_template',
+            'ordermail',
+            'sms_template',
+            'ordersms',
+            'withdrawrequest',
+            'claims',
+            'customersupport',
+            'coupon',
+            'emergency',
+            'app_language_setting',
+            'role',
+            'permission',
+            'website_section',
+            'pages',
+            'setting',
+            'rest_api',
+        ];
+
+        $permission = Permission::whereNull('parent_id')
+            ->with('subpermission')
+            ->get()
+            ->sortBy(function ($item) use ($sidebarOrder) {
+                $pos = array_search(strtolower($item->name), $sidebarOrder);
+                return $pos === false ? 999 : $pos;
+            })
+            ->values();
+
         $pageTitle = __('message.list_form_title',['form' => __('message.permission')  ]);
 
         $roles = Role::where('status',1)->orderBy('name','ASC');

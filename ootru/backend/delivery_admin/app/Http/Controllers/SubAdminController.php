@@ -114,22 +114,27 @@ class SubAdminController extends Controller
             $message = __('message.demo_permission_denied');
             return redirect()->back()->withErrors($message);
         }
-        $user = User::find($id);
+        $user = User::findOrFail($id);
 
-        $user->removeRole($user->user_type);
-        $message = __('message.not_found_entry', ['name' => __('message.sub_admin')]);
-        if($user == null) {
-            return response()->json(['status' => false, 'message' => $message ]);
+        $data = $request->except(['password']);
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
         }
 
-        $user->fill($request->all())->update();
+        if ($user->user_type) {
+            $user->removeRole($user->user_type);
+        }
+
+        $user->fill($data)->save();
 
         if (isset($request->profile_image) && $request->profile_image != null) {
             $user->clearMediaCollection('profile_image');
             $user->addMediaFromRequest('profile_image')->toMediaCollection('profile_image');
         }
 
-        $user->assignRole($request['user_type']);
+        if (isset($request->user_type)) {
+            $user->assignRole($request->user_type);
+        }
 
         $message = __('message.update_form',[ 'form' => __('message.sub_admin') ]);
 
@@ -137,9 +142,6 @@ class SubAdminController extends Controller
             return json_message_response($message);
         }
 
-        if(auth()->check()){
-           return redirect()->route('sub-admin.index')->withSuccess($message);
-        }
         return redirect()->route('sub-admin.index')->withSuccess($message);
     }
 
