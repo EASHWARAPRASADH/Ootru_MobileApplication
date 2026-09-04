@@ -632,8 +632,112 @@ class OrderDetailScreenState extends State<OrderDetailScreen> {
                                       ).expand(),
                                     ],
                                   ),
-                                  8.height,
-                                  Column(
+                                   8.height,
+                                   if (orderData!.status != ORDER_DELIVERED && orderData!.status != ORDER_CANCELLED) ...[
+                                     Builder(builder: (_) {
+                                       String pOtp = getStringAsync('pickup_otp_${orderData!.id}');
+                                       if (pOtp.isEmpty) {
+                                         pOtp = (1000 + (orderData!.id.validate() % 9000)).toString();
+                                         setValue('pickup_otp_${orderData!.id}', pOtp);
+                                       }
+                                       String dOtp = getStringAsync('delivery_otp_${orderData!.id}');
+                                       if (dOtp.isEmpty) {
+                                         dOtp = (1000 + ((orderData!.id.validate() * 7) % 9000)).toString();
+                                         setValue('delivery_otp_${orderData!.id}', dOtp);
+                                       }
+                                       return Container(
+                                         margin: EdgeInsets.symmetric(vertical: 8),
+                                         padding: EdgeInsets.all(12),
+                                         decoration: boxDecorationWithRoundedCorners(
+                                           backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08),
+                                           borderRadius: BorderRadius.circular(defaultRadius),
+                                           border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.35)),
+                                         ),
+                                         child: Column(
+                                           crossAxisAlignment: CrossAxisAlignment.start,
+                                           children: [
+                                             Row(
+                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                               children: [
+                                                 Row(
+                                                   children: [
+                                                     Icon(Icons.verified_user_outlined, color: ColorUtils.colorPrimary, size: 18),
+                                                     6.width,
+                                                     Text("Verification OTPs", style: boldTextStyle(size: 13, color: ColorUtils.colorPrimary)),
+                                                   ],
+                                                 ),
+                                                 Container(
+                                                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                   decoration: boxDecorationWithRoundedCorners(
+                                                     backgroundColor: ColorUtils.colorPrimary,
+                                                     borderRadius: BorderRadius.circular(10),
+                                                   ),
+                                                   child: Text("Active", style: primaryTextStyle(color: Colors.white, size: 11)),
+                                                 ),
+                                               ],
+                                             ),
+                                             8.height,
+                                             Row(
+                                               children: [
+                                                 Expanded(
+                                                   child: Container(
+                                                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                     decoration: boxDecorationWithRoundedCorners(
+                                                       backgroundColor: context.cardColor,
+                                                       borderRadius: BorderRadius.circular(8),
+                                                       border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                                     ),
+                                                     child: Column(
+                                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                                       children: [
+                                                         Text("Pickup OTP", style: secondaryTextStyle(size: 11)),
+                                                         4.height,
+                                                         Row(
+                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                           children: [
+                                                             Text(pOtp, style: boldTextStyle(size: 18, color: ColorUtils.colorPrimary)),
+                                                             Icon(Icons.lock_clock, size: 16, color: ColorUtils.colorPrimary),
+                                                           ],
+                                                         ),
+                                                       ],
+                                                     ),
+                                                   ),
+                                                 ),
+                                                 10.width,
+                                                 Expanded(
+                                                   child: Container(
+                                                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                     decoration: boxDecorationWithRoundedCorners(
+                                                       backgroundColor: context.cardColor,
+                                                       borderRadius: BorderRadius.circular(8),
+                                                       border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                                     ),
+                                                     child: Column(
+                                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                                       children: [
+                                                         Text("Delivery OTP", style: secondaryTextStyle(size: 11)),
+                                                         4.height,
+                                                         Row(
+                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                           children: [
+                                                             Text(dOtp, style: boldTextStyle(size: 18, color: Colors.blue.shade700)),
+                                                             Icon(Icons.verified, size: 16, color: Colors.blue.shade700),
+                                                           ],
+                                                         ),
+                                                       ],
+                                                     ),
+                                                   ),
+                                                 ),
+                                               ],
+                                             ),
+                                             6.height,
+                                             Text("Share the OTP with the delivery partner when they arrive.", style: secondaryTextStyle(size: 11)),
+                                           ],
+                                         ),
+                                       );
+                                     }),
+                                   ],
+                                   Column(
                                     crossAxisAlignment: .start,
                                     children: [
                                       Row(

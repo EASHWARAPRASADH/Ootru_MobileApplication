@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../../extensions/extension_util/bool_extensions.dart';
 import '../../extensions/extension_util/context_extensions.dart';
 import '../../extensions/extension_util/int_extensions.dart';
@@ -83,6 +85,43 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
     addressController.text = getStringAsync(USER_ADDRESS).validate();
+    if (addressController.text.isEmpty) {
+      fetchLiveAddress(showToast: false);
+    }
+  }
+
+  Future<void> fetchLiveAddress({bool showToast = true}) async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        if (showToast) toast("Location permission is required to fetch live address");
+        return;
+      }
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high).timeout(Duration(seconds: 4));
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        List<String> parts = [];
+        if (place.street != null && place.street!.isNotEmpty && !place.street!.contains('+')) parts.add(place.street!);
+        if (place.subLocality != null && place.subLocality!.isNotEmpty && !parts.contains(place.subLocality)) parts.add(place.subLocality!);
+        if (place.locality != null && place.locality!.isNotEmpty && !parts.contains(place.locality)) parts.add(place.locality!);
+        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty && !parts.contains(place.administrativeArea)) parts.add(place.administrativeArea!);
+        if (place.postalCode != null && place.postalCode!.isNotEmpty) parts.add(place.postalCode!);
+        String fullAddress = parts.isNotEmpty ? parts.join(', ') : (place.locality ?? '');
+        if (fullAddress.isNotEmpty) {
+          addressController.text = fullAddress;
+          await setValue(USER_ADDRESS, fullAddress);
+          if (showToast) toast("Live location address fetched!");
+        }
+      }
+    } catch (e) {
+      log("fetchLiveAddress error: $e");
+    } finally {
+      if (mounted) setState(() {});
+    }
   }
 
   Widget profileImage() {
@@ -301,14 +340,41 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   16.height,
                   if (!widget.isGoogle.validate()) ...[
-                    Text(language.address, style: primaryTextStyle()),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(language.address, style: primaryTextStyle()),
+                        InkWell(
+                          onTap: () async {
+                            await fetchLiveAddress(showToast: true);
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: boxDecorationWithRoundedCorners(
+                              backgroundColor: ColorUtils.colorPrimary.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.my_location, color: ColorUtils.colorPrimary, size: 14),
+                                4.width,
+                                Text("Fetch Live Location", style: boldTextStyle(color: ColorUtils.colorPrimary, size: 12)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     8.height,
                     AppTextField(
                       controller: addressController,
                       textFieldType: TextFieldType.MULTILINE,
                       focus: addressFocus,
                       textInputAction: TextInputAction.done,
-                      decoration: commonInputDecoration(),
+                      decoration: commonInputDecoration(hintText: "Enter address or fetch live location"),
                       errorThisFieldRequired: language.fieldRequiredMsg,
                     ),
                     16.height,

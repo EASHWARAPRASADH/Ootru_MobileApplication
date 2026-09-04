@@ -295,6 +295,15 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
           }
           pickPhoneCont.text = digits;
         }
+        // Auto-fill pickup address from user profile address or live location
+        if (pickAddressCont.text.isEmpty) {
+          String userAddress = getStringAsync(USER_ADDRESS);
+          if (userAddress.isNotEmpty) {
+            pickAddressCont.text = userAddress;
+          } else {
+            fetchLiveLocation(isPickup: true);
+          }
+        }
         setState(() {});
       }
       if (widget.orderData != null) {
@@ -639,9 +648,12 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
       LiveStream().emit('UpdateOrderData');
       // Generate 4-digit pickup OTP and show to order creator + send SMS to pickup contact
       final pickupOtp = (1000 + (DateTime.now().millisecondsSinceEpoch % 9000)).toString();
+      final deliveryOtp = (1000 + ((DateTime.now().millisecondsSinceEpoch ~/ 7) % 9000)).toString();
       final pickupContact = '$pickupCountryCode${pickPhoneCont.text.trim()}';
-      // Store OTP in SharedPreferences keyed by orderId for delivery boy verification
+      final deliveryContact = '$deliverCountryCode${deliverPhoneCont.text.trim()}';
+      // Store OTPs in SharedPreferences keyed by orderId
       await setValue('pickup_otp_${value.orderId}', pickupOtp);
+      await setValue('delivery_otp_${value.orderId}', deliveryOtp);
       // Send OTP via SMS to pickup contact (Firebase Phone Auth)
       sendOtp(context, phoneNumber: pickupContact, onUpdate: (verificationId) {});
       // Show OTP on screen for order creator
@@ -1799,6 +1811,8 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                     if (await FlutterContacts.requestPermission(readonly: true)) {
                       final contacts = await FlutterContacts.getContacts(withProperties: true);
                       if (!mounted) return;
+                      List<Contact> filteredContacts = List.from(contacts);
+                      TextEditingController searchCtrl = TextEditingController();
                       await showModalBottomSheet(
                         context: context,
                         shape: RoundedRectangleBorder(
@@ -1806,56 +1820,109 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         isScrollControlled: true,
                         builder: (ctx) {
-                          return DraggableScrollableSheet(
-                            expand: false,
-                            maxChildSize: 0.85,
-                            initialChildSize: 0.6,
-                            builder: (_, scrollCtrl) {
-                              return Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Text('Select Contact', style: boldTextStyle(size: 16)),
-                                  ),
-                                  Expanded(
-                                    child: ListView.builder(
-                                      controller: scrollCtrl,
-                                      itemCount: contacts.length,
-                                      itemBuilder: (_, i) {
-                                        final c = contacts[i];
-                                        final phone = c.phones.isNotEmpty
-                                            ? c.phones.first.number.replaceAll(RegExp(r'[^\d]'), '')
-                                            : '';
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            backgroundColor: ColorUtils.colorPrimary.withOpacity(0.2),
-                                            child: Text(
-                                              c.displayName.isNotEmpty ? c.displayName[0].toUpperCase() : '?',
-                                              style: boldTextStyle(color: ColorUtils.colorPrimary),
-                                            ),
+                          return StatefulBuilder(
+                            builder: (context, setModalState) {
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                                ),
+                                child: DraggableScrollableSheet(
+                                  expand: false,
+                                  maxChildSize: 0.9,
+                                  initialChildSize: 0.75,
+                                  minChildSize: 0.4,
+                                  builder: (_, scrollCtrl) {
+                                    return Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Select Contact', style: boldTextStyle(size: 16)),
+                                              Text('${filteredContacts.length} contacts', style: secondaryTextStyle(size: 12)),
+                                            ],
                                           ),
-                                          title: Text(c.displayName, style: primaryTextStyle()),
-                                          subtitle: phone.isNotEmpty ? Text(phone, style: secondaryTextStyle()) : null,
-                                          onTap: () {
-                                            Navigator.pop(ctx);
-                                            if (phone.isNotEmpty) {
-                                              // Strip country code if >10 digits
-                                              String digits = phone;
-                                              if (digits.length > 10) {
-                                                digits = digits.substring(digits.length - 10);
-                                              }
-                                              deliverPhoneCont.text = digits;
-                                            }
-                                            if (c.displayName.isNotEmpty) {
-                                              deliverPersonNameCont.text = c.displayName;
-                                            }
-                                            setState(() {});
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                          child: AppTextField(
+                                            controller: searchCtrl,
+                                            textFieldType: TextFieldType.OTHER,
+                                            decoration: commonInputDecoration(
+                                              hintText: "Search by name or phone...",
+                                              prefixIcon: Icon(Icons.search, color: ColorUtils.colorPrimary, size: 20),
+                                            ),
+                                            onChanged: (val) {
+                                              setModalState(() {
+                                                if (val.trim().isEmpty) {
+                                                  filteredContacts = List.from(contacts);
+                                                } else {
+                                                  final q = val.trim().toLowerCase();
+                                                  filteredContacts = contacts.where((c) {
+                                                    final nameMatch = c.displayName.toLowerCase().contains(q);
+                                                    final phoneMatch = c.phones.any((p) => p.number.replaceAll(RegExp(r'[^\d]'), '').contains(q));
+                                                    return nameMatch || phoneMatch;
+                                                  }).toList();
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        8.height,
+                                        Expanded(
+                                          child: filteredContacts.isEmpty
+                                              ? Center(
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.person_search_outlined, size: 48, color: Colors.grey),
+                                                      8.height,
+                                                      Text("No contacts found", style: secondaryTextStyle()),
+                                                    ],
+                                                  ),
+                                                )
+                                              : ListView.builder(
+                                                  controller: scrollCtrl,
+                                                  itemCount: filteredContacts.length,
+                                                  itemBuilder: (_, i) {
+                                                    final c = filteredContacts[i];
+                                                    final phone = c.phones.isNotEmpty
+                                                        ? c.phones.first.number.replaceAll(RegExp(r'[^\d]'), '')
+                                                        : '';
+                                                    return ListTile(
+                                                      leading: CircleAvatar(
+                                                        backgroundColor: ColorUtils.colorPrimary.withOpacity(0.2),
+                                                        child: Text(
+                                                          c.displayName.isNotEmpty ? c.displayName[0].toUpperCase() : '?',
+                                                          style: boldTextStyle(color: ColorUtils.colorPrimary),
+                                                        ),
+                                                      ),
+                                                      title: Text(c.displayName, style: primaryTextStyle()),
+                                                      subtitle: phone.isNotEmpty ? Text(phone, style: secondaryTextStyle()) : null,
+                                                      onTap: () {
+                                                        Navigator.pop(ctx);
+                                                        if (phone.isNotEmpty) {
+                                                          // Strip country code if >10 digits
+                                                          String digits = phone;
+                                                          if (digits.length > 10) {
+                                                            digits = digits.substring(digits.length - 10);
+                                                          }
+                                                          deliverPhoneCont.text = digits;
+                                                        }
+                                                        if (c.displayName.isNotEmpty) {
+                                                          deliverPersonNameCont.text = c.displayName;
+                                                        }
+                                                        setState(() {});
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               );
                             },
                           );
