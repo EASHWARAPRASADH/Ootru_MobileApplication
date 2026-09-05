@@ -162,7 +162,7 @@ class UserController extends Controller
 
         $input['user_type'] = $input['user_type'] ?? 'client';
 
-        if ($input['user_type'] === 'delivery_man' && $is_allow_deliveryman == 0) {
+        if ($input['user_type'] === 'delivery_man' && ($is_allow_deliveryman === '0' || $is_allow_deliveryman === 0)) {
             return json_custom_response([
                 'message' => __('message.demo_permission_denied'),
                 'success' => false,
