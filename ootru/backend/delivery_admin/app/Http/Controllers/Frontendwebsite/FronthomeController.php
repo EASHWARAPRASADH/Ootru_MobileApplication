@@ -319,7 +319,7 @@ class FronthomeController extends Controller
     public function adminLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('frontend-section');
+            return redirect()->route('home');
         }
         $walkthrough_data = FrontendData::where('type', 'walkthrough')->get();
         return view('frontend-website.admin.login', compact('walkthrough_data'));
@@ -369,7 +369,7 @@ class FronthomeController extends Controller
                 case 'admin':
                 case 'delivery_man':
                     Auth::logout();
-                    return redirect()->route('frontend-section')->with('user_type', $role);
+                    return redirect()->route('admin-login')->with('user_type', $role);
                 case 'client':
                     return redirect()->route('home')->with('user_type', 'client');
             }

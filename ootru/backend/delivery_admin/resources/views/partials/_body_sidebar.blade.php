@@ -39,12 +39,6 @@
             (Auth::user()->user_type != 'client' && Auth::user()->user_type != 'delivery_man')
         ) {
             $menu
-                ->add('<span>' . __('message.view_site') . '</span>', ['route' => 'frontend-section'])
-                ->prepend('<i class="fa fa-arrow-left"></i>')
-                ->data('permission', 'view_site')
-                ->link->attr(['class' => '']);
-
-            $menu
                 ->add('<span>' . __('message.dispatch') . '</span>', ['class' => '', 'route' => 'order.create'])
                 ->prepend('<i class="fa fa-plus"></i>')
                 ->data('permission', 'dispatch')

@@ -77,7 +77,7 @@ Route::get('migrate', function () {
             Artisan::call('db:seed', ['--force' => true]);
         }
 
-        return redirect()->route('frontend-section');
+        return redirect()->route('home');
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }
@@ -114,7 +114,6 @@ Route::group(['prefix' => 'auth'], function () {
 Route::get('api-invoice/{id}', [OrderController::class, 'ApiInvoicePdf'])->name('api-order-invoice');
 Route::get('language/{locale}', [HomeController::class, 'changeLanguage'])->name('change.language');
 Route::group(['middleware' => ['auth', 'verified', 'assign_user_role']], function () {
-    Route::get('/', [HomeController::class, 'index']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/high_demanding_areas', [HomeController::class, 'highDemanding_areas'])->name('high_demanding_areas');
   
@@ -422,14 +421,17 @@ Route::get('/map', [EmergencyController::class, 'showMap']);
 
 Route::get('/ajax-list', [HomeController::class, 'getAjaxList'])->name('ajax-list');
 
-Route::get('/', [FronthomeController::class, 'index']);
-
 $admin_routes = env('SECURE_ADMIN_ROUTE') ? env('SECURE_ADMIN_ROUTE') : 'adminHub';
-Route::get($admin_routes, [FronthomeController::class, 'adminLogin'])->name('admin-login');
+Route::get('/', [FronthomeController::class, 'adminLogin'])->name('admin-login');
+if ($admin_routes && $admin_routes !== '/') {
+    Route::get($admin_routes, [FronthomeController::class, 'adminLogin']);
+}
 
 Route::get('admin/verify-otp', [FronthomeController::class, 'verifyOTP'])->name('verify-otp');
 Route::post('admin/verify-otp-post', [FronthomeController::class, 'verifyOTP_post'])->name('verify-otp-post');
-Route::get('frontend-section', [FronthomeController::class, 'index'])->name('frontend-section');
+Route::get('frontend-section', function () {
+    return redirect('/');
+})->name('frontend-section');
 Route::get('ordertracking', [FronthomeController::class, 'ordertracking'])->name('ordertracking');
 Route::get('email-order/{id}', [FronthomeController::class, 'emailOrder'])->name('email-order');
 Route::post('orderhistory', [FronthomeController::class, 'orderhistory'])->name('orderhistory');

@@ -18,7 +18,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
-        return redirect()->route('frontend-section');
+        return redirect()->route('admin-login');
     }
 
     /**
@@ -31,10 +31,6 @@ class AuthenticatedSessionController extends Controller
     {
         $user = User::where('email', $request->email)->first();
         if (!$user || empty($user)) {
-            
-            if (isset($request->signinModal) && $request->signinModal === 'signinModal') {
-                return redirect()->route('frontend-section')->withErrors(__('message.invalid_email'));
-            }
             return redirect()->route('admin-login')->withErrors(__('message.invalid_email'));
         }
 
@@ -69,10 +65,10 @@ class AuthenticatedSessionController extends Controller
         if (isset($request->signinModal) && $request->signinModal === "signinModal") {
             if ($user->hasRole('admin')) {
                 Auth::logout();
-                return redirect()->route('frontend-section')->with('user_type', 'admin');
+                return redirect()->route('admin-login')->with('user_type', 'admin');
             } elseif ($user->hasRole('delivery_man')) {
                 Auth::logout();
-                return redirect()->route('frontend-section')->with('user_type', 'delivery_man');
+                return redirect()->route('admin-login')->with('user_type', 'delivery_man');
             } elseif ($user->hasRole('client')) {
                 return redirect()->route('home')->with('user_type', 'client');
             }
