@@ -15,7 +15,6 @@ import '../../extensions/system_utils.dart';
 import '../../main.dart';
 import '../../main/utils/Constants.dart';
 import '../screens/LoginScreen.dart';
-import 'RestApis.dart';
 
 Map<String, String> buildHeaderTokens() {
   Map<String, String> header = {
