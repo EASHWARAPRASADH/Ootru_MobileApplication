@@ -99,38 +99,36 @@ class LoginScreenState extends State<LoginScreen> {
         String email = emailController.text.trim();
         String password = passController.text.trim();
 
-        await setValue(USER_EMAIL, email);
-        await setValue(USER_PASSWORD, password);
-        await setValue(NAME, email.isNotEmpty ? email.split('@').first : 'User');
-        await setValue(USER_NAME, email);
-        await setValue(USER_TYPE, userType);
-        await setValue(STATUS, 1);
-        await setValue(IS_LOGGED_IN, true);
-        await setValue(OTP_VERIFIED, true);
-        await setValue(EMAIL_VERIFIED, true);
-        await setValue(IS_VERIFIED_DELIVERY_MAN, true);
-        await setValue(USER_TOKEN, 'local_token_${DateTime.now().millisecondsSinceEpoch}');
-        await setValue(USER_ID, getIntAsync(USER_ID, defaultValue: DateTime.now().millisecondsSinceEpoch ~/ 1000));
-        // Preserve existing phone number if already set (from registration)
-        if (getStringAsync(USER_CONTACT_NUMBER).isEmpty) {
-          await setValue(USER_CONTACT_NUMBER, '');
-        }
+        Map req = {
+          'email': Encryption.instance.encrypt(email),
+          'password': Encryption.instance.encrypt(password),
+          'player_id': getStringAsync('PLAYER_ID', defaultValue: ''),
+          'user_type': Encryption.instance.encrypt(userType),
+        };
 
-        if (mIsCheck) {
-          await setValue(REMEMBER_ME, mIsCheck);
-        }
+        try {
+          var loginResponse = await logInApi(req);
 
-        appStore.setUserEmail(email);
-        appStore.setUserType(userType);
-        appStore.setLogin(true);
-        appStore.setLoading(false);
+          if (mIsCheck) {
+            await setValue(REMEMBER_ME, mIsCheck);
+            await setValue(USER_EMAIL, email);
+            await setValue(USER_PASSWORD, password);
+          }
 
-        if (userType == DELIVERY_MAN) {
-          isSosVisible.value = true;
-          DHomeFragment().launch(context, isNewTask: true);
-        } else {
-          isSosVisible.value = false;
-          DashboardScreen().launch(context, isNewTask: true);
+          await setValue(IS_LOGGED_IN, true);
+          appStore.setLogin(true);
+          appStore.setLoading(false);
+
+          if (loginResponse.data!.userType.validate() == DELIVERY_MAN) {
+            isSosVisible.value = true;
+            DHomeFragment().launch(context, isNewTask: true);
+          } else {
+            isSosVisible.value = false;
+            DashboardScreen().launch(context, isNewTask: true);
+          }
+        } catch (e) {
+          appStore.setLoading(false);
+          toast(e.toString());
         }
       } else {
         toast(language.acceptTermService);

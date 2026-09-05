@@ -52,13 +52,13 @@ Future<Response> buildHttpResponse(String endPoint, {HttpMethod method = HttpMet
       if (method == HttpMethod.POST) {
         log('Request: $request');
 
-        response = await http.post(url, body: jsonEncode(request), headers: headers).timeout(3.seconds, onTimeout: () => throw 'Timeout');
+        response = await http.post(url, body: jsonEncode(request), headers: headers).timeout(60.seconds, onTimeout: () => throw 'Timeout');
       } else if (method == HttpMethod.DELETE) {
-        response = await delete(url, headers: headers).timeout(3.seconds, onTimeout: () => throw 'Timeout');
+        response = await delete(url, headers: headers).timeout(60.seconds, onTimeout: () => throw 'Timeout');
       } else if (method == HttpMethod.PUT) {
-        response = await put(url, body: jsonEncode(request), headers: headers).timeout(3.seconds, onTimeout: () => throw 'Timeout');
+        response = await put(url, body: jsonEncode(request), headers: headers).timeout(60.seconds, onTimeout: () => throw 'Timeout');
       } else {
-        response = await get(url, headers: headers).timeout(3.seconds, onTimeout: () => throw 'Timeout');
+        response = await get(url, headers: headers).timeout(60.seconds, onTimeout: () => throw 'Timeout');
       }
 
       log('Response ($method): ${url.toString()} ${response.statusCode} ${response.body}');
@@ -118,6 +118,7 @@ Future handleResponse(Response response, [bool? avoidTokenError]) async {
     // } else {
     //   throw '';
     // }
+    return; // Return early to avoid throwing an additional exception
   }
 
   if (response.statusCode.isSuccessful()) {

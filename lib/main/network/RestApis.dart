@@ -113,24 +113,8 @@ Future<LoginResponse> signUpApi(Map request) async {
       return loginResponse;
     });
   } catch (e) {
-    log("signUpApi network error (falling back to direct local registration): $e");
-    return LoginResponse(
-      status: true,
-      message: 'Signed up successfully',
-      data: UserData(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        name: name.isNotEmpty ? name : 'User',
-        username: username.isNotEmpty ? username : email,
-        email: email,
-        contactNumber: contactNumber,
-        userType: userType,
-        status: 1,
-        apiToken: 'local_token_${DateTime.now().millisecondsSinceEpoch}',
-        otpVerifyAt: DateTime.now().toIso8601String(),
-        emailVerifiedAt: DateTime.now().toIso8601String(),
-        documentVerifiedAt: DateTime.now().toIso8601String(),
-      ),
-    );
+    log("signUpApi network error: $e");
+    rethrow;
   }
 }
 
@@ -174,24 +158,8 @@ Future<LoginResponse> logInApi(Map request, {bool isSocialLogin = false}) async 
       var json = await handleResponse(response);
       loginResponse = LoginResponse.fromJson(json);
     } catch (e) {
-      log("logInApi network error (falling back to local session): $e");
-      loginResponse = LoginResponse(
-        status: true,
-        message: 'Login successful',
-        data: UserData(
-          id: getIntAsync(USER_ID, defaultValue: DateTime.now().millisecondsSinceEpoch ~/ 1000),
-          name: name.isNotEmpty ? name : 'User',
-          username: email,
-          email: email,
-          userType: userType,
-          status: 1,
-          apiToken: getStringAsync(USER_TOKEN).isNotEmpty ? getStringAsync(USER_TOKEN) : 'local_token_${DateTime.now().millisecondsSinceEpoch}',
-          otpVerifyAt: DateTime.now().toIso8601String(),
-          emailVerifiedAt: DateTime.now().toIso8601String(),
-          documentVerifiedAt: DateTime.now().toIso8601String(),
-          loginType: isSocialLogin ? LoginTypeGoogle : 'email',
-        ),
-      );
+      log("logInApi network error: $e");
+      rethrow;
     }
   }
 

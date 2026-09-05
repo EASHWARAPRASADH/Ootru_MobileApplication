@@ -132,12 +132,12 @@ class SplashScreenState extends State<SplashScreen> {
     String versionNo = await getStringAsync(CURRENT_LAN_VERSION, defaultValue: LanguageVersion);
     // Language version update is giving issues
     try {
-      await getLanguageList("").timeout(Duration(seconds: 2)).then((value) {
+      await getLanguageList("").timeout(Duration(seconds: 15)).then((value) {
         if (value.themeColor != null && value.themeColor!.isNotEmpty) {
           appStore.setThemeColor(value.themeColor!);
           appStore.updateTheme(colorFromHex(value.themeColor!));
         }
-        appStore.setIsAllowDeliveryMan(value.isAllowDeliveryMan ?? false);
+        appStore.setIsAllowDeliveryMan(value.isAllowDeliveryMan ?? true);
         appStore.setLoading(false);
         if (value.status == true) {
           setValue(CURRENT_LAN_VERSION, value.currentVersionNo.toString());

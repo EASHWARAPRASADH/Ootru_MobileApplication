@@ -114,7 +114,7 @@
 
 <!-- Emoji picker -->
 <script type="module" src="{{ asset('vendor/emoji-picker-element/index.js') }}"></script>
-<script type="module" src="{{ asset('vendor/magnific-popup/js/jquery.magnific-popup.min.js') }}"></script>
+<script src="{{ asset('vendor/magnific-popup/js/jquery.magnific-popup.min.js') }}"></script>
 
 @if (isset($assets) && in_array('datatable', $assets))
     <!-- <script src="{{ asset('vendor/datatables/js/jquery.dataTables.min.js') }}"></script> -->

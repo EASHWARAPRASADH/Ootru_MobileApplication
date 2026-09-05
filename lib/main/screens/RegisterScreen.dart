@@ -87,38 +87,44 @@ class RegisterScreenState extends State<RegisterScreen> {
       if (isAcceptedTc) {
         appStore.setLoading(true);
         String name = nameController.text.trim();
-        String username = emailController.text.trim();
         String userType = widget.userType ?? CLIENT;
         String contactNumber = '$countryCode ${phoneController.text.trim()}';
         String email = emailController.text.trim();
         String password = passController.text.trim();
 
-        // Save local session
-        await setValue(NAME, name.isNotEmpty ? name : 'User');
-        await setValue(USER_NAME, username);
-        await setValue(USER_EMAIL, email);
-        await setValue(USER_PASSWORD, password);
-        await setValue(USER_TYPE, userType);
-        await setValue(USER_CONTACT_NUMBER, contactNumber);
-        await setValue(STATUS, 1);
-        await setValue(IS_LOGGED_IN, true);
-        await setValue(OTP_VERIFIED, true);
-        await setValue(EMAIL_VERIFIED, true);
-        await setValue(IS_VERIFIED_DELIVERY_MAN, true);
-        await setValue(USER_TOKEN, 'local_token_${DateTime.now().millisecondsSinceEpoch}');
-        await setValue(USER_ID, DateTime.now().millisecondsSinceEpoch ~/ 1000);
+        Map req = {
+          'name': Encryption.instance.encrypt(name),
+          'username': Encryption.instance.encrypt(email),
+          'email': Encryption.instance.encrypt(email),
+          'password': Encryption.instance.encrypt(password),
+          'user_type': Encryption.instance.encrypt(userType),
+          'contact_number': Encryption.instance.encrypt(contactNumber),
+          'player_id': getStringAsync('PLAYER_ID', defaultValue: ''),
+        };
 
-        appStore.setUserEmail(email);
-        appStore.setUserType(userType);
-        appStore.setLogin(true);
-        appStore.setLoading(false);
+        if (partnerCodeController.text.trim().isNotEmpty) {
+          req['partner_code'] = Encryption.instance.encrypt(partnerCodeController.text.trim());
+        }
 
-        toast("Registered successfully!");
+        try {
+          var signUpResponse = await signUpApi(req);
 
-        if (userType == DELIVERY_MAN) {
-          DHomeFragment().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
-        } else {
-          DashboardScreen().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+          await setValue(IS_LOGGED_IN, true);
+          appStore.setUserEmail(signUpResponse.data!.email.validate());
+          appStore.setUserType(signUpResponse.data!.userType.validate());
+          appStore.setLogin(true);
+          appStore.setLoading(false);
+
+          toast("Registered successfully!");
+
+          if (signUpResponse.data!.userType.validate() == DELIVERY_MAN) {
+            DHomeFragment().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+          } else {
+            DashboardScreen().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+          }
+        } catch (e) {
+          appStore.setLoading(false);
+          toast(e.toString());
         }
       } else {
         toast(language.acceptTermService);
