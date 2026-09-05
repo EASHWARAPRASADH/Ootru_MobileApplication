@@ -50,7 +50,9 @@ Thumbs.db
 **/yarn-error.log
 
 # Laravel
-**/vendor/
+**/delivery_admin/vendor/
+!**/public/vendor/
+!**/public/vendor/**
 **/.env
 **/.env.backup
 **/.env.production
