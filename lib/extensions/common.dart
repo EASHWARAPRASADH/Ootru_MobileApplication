@@ -410,7 +410,16 @@ Future<T?> push<T>(
 
 String parseHtmlString(String? htmlString) {
   if (htmlString == null || htmlString.trim().isEmpty) return '';
-  return parse(parse(htmlString).body!.text).documentElement!.text;
+  try {
+    var document = parse(htmlString);
+    var text = document.body?.text;
+    if (text != null && text.trim().isNotEmpty) {
+      return text.trim();
+    }
+  } catch (e) {
+    log("parseHtmlString error: $e");
+  }
+  return htmlString;
 }
 
 /// Dispose current screen or close current dialog

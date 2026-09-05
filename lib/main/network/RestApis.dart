@@ -108,10 +108,32 @@ Future<LoginResponse> signUpApi(Map request) async {
       }
     }
 
-    return await handleResponse(response).then((json) async {
-      var loginResponse = LoginResponse.fromJson(json);
-      return loginResponse;
-    });
+    var json = await handleResponse(response);
+    var loginResponse = LoginResponse.fromJson(json);
+
+    if (loginResponse.data != null) {
+      await setValue(USER_ID, loginResponse.data!.id.validate());
+      await setValue(NAME, loginResponse.data!.name.validate());
+      await setValue(USER_EMAIL, loginResponse.data!.email.validate());
+      await setValue(USER_TOKEN, loginResponse.data!.apiToken.validate());
+      await setValue(USER_CONTACT_NUMBER, loginResponse.data!.contactNumber.validate());
+      await setValue(USER_TYPE, loginResponse.data!.userType.validate());
+      await setValue(USER_NAME, loginResponse.data!.username.validate());
+      await setValue(STATUS, loginResponse.data!.status.validate());
+      await setValue(USER_ADDRESS, loginResponse.data!.address.validate());
+      await setValue(COUNTRY_ID, loginResponse.data!.countryId.validate());
+      await setValue(CITY_ID, loginResponse.data!.cityId.validate());
+      await setValue(OTP_VERIFIED, true);
+      await setValue(EMAIL_VERIFIED, true);
+      await setValue(IS_VERIFIED_DELIVERY_MAN, true);
+
+      appStore.setUserProfile(loginResponse.data!.profileImage.validate());
+      appStore.setUserEmail(loginResponse.data!.email.validate());
+      appStore.setUserType(loginResponse.data!.userType.validate());
+      appStore.setLogin(true);
+    }
+
+    return loginResponse;
   } catch (e) {
     log("signUpApi network error: $e");
     rethrow;
@@ -163,31 +185,33 @@ Future<LoginResponse> logInApi(Map request, {bool isSocialLogin = false}) async 
     }
   }
 
-  await setValue(USER_ID, loginResponse.data!.id.validate());
-  await setValue(NAME, loginResponse.data!.name.validate());
-  await setValue(USER_EMAIL, loginResponse.data!.email.validate());
-  await setValue(USER_TOKEN, loginResponse.data!.apiToken.validate());
-  await setValue(USER_CONTACT_NUMBER, loginResponse.data!.contactNumber.validate());
-  await setValue(USER_TYPE, loginResponse.data!.userType.validate());
-  await setValue(USER_NAME, loginResponse.data!.username.validate());
-  await setValue(STATUS, loginResponse.data!.status.validate());
-  await setValue(USER_ADDRESS, loginResponse.data!.address.validate());
-  await setValue(COUNTRY_ID, loginResponse.data!.countryId.validate());
-  await setValue(CITY_ID, loginResponse.data!.cityId.validate());
-  await setValue(OTP_VERIFIED, true);
-  await setValue(EMAIL_VERIFIED, true);
-  await setValue(IS_VERIFIED_DELIVERY_MAN, true);
+  if (loginResponse.data != null) {
+    await setValue(USER_ID, loginResponse.data!.id.validate());
+    await setValue(NAME, loginResponse.data!.name.validate());
+    await setValue(USER_EMAIL, loginResponse.data!.email.validate());
+    await setValue(USER_TOKEN, loginResponse.data!.apiToken.validate());
+    await setValue(USER_CONTACT_NUMBER, loginResponse.data!.contactNumber.validate());
+    await setValue(USER_TYPE, loginResponse.data!.userType.validate());
+    await setValue(USER_NAME, loginResponse.data!.username.validate());
+    await setValue(STATUS, loginResponse.data!.status.validate());
+    await setValue(USER_ADDRESS, loginResponse.data!.address.validate());
+    await setValue(COUNTRY_ID, loginResponse.data!.countryId.validate());
+    await setValue(CITY_ID, loginResponse.data!.cityId.validate());
+    await setValue(OTP_VERIFIED, true);
+    await setValue(EMAIL_VERIFIED, true);
+    await setValue(IS_VERIFIED_DELIVERY_MAN, true);
 
-  appStore.setUserProfile(loginResponse.data!.profileImage.validate());
-  userService.getUser(email: loginResponse.data!.email.validate()).then((value) async {
-    log(value.toString());
-  }).catchError((e) {
-    log(e.toString());
-  });
+    appStore.setUserProfile(loginResponse.data!.profileImage.validate());
+    userService.getUser(email: loginResponse.data!.email.validate()).then((value) async {
+      log(value.toString());
+    }).catchError((e) {
+      log(e.toString());
+    });
 
-  appStore.setUserEmail(loginResponse.data!.email.validate());
-  appStore.setUserType(loginResponse.data!.userType.validate());
-  appStore.setLogin(true);
+    appStore.setUserEmail(loginResponse.data!.email.validate());
+    appStore.setUserType(loginResponse.data!.userType.validate());
+    appStore.setLogin(true);
+  }
 
   return loginResponse;
 }

@@ -109,22 +109,27 @@ class LoginScreenState extends State<LoginScreen> {
         try {
           var loginResponse = await logInApi(req);
 
-          if (mIsCheck) {
-            await setValue(REMEMBER_ME, mIsCheck);
-            await setValue(USER_EMAIL, email);
-            await setValue(USER_PASSWORD, password);
-          }
+          if (loginResponse.data != null) {
+            if (mIsCheck) {
+              await setValue(REMEMBER_ME, mIsCheck);
+              await setValue(USER_EMAIL, email);
+              await setValue(USER_PASSWORD, password);
+            }
 
-          await setValue(IS_LOGGED_IN, true);
-          appStore.setLogin(true);
-          appStore.setLoading(false);
+            await setValue(IS_LOGGED_IN, true);
+            appStore.setLogin(true);
+            appStore.setLoading(false);
 
-          if (loginResponse.data!.userType.validate() == DELIVERY_MAN) {
-            isSosVisible.value = true;
-            DHomeFragment().launch(context, isNewTask: true);
+            if (loginResponse.data!.userType.validate() == DELIVERY_MAN) {
+              isSosVisible.value = true;
+              DHomeFragment().launch(context, isNewTask: true);
+            } else {
+              isSosVisible.value = false;
+              DashboardScreen().launch(context, isNewTask: true);
+            }
           } else {
-            isSosVisible.value = false;
-            DashboardScreen().launch(context, isNewTask: true);
+            appStore.setLoading(false);
+            toast(loginResponse.message.validate(value: "Login failed"));
           }
         } catch (e) {
           appStore.setLoading(false);
@@ -428,22 +433,22 @@ class LoginScreenState extends State<LoginScreen> {
           Observer(builder: (context) => loaderWidget().visible(appStore.isLoading)),
         ],
       ),
-      bottomNavigationBar: Container(
-        color: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimaryLight,
-        padding: .all(16),
-        child: appStore.isAllowDeliveryMan
-            ? Row(
-                mainAxisAlignment: .center,
-                children: [
-                  Text("${language.becomeADeliveryBoy}", style: primaryTextStyle()),
-                  4.width,
-                  Text(language.signUp, style: boldTextStyle(color: ColorUtils.colorPrimary)).onTap(() {
-                    RegisterScreen(userType: DELIVERY_MAN).launch(context, duration: Duration(milliseconds: 500), pageRouteAnimation: PageRouteAnimation.Slide);
-                  }),
-                ],
-              ).visible(appStore.isAllowDeliveryMan)
-            : SizedBox(),
-      ).visible(appStore.isAllowDeliveryMan),
+      bottomNavigationBar: Observer(
+        builder: (_) => Container(
+          color: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimaryLight,
+          padding: .all(16),
+          child: Row(
+            mainAxisAlignment: .center,
+            children: [
+              Text("${language.becomeADeliveryBoy}", style: primaryTextStyle()),
+              4.width,
+              Text(language.signUp, style: boldTextStyle(color: ColorUtils.colorPrimary)).onTap(() {
+                RegisterScreen(userType: DELIVERY_MAN).launch(context, duration: Duration(milliseconds: 500), pageRouteAnimation: PageRouteAnimation.Slide);
+              }),
+            ],
+          ),
+        ).visible(appStore.isAllowDeliveryMan),
+      ),
     );
   }
 

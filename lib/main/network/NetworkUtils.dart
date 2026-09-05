@@ -127,17 +127,24 @@ Future handleResponse(Response response, [bool? avoidTokenError]) async {
     try {
       if (response.body.isJson()) {
         var body = jsonDecode(response.body);
-        String? errorMsg;
         if (body is Map) {
-          if (body['message'] != null) {
+          if (body['message'] != null && body['message'].toString().trim().isNotEmpty) {
             errorMsg = body['message'].toString();
-          } else if (body['error'] != null) {
+          } else if (body['error'] != null && body['error'].toString().trim().isNotEmpty) {
             errorMsg = body['error'].toString();
-          } else if (body['errors'] is Map && body['errors']['message'] != null) {
-            errorMsg = body['errors']['message'].toString();
+          } else if (body['errors'] is Map) {
+            Map errMap = body['errors'];
+            if (errMap.isNotEmpty) {
+              var firstVal = errMap.values.first;
+              if (firstVal is List && firstVal.isNotEmpty) {
+                errorMsg = firstVal.first.toString();
+              } else {
+                errorMsg = firstVal.toString();
+              }
+            }
           }
         }
-        if (errorMsg != null && errorMsg.isNotEmpty) {
+        if (errorMsg != null && errorMsg.trim().isNotEmpty) {
           throw parseHtmlString(errorMsg);
         }
       }

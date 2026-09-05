@@ -109,18 +109,24 @@ class RegisterScreenState extends State<RegisterScreen> {
         try {
           var signUpResponse = await signUpApi(req);
 
-          await setValue(IS_LOGGED_IN, true);
-          appStore.setUserEmail(signUpResponse.data!.email.validate());
-          appStore.setUserType(signUpResponse.data!.userType.validate());
-          appStore.setLogin(true);
-          appStore.setLoading(false);
+          if (signUpResponse.data != null) {
+            await setValue(IS_LOGGED_IN, true);
+            appStore.setUserEmail(signUpResponse.data!.email.validate());
+            appStore.setUserType(signUpResponse.data!.userType.validate());
+            appStore.setLogin(true);
+            appStore.setLoading(false);
 
-          toast("Registered successfully!");
+            toast("Registered successfully!");
 
-          if (signUpResponse.data!.userType.validate() == DELIVERY_MAN) {
-            DHomeFragment().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+            if (signUpResponse.data!.userType.validate() == DELIVERY_MAN) {
+              DHomeFragment().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+            } else {
+              DashboardScreen().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+            }
           } else {
-            DashboardScreen().launch(context, isNewTask: true, pageRouteAnimation: PageRouteAnimation.Slide);
+            appStore.setLoading(false);
+            toast(signUpResponse.message.validate(value: "Registered successfully! Please log in."));
+            finish(context);
           }
         } catch (e) {
           appStore.setLoading(false);

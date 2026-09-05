@@ -25,14 +25,25 @@ class Encryption {
     log("Dart IV (Base64): ${base64Encode(ivBytes)}");
   }
 
-  String encrypt(String value) {
-    log("Encrypting Value: $value");
-    final encrypted = _encrypter.encrypt(value, iv: _iv);
-    return encrypted.base64;
+  String encrypt(String? value) {
+    if (value == null || value.isEmpty) return '';
+    try {
+      final encrypted = _encrypter.encrypt(value, iv: _iv);
+      return encrypted.base64;
+    } catch (e) {
+      log("Encryption error: $e");
+      return value;
+    }
   }
 
-  String decrypt(String base64value) {
-    final encrypted = Encrypted.fromBase64(base64value);
-    return _encrypter.decrypt(encrypted, iv: _iv);
+  String decrypt(String? base64value) {
+    if (base64value == null || base64value.trim().isEmpty) return '';
+    try {
+      final encrypted = Encrypted.fromBase64(base64value.trim());
+      return _encrypter.decrypt(encrypted, iv: _iv);
+    } catch (e) {
+      log("Decryption failed for value: $base64value, error: $e");
+      return base64value;
+    }
   }
 }

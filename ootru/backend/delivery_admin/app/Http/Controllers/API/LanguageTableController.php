@@ -12,7 +12,8 @@ class LanguageTableController extends Controller
 {
     public function getList(Request $request)
     {
-        $is_allow_deliveryman = SettingData('allow_deliveryman', 'allow_deliveryman') ? true : false;
+        $setting_deliveryman = SettingData('allow_deliveryman', 'allow_deliveryman');
+        $is_allow_deliveryman = ($setting_deliveryman === null || $setting_deliveryman === '' || $setting_deliveryman == '1' || $setting_deliveryman == 1);
         $version_data = LanguageVersionDetail::where('version_no',request('version_no'))->first();
 
         if (isset($version_data) && !empty($version_data)) {
