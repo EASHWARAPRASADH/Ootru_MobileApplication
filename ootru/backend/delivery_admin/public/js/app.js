@@ -150,9 +150,18 @@ Index Of Script
         Sidebar Widget
         -----------------------------------------------------------------------*/
 
-        jQuery(document).on("click", '.side-menu > li > a', function() {
-            jQuery('.side-menu > li > a').parent().removeClass('active');
-            jQuery(this).parent().addClass('active');
+        jQuery(document).on("click", '.side-menu li > a:not([data-toggle="collapse"])', function() {
+            jQuery('.side-menu li').removeClass('active');
+            jQuery(this).closest('li').addClass('active');
+            jQuery(this).closest('.submenu').parent('li').addClass('active');
+        });
+
+        // Sync aria-expanded state on collapse events
+        jQuery(document).on('show.bs.collapse', '.submenu.collapse', function() {
+            jQuery(this).prev('a').attr('aria-expanded', 'true').removeClass('collapsed');
+        });
+        jQuery(document).on('hide.bs.collapse', '.submenu.collapse', function() {
+            jQuery(this).prev('a').attr('aria-expanded', 'false').addClass('collapsed');
         });
 
         // Active menu
@@ -160,9 +169,8 @@ Index Of Script
 
         parents.addClass('show');
 
-
         parents.parents('li').addClass('active');
-        jQuery('li.active > a[aria-expanded="false"]').attr('aria-expanded', 'true');
+        jQuery('li.active > a[aria-expanded="false"]').attr('aria-expanded', 'true').removeClass('collapsed');
 
         /*---------------------------------------------------------------------
         FullScreen

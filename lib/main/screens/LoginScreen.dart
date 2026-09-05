@@ -102,7 +102,7 @@ class LoginScreenState extends State<LoginScreen> {
         Map req = {
           'email': Encryption.instance.encrypt(email),
           'password': Encryption.instance.encrypt(password),
-          'player_id': getStringAsync('PLAYER_ID', defaultValue: ''),
+          'player_id': Encryption.instance.encrypt(getStringAsync('PLAYER_ID', defaultValue: '')),
           'user_type': Encryption.instance.encrypt(userType),
         };
 

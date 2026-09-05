@@ -409,6 +409,7 @@ Future<T?> push<T>(
 }
 
 String parseHtmlString(String? htmlString) {
+  if (htmlString == null || htmlString.trim().isEmpty) return '';
   return parse(parse(htmlString).body!.text).documentElement!.text;
 }
 

@@ -211,12 +211,13 @@ class DProfileFragmentState extends State<DProfileFragment> {
                         accountSettingItemWidget(ic_change_password, language.earnedRewards, () {
                           RewardListScreen().launch(context);
                         }),
-                        accountSettingItemWidget(ic_earn, language.referAndEarn, () {
-                          ReferEarnScreen().launch(context);
-                        }),
-                        accountSettingItemWidget(ic_refer_history, language.referralHistory, () {
-                          ReferralHistoryScreen().launch(context);
-                        }),
+                        // REFERRAL_HIDDEN: Refer and Earn & Referral History hidden from UI
+                        // accountSettingItemWidget(ic_earn, language.referAndEarn, () {
+                        //   ReferEarnScreen().launch(context);
+                        // }),
+                        // accountSettingItemWidget(ic_refer_history, language.referralHistory, () {
+                        //   ReferralHistoryScreen().launch(context);
+                        // }),
                         // WALLET_HIDDEN: wallet menu hidden but code preserved
                         // accountSettingItemWidget(ic_wallet, language.wallet, () {
                         //   WalletScreen().launch(context);

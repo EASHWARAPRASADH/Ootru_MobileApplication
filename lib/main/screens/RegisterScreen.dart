@@ -99,7 +99,7 @@ class RegisterScreenState extends State<RegisterScreen> {
           'password': Encryption.instance.encrypt(password),
           'user_type': Encryption.instance.encrypt(userType),
           'contact_number': Encryption.instance.encrypt(contactNumber),
-          'player_id': getStringAsync('PLAYER_ID', defaultValue: ''),
+          'player_id': Encryption.instance.encrypt(getStringAsync('PLAYER_ID', defaultValue: '')),
         };
 
         if (partnerCodeController.text.trim().isNotEmpty) {
@@ -254,16 +254,17 @@ class RegisterScreenState extends State<RegisterScreen> {
                     errorThisFieldRequired: language.fieldRequiredMsg,
                     errorMinimumPasswordLength: language.passwordInvalid,
                   ),
-                  8.height,
-                  Text(language.parnerCode, style: primaryTextStyle()),
-                  8.height,
-                  AppTextField(
-                    controller: partnerCodeController,
-                    textFieldType: TextFieldType.NAME,
-                    focus: partnerCodeFocus,
-                    isValidationRequired: false,
-                    decoration: commonInputDecoration(),
-                  ),
+                  // REFERRAL_HIDDEN: Partner code field hidden from UI
+                  // 8.height,
+                  // Text(language.parnerCode, style: primaryTextStyle()),
+                  // 8.height,
+                  // AppTextField(
+                  //   controller: partnerCodeController,
+                  //   textFieldType: TextFieldType.NAME,
+                  //   focus: partnerCodeFocus,
+                  //   isValidationRequired: false,
+                  //   decoration: commonInputDecoration(),
+                  // ),
                   16.height,
                   Row(
                     children: [

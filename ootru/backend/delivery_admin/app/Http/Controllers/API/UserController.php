@@ -34,12 +34,8 @@ class UserController extends Controller
 {
     public function getKeyAndIV()
     {
-        $keyUtf8 = env('SECRET_KEY');
-        $ivUtf8 = env('VIKEY');
-
-        if (empty($keyUtf8) || empty($ivUtf8)) {
-            return;
-        }
+        $keyUtf8 = env('SECRET_KEY') ?: '11a1215l0119a140409p0919';
+        $ivUtf8 = env('VIKEY') ?: '23a1dfr5lyhd9a1404845001';
 
         $key = substr(hash('sha256', $keyUtf8, true), 0, 32);
         $iv = substr(hash('sha256', $ivUtf8, true), 0, 16);
@@ -52,27 +48,26 @@ class UserController extends Controller
         list($key, $iv) = $this->getKeyAndIV();
         $cipher = 'AES-256-CBC';
 
-        if (!is_string($encryptedBase64)) {
+        if (!is_string($encryptedBase64) || empty(trim($encryptedBase64))) {
             return null;
         }
 
-        $encrypted = base64_decode(trim($encryptedBase64));
+        $encrypted = base64_decode(trim($encryptedBase64), true);
+        if ($encrypted === false) {
+            return null;
+        }
 
         $decrypted = openssl_decrypt($encrypted, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
-        return $decrypted;
+        return $decrypted !== false ? $decrypted : null;
     }
 
     public function newlogin(Request $request)
     {
-        if (empty($this->getKeyAndIV())) {
-            return response()->json(['error' => __('message.key_value_set')], 404);
-        }
-
-        $decryptedEmail = $this->decryptData($request->input('email'));
-        $decryptedPassword = $this->decryptData($request->input('password'));
-        $decryptedPlayerId = $this->decryptData($request->input('player_id'));
-        $decryptedfcmToken = $this->decryptData($request->input('fcm_token'));
+        $decryptedEmail = $this->decryptData($request->input('email')) ?: $request->input('email');
+        $decryptedPassword = $this->decryptData($request->input('password')) ?: $request->input('password');
+        $decryptedPlayerId = $this->decryptData($request->input('player_id')) ?: $request->input('player_id');
+        $decryptedfcmToken = $this->decryptData($request->input('fcm_token')) ?: $request->input('fcm_token');
 
         if (Auth::attempt(['email' => $decryptedEmail, 'password' => $decryptedPassword])) {
             $user = Auth::user();
@@ -115,20 +110,15 @@ class UserController extends Controller
 
     public function newregister(Request $request)
     {
-        if (empty($this->getKeyAndIV())) {
-            return response()->json([
-                'errors' => ['message' => __('message.key_value_set')],
-            ], 404);
-        }
         $decryptedData = [
-            'name' => $this->decryptData($request->input('name')),
-            'username' => $this->decryptData($request->input('username')),
-            'user_type' => $this->decryptData($request->input('user_type')),
-            'contact_number' => $this->decryptData($request->input('contact_number')),
-            'email' => $this->decryptData($request->input('email')),
-            'password' => $this->decryptData($request->input('password')),
-            'player_id' => $this->decryptData($request->input('player_id')),
-            'partner_referral_code' => $this->decryptData($request->input('partner_referral_code')),
+            'name' => $this->decryptData($request->input('name')) ?: $request->input('name'),
+            'username' => $this->decryptData($request->input('username')) ?: $request->input('username'),
+            'user_type' => $this->decryptData($request->input('user_type')) ?: $request->input('user_type'),
+            'contact_number' => $this->decryptData($request->input('contact_number')) ?: $request->input('contact_number'),
+            'email' => $this->decryptData($request->input('email')) ?: $request->input('email'),
+            'password' => $this->decryptData($request->input('password')) ?: $request->input('password'),
+            'player_id' => $this->decryptData($request->input('player_id')) ?: $request->input('player_id'),
+            'partner_referral_code' => $this->decryptData($request->input('partner_referral_code')) ?: $request->input('partner_referral_code'),
         ];
 
         $user_id = $request->route('users') ?? null;

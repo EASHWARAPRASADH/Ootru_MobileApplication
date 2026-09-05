@@ -194,12 +194,13 @@ class AccountFragmentState extends State<AccountFragment> {
                   accountSettingItemWidget(ic_change_password, language.customerSupport, () {
                     CustomerSupportScreen().launch(context);
                   }),
-                  accountSettingItemWidget(ic_earn, language.referAndEarn, () {
-                    ReferEarnScreen().launch(context);
-                  }),
-                  accountSettingItemWidget(ic_refer_history, language.referralHistory, () {
-                    ReferralHistoryScreen().launch(context);
-                  }),
+                  // REFERRAL_HIDDEN: Refer and Earn & Referral History hidden from UI
+                  // accountSettingItemWidget(ic_earn, language.referAndEarn, () {
+                  //   ReferEarnScreen().launch(context);
+                  // }),
+                  // accountSettingItemWidget(ic_refer_history, language.referralHistory, () {
+                  //   ReferralHistoryScreen().launch(context);
+                  // }),
                   accountSettingItemWidget(ic_claim, language.claimHistory, () {
                     ClaimListScreen().launch(context);
                   }),

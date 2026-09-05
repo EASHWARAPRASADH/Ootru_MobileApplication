@@ -125,10 +125,26 @@ Future handleResponse(Response response, [bool? avoidTokenError]) async {
     return jsonDecode(response.body);
   } else {
     try {
-      var body = jsonDecode(response.body);
-      throw parseHtmlString(body['message']);
-    } on Exception catch (e) {
+      if (response.body.isJson()) {
+        var body = jsonDecode(response.body);
+        String? errorMsg;
+        if (body is Map) {
+          if (body['message'] != null) {
+            errorMsg = body['message'].toString();
+          } else if (body['error'] != null) {
+            errorMsg = body['error'].toString();
+          } else if (body['errors'] is Map && body['errors']['message'] != null) {
+            errorMsg = body['errors']['message'].toString();
+          }
+        }
+        if (errorMsg != null && errorMsg.isNotEmpty) {
+          throw parseHtmlString(errorMsg);
+        }
+      }
+      throw language.errorSomethingWentWrong;
+    } catch (e) {
       log(e);
+      if (e is String) rethrow;
       throw language.errorSomethingWentWrong;
     }
   }

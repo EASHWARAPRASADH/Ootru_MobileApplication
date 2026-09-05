@@ -98,7 +98,7 @@
 
             $menu->city
                 ->add('<span>' . __('message.add_form_title', ['form' => __('message.city')]) . '</span>', [
-                    'class' => request()->is('country/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
+                    'class' => request()->is('city/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
                     'route' => 'city.create',
                 ])
                 ->data('permission', ['city-add', 'city-edit'])
@@ -317,7 +317,7 @@
 
             $menu->users
                 ->add('<span>' . __('message.users') . '</span>', [
-                    'class' => request()->is('users/*/add') ? 'sidebar-layout active' : 'sidebar-layout',
+                    'class' => (request()->is('users') || request()->is('users/*')) ? 'sidebar-layout active' : 'sidebar-layout',
                     'route' => 'users.index',
                 ])
                 ->data('permission', ['users-add', 'users-edit'])
@@ -380,7 +380,7 @@
 
             $menu->sub_admin
                 ->add('<span>' . __('message.add_form_title', ['form' => __('message.sub_admin')]) . '</span>', [
-                    'class' => request()->is('country/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
+                    'class' => request()->is('sub-admin/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
                     'route' => 'sub-admin.create',
                 ])
                 ->data('permission', ['sub_admin-add', 'sub_admin-edit'])
@@ -421,7 +421,7 @@
 
             $menu->delivery_man
                 ->add('<span>' . __('message.delivery_man') . '</span>', [
-                    'class' => request()->is('delivery_man/*/add') ? 'sidebar-layout active' : 'sidebar-layout',
+                    'class' => (request()->is('deliveryman') || request()->is('deliveryman/*')) ? 'sidebar-layout active' : 'sidebar-layout',
                     'route' => 'deliveryman.index',
                 ])
                 ->data('permission', ['deliveryman-add', 'deliveryman-edit'])
@@ -480,7 +480,7 @@
 
             $menu->delivery_man
                 ->add('<span>' . __('message.deliverymandocument') . '</span>', [
-                    'class' => request()->is('delivery_man/*/add') ? 'sidebar-layout active' : 'sidebar-layout',
+                    'class' => (request()->is('deliverymandocument*')) ? 'sidebar-layout active' : 'sidebar-layout',
                     'route' => 'deliverymandocument.index',
                 ])
                 ->data('permission', ['deleverymandocument-add', 'deleverymandocument-edit'])
@@ -514,7 +514,7 @@
 
             $menu->vehicle
                 ->add('<span>' . __('message.add_form_title', ['form' => __('message.vehicle')]) . '</span>', [
-                    'class' => request()->is('country/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
+                    'class' => request()->is('vehicle/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
                     'route' => 'vehicle.create',
                 ])
                 ->data('permission', ['vehicle-add', 'vehicle-edit'])
@@ -540,7 +540,7 @@
 
             $menu->extracharge
                 ->add('<span>' . __('message.add_form_title', ['form' => __('message.extracharge')]) . '</span>', [
-                    'class' => request()->is('country/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
+                    'class' => request()->is('extracharge/*/edit') ? 'sidebar-layout active' : 'sidebar-layout',
                     'route' => 'extracharge.create',
                 ])
                 ->data('permission', ['extracharge-add', 'extracharge-edit'])
@@ -1190,7 +1190,7 @@
                 ->nickname('coupon')
                 ->data('permission', 'coupon-list')
                 ->link->attr(['class' => ''])
-                ->href('#city');
+                ->href('#coupon');
 
             $menu->coupon
                 ->add('<span>' . __('message.add_form_title', ['form' => __('message.coupon')]) . '</span>', [
