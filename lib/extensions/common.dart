@@ -416,9 +416,7 @@ String parseHtmlString(String? htmlString) {
     if (text != null && text.trim().isNotEmpty) {
       return text.trim();
     }
-  } catch (e) {
-    log("parseHtmlString error: $e");
-  }
+  } catch (_) {}
   return htmlString;
 }
 

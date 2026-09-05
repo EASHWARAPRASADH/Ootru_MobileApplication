@@ -127,6 +127,7 @@ Future handleResponse(Response response, [bool? avoidTokenError]) async {
     try {
       if (response.body.isJson()) {
         var body = jsonDecode(response.body);
+        String? errorMsg;
         if (body is Map) {
           if (body['message'] != null && body['message'].toString().trim().isNotEmpty) {
             errorMsg = body['message'].toString();
