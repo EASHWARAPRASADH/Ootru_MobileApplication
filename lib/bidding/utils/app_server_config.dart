@@ -3,11 +3,11 @@ import 'package:flutter/foundation.dart';
 class AppServerConfig {
   static String get baseUrl {
     if (kReleaseMode) {
-     return 'https://app.meetmighty.com/delivery-admin';
+     return 'https://aspigrow-admin.onrender.com';
     } else if (kProfileMode) {
-      return 'https://app.meetmighty.com/delivery-admin-dev';
+      return 'https://aspigrow-admin.onrender.com';
     } else {
-      return 'https://app.meetmighty.com/delivery-admin-dev';
+      return 'https://aspigrow-admin.onrender.com';
     }
   }
 }
