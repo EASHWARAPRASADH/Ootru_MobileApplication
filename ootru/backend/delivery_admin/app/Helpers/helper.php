@@ -3623,7 +3623,7 @@ function shortenWithTinyURL($longUrl)
     return $longUrl;
 }
 
-function sentOTP_mail($otp_verification_status = 'disable', $user)
+function sentOTP_mail($otp_verification_status = 'disable', $user = null)
 {
     $otp = Str::random(6);
     $otp = preg_replace('/[^0-9]/', '', $otp);

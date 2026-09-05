@@ -19,6 +19,10 @@ fi
 [ -n "$SECRET_KEY" ] && sed -i "s|^SECRET_KEY=.*|SECRET_KEY='$SECRET_KEY'|" /var/www/html/.env
 [ -n "$VIKEY" ] && sed -i "s|^VIKEY=.*|VIKEY='$VIKEY'|" /var/www/html/.env
 
+# Configure PHP error reporting so deprecations don't corrupt JSON API responses
+echo "display_errors = Off" > /usr/local/etc/php/conf.d/error-logging.ini
+echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/error-logging.ini
+
 # Clear configuration cache so environment variables are loaded cleanly
 php artisan config:clear
 php artisan route:clear
