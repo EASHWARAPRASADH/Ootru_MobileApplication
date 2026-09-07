@@ -163,7 +163,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen>
                   searchingText: language.pleaseWait,
                   selectText: buildButtonText(),
                   outsideOfPickAreaText: language.addressNotInArea,
-                  initialPosition: GoogleMapScreen.kInitialPosition,
+                  initialPosition: LatLng(currentLat, currentLng),
                   useCurrentLocation: true,
                   selectInitialPosition: true,
                   usePinPointingSearch: true,

@@ -22,7 +22,7 @@ final DOMAIN_URL = AppServerConfig.baseUrl;
 //endregion
 
 //region Google map key
-const googleMapAPIKey = 'GOOGLE_MAPS_API_KEY';
+const googleMapAPIKey = 'AIzaSyBbvs1KsxD7Ay1-G94Hdk2-ZJIB54hCCm0';
 //endregion
 
 // region onesignal keys
