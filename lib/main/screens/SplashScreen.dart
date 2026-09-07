@@ -12,10 +12,8 @@ import '../../extensions/shared_pref.dart';
 import '../../extensions/system_utils.dart';
 import '../../extensions/text_styles.dart';
 import '../../languageConfiguration/LanguageDataConstant.dart';
-import '../../languageConfiguration/LanguageDefaultJson.dart';
 import '../../languageConfiguration/ServerLanguageResponse.dart';
 import '../../main.dart';
-import '../../main/models/CityListModel.dart';
 import '../../main/network/RestApis.dart';
 import '../../main/screens/LoginScreen.dart';
 import '../../main/screens/WalkThroughScreen.dart';
@@ -25,7 +23,6 @@ import '../utils/Common.dart';
 import '../utils/Images.dart';
 import '../utils/dynamic_theme.dart';
 import 'package:geolocator/geolocator.dart';
-import 'UserCitySelectScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   static String tag = '/SplashScreen';
@@ -130,7 +127,7 @@ class SplashScreenState extends State<SplashScreen> {
   Future<void> init() async {
     await showTurnOnLocationDialog();
 
-    String versionNo = await getStringAsync(CURRENT_LAN_VERSION, defaultValue: LanguageVersion);
+    await getStringAsync(CURRENT_LAN_VERSION, defaultValue: LanguageVersion);
     // Language version update is giving issues
     try {
       await getLanguageList("").timeout(Duration(seconds: 15)).then((value) {

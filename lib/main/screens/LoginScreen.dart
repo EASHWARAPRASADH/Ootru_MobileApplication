@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../config/app_flavor.dart';
 import '../../extensions/extension_util/context_extensions.dart';
 import '../../extensions/extension_util/int_extensions.dart';
@@ -14,7 +13,6 @@ import 'package:store_checker/store_checker.dart';
 import '../../delivery/fragment/DHomeFragment.dart';
 import '../../extensions/app_text_field.dart';
 import '../../extensions/common.dart';
-import '../../extensions/confirmation_dialog.dart';
 import '../../extensions/decorations.dart';
 import '../../extensions/extension_util/device_extensions.dart';
 import '../../extensions/shared_pref.dart';
@@ -30,11 +28,8 @@ import '../../main/utils/Widgets.dart';
 import '../../user/screens/DashboardScreen.dart';
 import 'package:geolocator/geolocator.dart';
 import '../helper/encrypt_data.dart';
-import '../models/CityListModel.dart';
-import '../models/LDBaseResponse.dart';
 import '../services/AuthServices.dart';
 import '../utils/Images.dart';
-import 'UserCitySelectScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   static String tag = '/LoginScreen';
