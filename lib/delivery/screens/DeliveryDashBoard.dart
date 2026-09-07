@@ -81,6 +81,7 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
   late CrispConfig configData;
   String? crispChatIcon;
   late List<GlobalKey> itemKeys;
+  Position? currentPosition;
 
   @override
   void initState() {
@@ -197,6 +198,12 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
   }
 
   Future<void> checkLocationPermission(BuildContext context) async {
+    try {
+      currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high).timeout(Duration(seconds: 4));
+      if (mounted) setState(() {});
+    } catch (e) {
+      log("getCurrentPosition error: $e");
+    }
     initLocationStream();
   }
 
@@ -208,6 +215,8 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
       distanceFilter: 100,
     );
     positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position event) async {
+      currentPosition = event;
+      if (mounted) setState(() {});
       List<Placemark> placeMarks = await placemarkFromCoordinates(
         event.latitude,
         event.longitude,
@@ -250,6 +259,11 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
     appStore.setLoading(true);
     if (mounted) setState(() {});
     try {
+      if (currentPosition == null) {
+        try {
+          currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high).timeout(Duration(seconds: 3));
+        } catch (e) {}
+      }
       String fetchStatus = isHistoryMode ? 'history' : 'available';
       var value = await getDeliveryBoyOrderList(
         page: currentPage,
@@ -257,6 +271,8 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
         cityId: getIntAsync(CITY_ID),
         countryId: getIntAsync(COUNTRY_ID),
         orderStatus: fetchStatus,
+        latitude: currentPosition?.latitude,
+        longitude: currentPosition?.longitude,
       );
       appStore.setAllUnreadCount(value.allUnreadCount.validate());
       if (value.pagination != null) {
@@ -375,6 +391,18 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
   }
 
   Widget orderCard(OrderData data) {
+    String? distanceText;
+    if (data.distanceFromRider != null) {
+      distanceText = '${data.distanceFromRider} ${data.distanceUnit ?? "km"} away from you';
+    } else if (currentPosition != null && data.pickupPoint?.latitude != null && data.pickupPoint?.longitude != null) {
+      double? lat = double.tryParse(data.pickupPoint!.latitude!);
+      double? lng = double.tryParse(data.pickupPoint!.longitude!);
+      if (lat != null && lng != null) {
+        double distKm = Geolocator.distanceBetween(currentPosition!.latitude, currentPosition!.longitude, lat, lng) / 1000;
+        distanceText = '${distKm.toStringAsFixed(1)} km away from you';
+      }
+    }
+
     return GestureDetector(
       onTap: () {
         OrderDetailScreen(orderId: data.id!).launch(context, pageRouteAnimation: PageRouteAnimation.SlideBottomTop);
@@ -414,6 +442,28 @@ class DeliveryDashBoardState extends State<DeliveryDashBoard> with WidgetsBindin
                 ),
               ],
             ),
+            if (!isHistoryMode && distanceText != null) ...[
+              8.height,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: boxDecorationWithRoundedCorners(
+                  backgroundColor: ColorUtils.colorPrimary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: ColorUtils.colorPrimary.withOpacity(0.25)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.near_me, color: ColorUtils.colorPrimary, size: 14),
+                    6.width,
+                    Text(
+                      distanceText,
+                      style: boldTextStyle(size: 12, color: ColorUtils.colorPrimary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             10.height,
             Divider(height: 1, color: context.dividerColor),
             10.height,

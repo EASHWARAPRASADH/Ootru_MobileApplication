@@ -79,6 +79,8 @@ class OrderResource extends JsonResource
             'extra_charge_list' => $extraCharge,
             'city_details_list' => $cityData,
             'base_total' =>(int) $basetotal,
+            'distance_from_rider' => isset($this->distance_from_rider) ? round((float)$this->distance_from_rider, 2) : null,
+            'distance_unit' => appSettingcurrency('distance_unit') ?: 'km',
         ];
     }
 }

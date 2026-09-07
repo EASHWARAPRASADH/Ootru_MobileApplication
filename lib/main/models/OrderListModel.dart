@@ -155,6 +155,8 @@ class OrderData {
   int? isRescheduled;
   String? reScheduleDateTime;
   RatingDetail? ratingDetail;
+  num? distanceFromRider;
+  String? distanceUnit;
 
   OrderData({
     this.orderTrackingId,
@@ -211,6 +213,8 @@ class OrderData {
     this.isRescheduled,
     this.reScheduleDateTime,
     this.ratingDetail,
+    this.distanceFromRider,
+    this.distanceUnit,
   });
 
   OrderData.fromJson(Map<String, dynamic> json) {
@@ -270,6 +274,8 @@ class OrderData {
     cityDetails = json['city_details_list'] != null ? CityDetail.fromJson(json['city_details_list']) : null;
     packagingSymbols = json["packaging_symbols"] == null ? [] : List<PackagingSymbol>.from(json["packaging_symbols"]!.map((x) => PackagingSymbol.fromJson(x)));
     ratingDetail = json['rating_detail'] != null ? new RatingDetail.fromJson(json['rating_detail']) : null;
+    distanceFromRider = json['distance_from_rider'];
+    distanceUnit = json['distance_unit'];
   }
 
   Map<String, dynamic> toJson() {
@@ -336,6 +342,8 @@ class OrderData {
     if (this.ratingDetail != null) {
       data['rating_detail'] = this.ratingDetail!.toJson();
     }
+    data['distance_from_rider'] = this.distanceFromRider;
+    data['distance_unit'] = this.distanceUnit;
     return data;
   }
 }

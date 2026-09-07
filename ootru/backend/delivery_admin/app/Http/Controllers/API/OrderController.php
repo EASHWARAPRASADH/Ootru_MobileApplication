@@ -24,73 +24,123 @@ use App\Models\Reschedule;
 use App\Models\Wallet;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\AppSetting;
 use Carbon\Carbon;
 
 class OrderController extends Controller
 {
     public function getList(Request $request)
     {
-        $order = Order::myOrder();
+        $authUser = auth()->user();
+        $isDeliveryManAvailableQuery = in_array(request('status'), ['available', 'courier_assigned'])
+            || ($authUser && $authUser->user_type === 'delivery_man' && in_array(request('status'), ['available', 'courier_assigned']));
 
-        if ($request->has('status') && isset($request->status)) {
-            if (request('status') == 'trashed') {
-                $order = $order->withTrashed();
-            } else {
-                $order = $order->where('status', request('status'));
-            }
-        };
+        $riderLat = $request->latitude ?? ($authUser ? $authUser->latitude : null);
+        $riderLng = $request->longitude ?? ($authUser ? $authUser->longitude : null);
 
-        $order->when(request('client_id'), function ($q) {
-            return $q->where('client_id', request('client_id'));
-        });
+        if ($isDeliveryManAvailableQuery) {
+            $appSetting = AppSetting::first();
+            $distanceLimit = ($appSetting && !empty($appSetting->distance)) ? (float)$appSetting->distance : 0;
+            $unit = ($appSetting && strtolower($appSetting->distance_unit ?? '') === 'mile') ? 'mile' : 'km';
+            $earthRadius = ($unit === 'mile') ? 3959 : 6371;
 
-        $order->when(request('delivery_man_id'), function ($query) {
-            return $query->whereHas('delivery_man', function ($q) {
-                $q->where('delivery_man_id', request('delivery_man_id'));
+            $order = Order::query();
+
+            // Orders available to accept (status 'create' with no delivery man, or assigned to this rider)
+            $order->where(function ($query) use ($authUser) {
+                $query->where(function ($q) {
+                    $q->where('status', 'create')
+                      ->whereNull('delivery_man_id');
+                });
+                if ($authUser) {
+                    $query->orWhere(function ($q) use ($authUser) {
+                        $q->whereIn('status', ['create', 'courier_assigned'])
+                          ->where('delivery_man_id', $authUser->id);
+                    });
+                }
             });
-        });
 
-        $order->when(request('country_id'), function ($q) {
-            return $q->where('country_id', request('country_id'));
-        });
+            // Exclude orders cancelled/rejected by this rider
+            if ($authUser) {
+                $order->where(function ($q) use ($authUser) {
+                    $q->whereNull('cancelled_delivery_man_ids')
+                      ->orWhereRaw("NOT JSON_CONTAINS(COALESCE(cancelled_delivery_man_ids, '[]'), CAST(? AS JSON))", [json_encode($authUser->id)]);
+                });
+            }
 
-        $order->when(request('city_id'), function ($q) {
-            return $q->where('city_id', request('city_id'));
-        });
+            // Exclude draft, cancelled, completed
+            $order->whereNotIn('status', ['draft', 'cancelled', 'completed', 'delivered']);
 
-        $order->when(request('exclude_status'), function ($q) {
-            $statuses = explode(',', request('exclude_status'));
-            return $q->whereNotIn('status', $statuses);
-        });
+            // Filter and sort by distance if rider coordinates are available
+            if (!empty($riderLat) && !empty($riderLng)) {
+                $haversine = "($earthRadius * acos(least(1.0, greatest(-1.0,
+                    cos(radians(?)) * cos(radians(CAST(JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.latitude')) AS DECIMAL(10,6))))
+                    * cos(radians(CAST(JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.longitude')) AS DECIMAL(10,6))) - radians(?))
+                    + sin(radians(?)) * sin(radians(CAST(JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.latitude')) AS DECIMAL(10,6))))
+                ))))";
 
-        $order->when(request('status'), function ($q) {
-            $statuses = explode(',', request('status'));
-            return $q->whereIn('status', $statuses);
-        });
+                // Ensure pickup coordinates exist
+                $order->whereNotNull('pickup_point')
+                      ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.latitude')) IS NOT NULL")
+                      ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.latitude')) != ''")
+                      ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.latitude')) != 'null'")
+                      ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.longitude')) IS NOT NULL")
+                      ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.longitude')) != ''")
+                      ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.longitude')) != 'null'");
 
-        if (request('status') === 'courier_assigned') {
-            $authUser = auth()->user();
-            $distanceLimit = appSettingcurrency('distance', 5); 
-        
-            $order = Order::where(function ($query) use ($authUser, $distanceLimit) {
-                $query->where('status', 'create')
-                      ->where('city_id', $authUser->city_id)
-                      ->whereRaw("
-                          6371 * acos(
-                              cos(radians(?)) * cos(radians(JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.latitude'))))
-                              * cos(radians(JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.longitude'))) - radians(?))
-                              + sin(radians(?)) * sin(radians(JSON_UNQUOTE(JSON_EXTRACT(pickup_point, '$.latitude'))))
-                          ) <= ?
-                      ", [
-                          $authUser->latitude,
-                          $authUser->longitude,
-                          $authUser->latitude,
-                          $distanceLimit
-                      ]);
-            })
-            ->orWhere(function ($query) use ($authUser) {
-                $query->where('status', 'courier_assigned')
-                      ->where('delivery_man_id', $authUser->id);
+                if ($distanceLimit > 0) {
+                    $order->whereRaw("$haversine <= ?", [$riderLat, $riderLng, $riderLat, $distanceLimit]);
+                }
+
+                $order->select('orders.*')
+                      ->selectRaw("$haversine AS distance_from_rider", [$riderLat, $riderLng, $riderLat])
+                      ->orderBy('distance_from_rider', 'asc');
+            } else {
+                $order->orderBy('id', 'desc');
+            }
+        } elseif (request('status') === 'history') {
+            $order = Order::whereIn('status', ['completed', 'delivered']);
+            if ($authUser) {
+                $order->where('delivery_man_id', $authUser->id);
+            }
+            $order->orderBy('id', 'desc');
+        } else {
+            $order = Order::myOrder();
+
+            if ($request->has('status') && isset($request->status)) {
+                if (request('status') == 'trashed') {
+                    $order = $order->withTrashed();
+                } else {
+                    $order = $order->where('status', request('status'));
+                }
+            };
+
+            $order->when(request('client_id'), function ($q) {
+                return $q->where('client_id', request('client_id'));
+            });
+
+            $order->when(request('delivery_man_id'), function ($query) {
+                return $query->whereHas('delivery_man', function ($q) {
+                    $q->where('delivery_man_id', request('delivery_man_id'));
+                });
+            });
+
+            $order->when(request('country_id'), function ($q) {
+                return $q->where('country_id', request('country_id'));
+            });
+
+            $order->when(request('city_id'), function ($q) {
+                return $q->where('city_id', request('city_id'));
+            });
+
+            $order->when(request('exclude_status'), function ($q) {
+                $statuses = explode(',', request('exclude_status'));
+                return $q->whereNotIn('status', $statuses);
+            });
+
+            $order->when(request('status'), function ($q) {
+                $statuses = explode(',', request('status'));
+                return $q->whereIn('status', $statuses);
             });
         }
 
@@ -155,7 +205,10 @@ class OrderController extends Controller
             }
         }
 
-        $order = $order->orderBy('date', 'desc')->paginate($per_page);
+        if (!$isDeliveryManAvailableQuery || empty($riderLat) || empty($riderLng)) {
+            $order = $order->orderBy('date', 'desc');
+        }
+        $order = $order->paginate($per_page);
         $items = OrderResource::collection($order);
 
         $wallet_data = Wallet::where('user_id', auth()->id())->first();

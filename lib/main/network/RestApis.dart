@@ -859,7 +859,15 @@ Future<OrderListModel> getOrderList({required int page, String? orderStatus, Str
 }
 
 /// get deliveryBoy orderList
-Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int deliveryBoyID, required int countryId, required int cityId, required String orderStatus}) async {
+Future<OrderListModel> getDeliveryBoyOrderList({
+  required int page,
+  required int deliveryBoyID,
+  required int countryId,
+  required int cityId,
+  required String orderStatus,
+  double? latitude,
+  double? longitude,
+}) async {
   List<OrderData> allOrders = getLocalOrders();
   List<OrderData> filtered = allOrders.where((order) {
     if (orderStatus == 'available') {
@@ -893,7 +901,11 @@ Future<OrderListModel> getDeliveryBoyOrderList({required int page, required int 
     );
   }
   try {
-    return OrderListModel.fromJson(await handleResponse(await buildHttpResponse('order-list?delivery_man_id=$deliveryBoyID&page=$page&city_id=$cityId&country_id=$countryId&status=$orderStatus', method: HttpMethod.GET)));
+    String url = 'order-list?delivery_man_id=$deliveryBoyID&page=$page&city_id=$cityId&country_id=$countryId&status=$orderStatus';
+    if (latitude != null && longitude != null) {
+      url += '&latitude=$latitude&longitude=$longitude';
+    }
+    return OrderListModel.fromJson(await handleResponse(await buildHttpResponse(url, method: HttpMethod.GET)));
   } catch (e) {
     return OrderListModel(
       data: filtered,
