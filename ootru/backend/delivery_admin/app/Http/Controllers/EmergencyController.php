@@ -173,6 +173,7 @@ class EmergencyController extends Controller
      */
     public function update(Request $request ,$id)
     {
+        $id = is_string($id) ? rtrim($id, '}') : $id;
         $emergency = Emergency::find($id);
         $message = __('message.not_found_entry', ['name' => __('message.emergency')]);
         if ($emergency == null) {

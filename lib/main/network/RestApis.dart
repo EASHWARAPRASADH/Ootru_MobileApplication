@@ -1851,7 +1851,7 @@ Future<LDBaseResponse> emergancyResolved(Map req, int id) async {
     return LDBaseResponse(status: true, message: 'Emergency resolved');
   }
   try {
-    return LDBaseResponse.fromJson(await handleResponse(await buildHttpResponse('emergency-update/$id}', request: req, method: HttpMethod.POST)));
+    return LDBaseResponse.fromJson(await handleResponse(await buildHttpResponse('emergency-update/$id', request: req, method: HttpMethod.POST)));
   } catch (e) {
     return LDBaseResponse(status: true, message: 'Emergency resolved');
   }
@@ -1920,7 +1920,7 @@ Future<EmergencyPendingListResonse> getEmergencyList() async {
     return EmergencyPendingListResonse(data: []);
   }
   try {
-    return EmergencyPendingListResonse.fromJson(await handleResponse(await buildHttpResponse('emergency-list/', method: HttpMethod.GET)));
+    return EmergencyPendingListResonse.fromJson(await handleResponse(await buildHttpResponse('emergency-list', method: HttpMethod.GET)));
   } catch (e) {
     return EmergencyPendingListResonse(data: []);
   }

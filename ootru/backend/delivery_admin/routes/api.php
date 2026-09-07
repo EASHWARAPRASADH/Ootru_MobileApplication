@@ -258,6 +258,7 @@ Route::group(['middleware' => ['auth:sanctum', 'assign_user_role']], function ()
 
     // Emergency
     Route::get('emergency-list', [Controllers\EmergencyController::class, 'emergencyList']);
+    Route::get('emergency-list/', [Controllers\EmergencyController::class, 'emergencyList']);
     Route::post('emergency-save', [Controllers\EmergencyController::class, 'store']);
     Route::post('emergency-update/{id}', [Controllers\EmergencyController::class, 'update']);
 
