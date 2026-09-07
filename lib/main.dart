@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main/models/models.dart';
 import '../main/screens/SplashScreen.dart';
 import '../main/utils/Constants.dart';
+import 'config/app_flavor.dart';
 import 'extensions/common.dart';
 import 'extensions/shared_pref.dart';
 import 'languageConfiguration/AppLocalizations.dart';
@@ -154,7 +155,7 @@ class MyAppState extends State<MyApp> {
             ),
           );
         },
-        title: mAppName,
+        title: isRiderApp ? 'Freeleft Riders' : mAppName,
         debugShowCheckedModeBanner: false,
         theme: appStore.lightTheme,
         darkTheme: appStore.darkTheme,

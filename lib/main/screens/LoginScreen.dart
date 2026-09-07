@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../config/app_flavor.dart';
 import '../../extensions/extension_util/context_extensions.dart';
 import '../../extensions/extension_util/int_extensions.dart';
 import '../../extensions/extension_util/string_extensions.dart';
@@ -55,12 +56,16 @@ class LoginScreenState extends State<LoginScreen> {
   bool mIsCheck = false;
 
   bool isAcceptedTc = true;
-  String userType = CLIENT;
+  // Flavor-locked: userType is determined by which app this is.
+  // Rider app → DELIVERY_MAN, Customer app → CLIENT
+  late String userType;
   int? isDemoSelected;
 
   @override
   void initState() {
     super.initState();
+    // Lock user type to this app's role
+    userType = isRiderApp ? DELIVERY_MAN : CLIENT;
     init();
   }
 
@@ -243,7 +248,7 @@ class LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimaryLight,
-      appBar: commonAppBarWidget(language.signIn, showBack: false),
+      appBar: commonAppBarWidget(isRiderApp ? 'Rider Sign In' : language.signIn, showBack: false),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -374,7 +379,7 @@ class LoginScreenState extends State<LoginScreen> {
                       4.width,
                       Text(language.signUp, style: boldTextStyle(color: ColorUtils.colorPrimary)).onTap(() {
                         RegisterScreen(
-                          userType: CLIENT,
+                          userType: isRiderApp ? DELIVERY_MAN : CLIENT,
                         ).launch(context, duration: Duration(milliseconds: 500), pageRouteAnimation: PageRouteAnimation.Slide);
                       }),
                     ],
@@ -433,22 +438,10 @@ class LoginScreenState extends State<LoginScreen> {
           Observer(builder: (context) => loaderWidget().visible(appStore.isLoading)),
         ],
       ),
-      bottomNavigationBar: Observer(
-        builder: (_) => Container(
-          color: appStore.isDarkMode ? ColorUtils.scaffoldSecondaryDark : ColorUtils.colorPrimaryLight,
-          padding: .all(16),
-          child: Row(
-            mainAxisAlignment: .center,
-            children: [
-              Text("${language.becomeADeliveryBoy}", style: primaryTextStyle()),
-              4.width,
-              Text(language.signUp, style: boldTextStyle(color: ColorUtils.colorPrimary)).onTap(() {
-                RegisterScreen(userType: DELIVERY_MAN).launch(context, duration: Duration(milliseconds: 500), pageRouteAnimation: PageRouteAnimation.Slide);
-              }),
-            ],
-          ),
-        ).visible(appStore.isAllowDeliveryMan),
-      ),
+      // In Customer app (isRiderApp=false): hide "Become a Delivery Boy" footer entirely.
+      // In Rider app (isRiderApp=true): this bar is not needed since "Don't have account? Sign Up" above already handles it.
+      // Hide it in both cases since role is now fixed per app.
+      bottomNavigationBar: null,
     );
   }
 

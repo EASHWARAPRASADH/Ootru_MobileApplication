@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../config/app_flavor.dart';
 import '../../delivery/fragment/DHomeFragment.dart';
 import '../../extensions/extension_util/context_extensions.dart';
 import '../../extensions/extension_util/int_extensions.dart';
@@ -210,10 +211,11 @@ class SplashScreenState extends State<SplashScreen> {
               } else {
                 ensureDefaultCity();
                 autoDetectCityFromGps();
-                if (getStringAsync(USER_TYPE) == CLIENT) {
-                  DashboardScreen().launch(context, isNewTask: true);
-                } else {
+                // Flavor-based routing: each app always routes to its own home screen.
+                if (isRiderApp) {
                   DHomeFragment().launch(context, isNewTask: true);
+                } else {
+                  DashboardScreen().launch(context, isNewTask: true);
                 }
               }
             }
@@ -255,7 +257,7 @@ class SplashScreenState extends State<SplashScreen> {
                   40.height,
                   Image.asset(ic_logo, height: 80, width: 80, fit: BoxFit.fill).cornerRadiusWithClipRRect(defaultRadius),
                   16.height,
-                  Text(mAppName, style: boldTextStyle(size: 20), textAlign: TextAlign.center).expand(),
+                  Text(isRiderApp ? 'Freeleft Riders' : mAppName, style: boldTextStyle(size: 20), textAlign: TextAlign.center).expand(),
                   Text('v ${snap.data!.version.validate()}', style: secondaryTextStyle(size: 12)),
                   16.height,
                 ],

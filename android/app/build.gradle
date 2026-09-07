@@ -37,14 +37,35 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    // ── FLAVOR DIMENSIONS ──────────────────────────────────────────────────────
+    flavorDimensions "role"
+
+    productFlavors {
+        // ── App 1: Freeleft (Customer) ──────────────────────────────────────────
+        user {
+            dimension "role"
+            applicationId "com.freeleft.user"
+            versionCode 1
+            versionName "1.0.0"
+            resValue "string", "app_name", "Freeleft"
+        }
+
+        // ── App 2: Freeleft Riders (Delivery Partner) ───────────────────────────
+        riders {
+            dimension "role"
+            applicationId "com.freeleft.riders"
+            versionCode 1
+            versionName "1.0.0"
+            resValue "string", "app_name", "Freeleft Riders"
+        }
+    }
+    // ────────────────────────────────────────────────────────────────────────────
+
     defaultConfig {
-        applicationId "com.mighty.delivery"
+        // applicationId is overridden per flavor above
         minSdkVersion 28
         targetSdkVersion 35
-        versionCode 72
-        versionName '8.1.0'
         multiDexEnabled true
-
     }
 
     buildTypes {
