@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
-import 'package:flutter_map/flutter_map.dart' as fmap;
-import 'package:latlong2/latlong.dart' as osm;
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import '../../extensions/app_text_field.dart';
@@ -22,7 +19,7 @@ import '../../main/utils/dynamic_theme.dart';
 import '../../main/utils/Widgets.dart';
 
 class GoogleMapScreen extends StatefulWidget {
-  static final kInitialPosition = LatLng(-33.8567844, 151.213108);
+  static final kInitialPosition = LatLng(13.0827, 80.2707);
   final bool isPick;
   final bool isSaveAddress;
   final bool isAddAddress;
@@ -36,16 +33,10 @@ class GoogleMapScreen extends StatefulWidget {
   _GoogleMapScreenState createState() => _GoogleMapScreenState();
 }
 
-class _GoogleMapScreenState extends State<GoogleMapScreen>
-    with WidgetsBindingObserver {
-  PickResult? selectedPlace;
-  bool showPlacePickerInContainer = false;
-  bool showGoogleMapInContainer = false;
-  GlobalKey<_GoogleMapScreenState> placePickerKey =
-      GlobalKey<_GoogleMapScreenState>();
-
+class _GoogleMapScreenState extends State<GoogleMapScreen> {
+  GoogleMapController? googleMapController;
   TextEditingController addressController = TextEditingController();
-  final fmap.MapController mapController = fmap.MapController();
+  TextEditingController searchController = TextEditingController();
   double currentLat = 13.0827;
   double currentLng = 80.2707;
   bool isMapReady = false;
@@ -54,7 +45,6 @@ class _GoogleMapScreenState extends State<GoogleMapScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     initLocation();
   }
 
@@ -65,6 +55,9 @@ class _GoogleMapScreenState extends State<GoogleMapScreen>
       ).timeout(Duration(seconds: 4));
       currentLat = position.latitude;
       currentLng = position.longitude;
+      googleMapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(LatLng(currentLat, currentLng), 16.0),
+      );
       await reverseGeocode(currentLat, currentLng);
     } catch (e) {
       log("initLocation error: $e");
@@ -84,11 +77,24 @@ class _GoogleMapScreenState extends State<GoogleMapScreen>
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         List<String> parts = [];
-        if (place.street != null && place.street!.isNotEmpty && !place.street!.contains('+')) parts.add(place.street!);
-        if (place.subLocality != null && place.subLocality!.isNotEmpty && !parts.contains(place.subLocality)) parts.add(place.subLocality!);
-        if (place.locality != null && place.locality!.isNotEmpty && !parts.contains(place.locality)) parts.add(place.locality!);
-        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty && !parts.contains(place.administrativeArea)) parts.add(place.administrativeArea!);
-        if (place.postalCode != null && place.postalCode!.isNotEmpty) parts.add(place.postalCode!);
+        if (place.name != null && place.name!.isNotEmpty && !place.name!.contains('+') && place.name != place.street) {
+          parts.add(place.name!);
+        }
+        if (place.street != null && place.street!.isNotEmpty && !place.street!.contains('+')) {
+          parts.add(place.street!);
+        }
+        if (place.subLocality != null && place.subLocality!.isNotEmpty && !parts.contains(place.subLocality)) {
+          parts.add(place.subLocality!);
+        }
+        if (place.locality != null && place.locality!.isNotEmpty && !parts.contains(place.locality)) {
+          parts.add(place.locality!);
+        }
+        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty && !parts.contains(place.administrativeArea)) {
+          parts.add(place.administrativeArea!);
+        }
+        if (place.postalCode != null && place.postalCode!.isNotEmpty) {
+          parts.add(place.postalCode!);
+        }
         addressController.text = parts.isNotEmpty ? parts.join(', ') : "${place.locality ?? 'Selected Location'}";
       }
     } catch (e) {
@@ -102,19 +108,38 @@ class _GoogleMapScreenState extends State<GoogleMapScreen>
     }
   }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  Future<void> searchLocation(String query) async {
+    if (query.trim().isEmpty) return;
+    try {
+      hideKeyboard(context);
+      isGeocoding = true;
+      setState(() {});
+      List<Location> locations = await locationFromAddress(query);
+      if (locations.isNotEmpty) {
+        Location loc = locations.first;
+        currentLat = loc.latitude;
+        currentLng = loc.longitude;
+        googleMapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(LatLng(currentLat, currentLng), 16.0),
+        );
+        await reverseGeocode(currentLat, currentLng);
+      } else {
+        toast("Location not found");
+      }
+    } catch (e) {
+      toast("Location not found");
+    } finally {
+      isGeocoding = false;
+      setState(() {});
+    }
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      setState(() {
-        placePickerKey = GlobalKey<_GoogleMapScreenState>();
-      });
-    }
+  void dispose() {
+    searchController.dispose();
+    addressController.dispose();
+    googleMapController?.dispose();
+    super.dispose();
   }
 
   String buildTitle() {
@@ -149,193 +174,206 @@ class _GoogleMapScreenState extends State<GoogleMapScreen>
 
   @override
   Widget build(BuildContext context) {
-    bool hasValidGoogleMapsKey = googleMapAPIKey.isNotEmpty && googleMapAPIKey != 'GOOGLE_MAPS_API_KEY';
-
     return CommonScaffoldComponent(
       appBarTitle: buildTitle(),
-      body: hasValidGoogleMapsKey
-          ? Column(
-              children: [
-                PlacePicker(
-                  key: placePickerKey,
-                  apiKey: googleMapAPIKey,
-                  hintText: language.searchAddress,
-                  searchingText: language.pleaseWait,
-                  selectText: buildButtonText(),
-                  outsideOfPickAreaText: language.addressNotInArea,
-                  initialPosition: LatLng(currentLat, currentLng),
-                  useCurrentLocation: true,
-                  selectInitialPosition: true,
-                  usePinPointingSearch: true,
-                  usePlaceDetailSearch: true,
-                  zoomGesturesEnabled: true,
-                  zoomControlsEnabled: true,
-                  automaticallyImplyAppBarLeading: false,
-                  autocompleteLanguage: appStore.selectedLanguage,
-                  onMapCreated: (GoogleMapController controller) {},
-                  onPlacePicked: (PickResult result) {
-                    setState(() {
-                      selectedPlace = result;
-                      PlaceAddressModel selectedModel = PlaceAddressModel(
-                        placeId: selectedPlace!.placeId!,
-                        latitude: selectedPlace!.geometry!.location.lat,
-                        longitude: selectedPlace!.geometry!.location.lng,
-                        placeAddress: selectedPlace!.formattedAddress,
-                      );
-                      finish(context, selectedModel);
-                    });
-                  },
-                ).expand(),
-              ],
-            )
-          : Stack(
-              children: [
-                // OpenStreetMap Interactive Map
-                fmap.FlutterMap(
-                  mapController: mapController,
-                  options: fmap.MapOptions(
-                    initialCenter: osm.LatLng(currentLat, currentLng),
-                    initialZoom: 15.0,
-                    onTap: (tapPosition, point) {
-                      currentLat = point.latitude;
-                      currentLng = point.longitude;
-                      reverseGeocode(point.latitude, point.longitude);
-                    },
-                  ),
-                  children: [
-                    fmap.TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.mighty.delivery',
-                    ),
-                    fmap.MarkerLayer(
-                      markers: [
-                        fmap.Marker(
-                          point: osm.LatLng(currentLat, currentLng),
-                          width: 48,
-                          height: 48,
-                          child: Icon(
-                            Icons.location_pin,
-                            color: ColorUtils.colorPrimary,
-                            size: 48,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                // Top Hint Banner
-                Positioned(
-                  top: 12,
-                  left: 16,
-                  right: 16,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: boxDecorationWithRoundedCorners(
-                      backgroundColor: Colors.black.withOpacity(0.75),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.touch_app, color: Colors.white, size: 16),
-                        8.width,
-                        Text(
-                          "Tap anywhere on map to pin location",
-                          style: primaryTextStyle(color: Colors.white, size: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // GPS Current Location Re-center Button
-                Positioned(
-                  right: 16,
-                  bottom: 220,
-                  child: FloatingActionButton.small(
-                    heroTag: 'osm_my_location_btn',
-                    backgroundColor: ColorUtils.colorPrimary,
-                    onPressed: () async {
-                      try {
-                        Position position = await Geolocator.getCurrentPosition(
-                          desiredAccuracy: LocationAccuracy.high,
-                        );
-                        currentLat = position.latitude;
-                        currentLng = position.longitude;
-                        mapController.move(osm.LatLng(currentLat, currentLng), 16.0);
-                        reverseGeocode(currentLat, currentLng);
-                      } catch (e) {
-                        toast("Could not get current location");
-                      }
-                    },
-                    child: Icon(Icons.my_location, color: Colors.white),
-                  ),
-                ),
-
-                // Bottom Sheet Card with Address and Confirm Button
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: boxDecorationWithRoundedCorners(
-                      backgroundColor: context.cardColor,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.location_on, color: ColorUtils.colorPrimary, size: 20),
-                            8.width,
-                            Text(buildTitle(), style: boldTextStyle(size: 15)),
-                            Spacer(),
-                            if (isGeocoding)
-                              SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                          ],
-                        ),
-                        10.height,
-                        AppTextField(
-                          controller: addressController,
-                          textFieldType: TextFieldType.MULTILINE,
-                          maxLines: 2,
-                          decoration: commonInputDecoration(
-                            hintText: "Enter or edit location address",
-                            suffixIcon: Icons.edit_location_alt_outlined,
-                          ),
-                          onChanged: (val) {
-                            setState(() {});
-                          },
-                        ),
-                        14.height,
-                        commonButton(
-                          buildButtonText(),
-                          () {
-                            confirmSelection(
-                              addressController.text,
-                              currentLat,
-                              currentLng,
-                            );
-                          },
-                          width: context.width(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+      body: Stack(
+        children: [
+          // 1. Authentic Native Google Map
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: LatLng(currentLat, currentLng),
+              zoom: 16.0,
             ),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            zoomControlsEnabled: false,
+            compassEnabled: true,
+            mapToolbarEnabled: false,
+            onMapCreated: (GoogleMapController controller) {
+              googleMapController = controller;
+            },
+            onTap: (LatLng point) {
+              currentLat = point.latitude;
+              currentLng = point.longitude;
+              googleMapController?.animateCamera(CameraUpdate.newLatLng(point));
+              reverseGeocode(point.latitude, point.longitude);
+            },
+            onCameraMove: (CameraPosition position) {
+              currentLat = position.target.latitude;
+              currentLng = position.target.longitude;
+            },
+            onCameraIdle: () {
+              reverseGeocode(currentLat, currentLng);
+            },
+          ),
+
+          // 2. Interactive Center Pin
+          Center(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 42),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                      ],
+                    ),
+                    child: Text(
+                      widget.isPick ? language.pickupLocation : language.deliveryLocation,
+                      style: primaryTextStyle(color: Colors.white, size: 11),
+                    ),
+                  ),
+                  4.height,
+                  Icon(
+                    Icons.location_pin,
+                    color: ColorUtils.colorPrimary,
+                    size: 46,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 3. Top Floating Search Bar
+          Positioned(
+            top: 12,
+            left: 16,
+            right: 16,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: context.cardColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(color: Colors.black12, blurRadius: 8, spreadRadius: 1),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: ColorUtils.colorPrimary, size: 20),
+                  8.width,
+                  Expanded(
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: language.searchAddress,
+                        hintStyle: secondaryTextStyle(),
+                        border: InputBorder.none,
+                      ),
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (query) => searchLocation(query),
+                    ),
+                  ),
+                  if (searchController.text.isNotEmpty)
+                    IconButton(
+                      icon: Icon(Icons.clear, size: 18, color: Colors.grey),
+                      onPressed: () {
+                        searchController.clear();
+                        setState(() {});
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+
+          // 4. GPS Re-center Floating Button
+          Positioned(
+            right: 16,
+            bottom: 230,
+            child: FloatingActionButton.small(
+              heroTag: 'google_map_my_location_btn',
+              backgroundColor: context.cardColor,
+              elevation: 4,
+              onPressed: () async {
+                try {
+                  Position position = await Geolocator.getCurrentPosition(
+                    desiredAccuracy: LocationAccuracy.high,
+                  );
+                  currentLat = position.latitude;
+                  currentLng = position.longitude;
+                  googleMapController?.animateCamera(
+                    CameraUpdate.newLatLngZoom(LatLng(currentLat, currentLng), 16.0),
+                  );
+                  reverseGeocode(currentLat, currentLng);
+                } catch (e) {
+                  toast("Could not get current location");
+                }
+              },
+              child: Icon(Icons.my_location, color: ColorUtils.colorPrimary),
+            ),
+          ),
+
+          // 5. Bottom Sheet Card with Address and Confirm Button
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: EdgeInsets.all(16),
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: context.cardColor,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, color: ColorUtils.colorPrimary, size: 20),
+                      8.width,
+                      Text(buildTitle(), style: boldTextStyle(size: 15)),
+                      Spacer(),
+                      if (isGeocoding)
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                    ],
+                  ),
+                  10.height,
+                  AppTextField(
+                    controller: addressController,
+                    textFieldType: TextFieldType.MULTILINE,
+                    maxLines: 2,
+                    decoration: commonInputDecoration(
+                      hintText: "Enter or edit location address",
+                      suffixIcon: Icons.edit_location_alt_outlined,
+                    ),
+                    onChanged: (val) {
+                      setState(() {});
+                    },
+                  ),
+                  14.height,
+                  commonButton(
+                    buildButtonText(),
+                    () {
+                      confirmSelection(
+                        addressController.text.isNotEmpty
+                            ? addressController.text
+                            : "Pinned Location (${currentLat.toStringAsFixed(4)}, ${currentLng.toStringAsFixed(4)})",
+                        currentLat,
+                        currentLng,
+                      );
+                    },
+                    width: context.width(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
