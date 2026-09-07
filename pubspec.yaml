@@ -1,5 +1,5 @@
-name: freeleft
-description: Freeleft — On-demand local delivery. Customer app (Freeleft) and Rider app (Freeleft Riders) built from one codebase.
+name: mighty_delivery
+description: Freeleft — On-demand local delivery. Customer app (Freeleft) and Rider app (Freeleft Riders).
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
