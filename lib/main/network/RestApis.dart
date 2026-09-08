@@ -1029,8 +1029,8 @@ Future<LDBaseResponse> deleteDeliveryDoc(int id) async {
 Future<AppSettingModel> getAppSetting() async {
   if (DOMAIN_URL.contains('meetmighty.com')) {
     return AppSettingModel(
-      currencyCode: 'USD',
-      currency: '\$',
+      currencyCode: CURRENCY_CODE,
+      currency: CURRENCY_SYMBOL,
       currencyPosition: 'left',
       distanceUnit: 'km',
       otpVerifyOnPickupDelivery: 0,
@@ -1043,8 +1043,8 @@ Future<AppSettingModel> getAppSetting() async {
   } catch (e) {
     log("getAppSetting fallback: $e");
     return AppSettingModel(
-      currencyCode: 'USD',
-      currency: '\$',
+      currencyCode: CURRENCY_CODE,
+      currency: CURRENCY_SYMBOL,
       currencyPosition: 'left',
       distanceUnit: 'km',
       otpVerifyOnPickupDelivery: 0,
@@ -1660,8 +1660,8 @@ Future<CreateOrderDetailsResponse> getCreateOrderDetails(int id) async {
         StaticDetails(id: 4, label: 'Food', value: 'food'),
       ],
       appSettingDetail: AppSettingDetail(
-        currency: '\$',
-        currencyCode: 'USD',
+        currency: CURRENCY_SYMBOL,
+        currencyCode: CURRENCY_CODE,
         currencyPosition: 'left',
         isBiddingEnabled: 0,
         isVehicleInOrder: 1,
@@ -1690,8 +1690,8 @@ Future<CreateOrderDetailsResponse> getCreateOrderDetails(int id) async {
         StaticDetails(id: 4, label: 'Food', value: 'food'),
       ],
       appSettingDetail: AppSettingDetail(
-        currency: '\$',
-        currencyCode: 'USD',
+        currency: CURRENCY_SYMBOL,
+        currencyCode: CURRENCY_CODE,
         currencyPosition: 'left',
         isBiddingEnabled: 0,
         isVehicleInOrder: 1,
