@@ -33,19 +33,20 @@ class DashboardController extends Controller
 {
     public function appsetting(Request $request)
     {
-        $data['app_setting'] = AppSetting::first();
+        $appSetting = AppSetting::first();
+        $data['app_setting'] = $appSetting;
 
         $data['terms_condition'] = Setting::where('type','terms_condition')->where('key','terms_condition')->first();
         $data['privacy_policy'] = Setting::where('type','privacy_policy')->where('key','privacy_policy')->first();
 
-        $currency_code = SettingData('CURRENCY', 'CURRENCY_CODE') ?? 'USD';
+        $currency_code = SettingData('CURRENCY', 'CURRENCY_CODE') ?? ($appSetting->currency_code ?? 'INR');
         $currency = currencyArray($currency_code);
 
         $data['currency_setting'] = [
-            'name' => $currency['name'] ?? 'United States (US) dollar',
-            'symbol' => $currency['symbol'] ?? '$',
-            'code' => strtolower($currency['code']) ?? 'usd',
-            'position' => SettingData('CURRENCY', 'CURRENCY_POSITION') ?? 'left',
+            'name' => $currency['name'] ?? 'Indian rupee',
+            'symbol' => $appSetting->currency ?? ($currency['symbol'] ?? '₹'),
+            'code' => strtolower($currency['code'] ?? 'inr'),
+            'position' => SettingData('CURRENCY', 'CURRENCY_POSITION') ?? ($appSetting->currency_position ?? 'right'),
         ];
         return json_custom_response($data);
     }
@@ -321,11 +322,12 @@ class DashboardController extends Controller
             $city = City::where('id',$id)->first();
             if(empty($city))
             {
-                $message = __('message.not_found_entry',['name' =>__('message.city')]);
-                return json_message_response($message,400);
+                $city = City::first();
             }
 
-            $city_detail = new CityResource($city);
+            if (!empty($city)) {
+                $city_detail = new CityResource($city);
+            }
         }
 
         // vehicle list
@@ -350,14 +352,14 @@ class DashboardController extends Controller
 
         //app Setting List
 
-        $appSettingcurrency = appSettingcurrency();
+        $appSetting = AppSetting::first();
         $appsetting_details =[
-            'currency_code' => $appSettingcurrency->currency_code,
-            'currency' => $appSettingcurrency->currency,
-            'currency_position' => $appSettingcurrency->currency_position,
-            'is_vehicle_in_order' => $appSettingcurrency->is_vehicle_in_order,
-            'is_bidding_in_order' =>$appSettingcurrency->is_bidding_in_order,
-            'is_sms_order' =>$appSettingcurrency->is_sms_order,
+            'currency_code' => $appSetting->currency_code ?? 'INR',
+            'currency' => $appSetting->currency ?? '₹',
+            'currency_position' => $appSetting->currency_position ?? 'right',
+            'is_vehicle_in_order' => $appSetting->is_vehicle_in_order ?? 1,
+            'is_bidding_in_order' => $appSetting->is_bidding_in_order ?? 0,
+            'is_sms_order' => $appSetting->is_sms_order ?? 0,
             'insurance_allow' => SettingData('insurance_allow', 'insurance_allow'),
             'insurance_perntage' => SettingData('insurance_percentage', 'insurance_percentage'),
             'insurance_description' => SettingData('insurance_description', 'insurance_description'),

@@ -32,6 +32,7 @@ Route::get('user-detail', [API\UserController::class, 'userDetail']);
 Route::post('paytr-callback', [API\PaymentController::class, 'callback']);
 
 Route::get('appsetting', [API\DashboardController::class, 'appsetting']);
+Route::get('get-appsetting', [API\UserController::class, 'getAppSetting']);
 Route::get('language-table-list', [API\LanguageTableController::class, 'getList']);
 
 Route::group(['middleware' => ['auth:sanctum', 'assign_user_role']], function () {
@@ -100,7 +101,6 @@ Route::group(['middleware' => ['auth:sanctum', 'assign_user_role']], function ()
     Route::post('user-delete/{id}', [Controllers\ClientController::class, 'destroy']);
     Route::post('delete-user', [API\UserController::class, 'deleteUser']);
     Route::post('update-appsetting', [Controllers\SettingController::class, 'updateAppSetting']);
-    Route::get('get-appsetting', [API\UserController::class, 'getAppSetting']);
 
     Route::post('multiple-delete-user', [API\UserController::class, 'multipleDeleteRecords']);
     Route::post('user-action', [Controllers\ClientController::class, 'action']);
