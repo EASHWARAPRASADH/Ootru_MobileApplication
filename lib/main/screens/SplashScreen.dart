@@ -127,6 +127,18 @@ class SplashScreenState extends State<SplashScreen> {
   Future<void> init() async {
     await showTurnOnLocationDialog();
 
+    try {
+      await getAppSetting().then((value) {
+        appStore.setCurrencyCode(value.currencyCode ?? CURRENCY_CODE);
+        appStore.setCurrencySymbol(value.currency ?? CURRENCY_SYMBOL);
+        appStore.setCurrencyPosition(value.currencyPosition ?? CURRENCY_POSITION_LEFT);
+      }).catchError((e) {
+        log("SplashScreen getAppSetting: $e");
+      });
+    } catch (e) {
+      log("SplashScreen getAppSetting error: $e");
+    }
+
     await getStringAsync(CURRENT_LAN_VERSION, defaultValue: LanguageVersion);
     // Language version update is giving issues
     try {
