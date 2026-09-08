@@ -310,45 +310,72 @@ class SettingController extends Controller
 
         $page = $request->page;
 
-        $language_option = $request->language_option;
+        $language_option = $request->language_option ?? [];
 
         if (!is_array($language_option)) {
             $language_option = (array) $language_option;
         }
 
-        array_push($language_option, $request->env['DEFAULT_LANGUAGE']);
+        $defaultLang = $request->input('env.DEFAULT_LANGUAGE', 'en') ?: 'en';
+
+        if (!in_array($defaultLang, $language_option)) {
+            array_push($language_option, $defaultLang);
+        }
 
         $request->merge(['language_option' => $language_option]);
 
-        $request->merge(['site_name' => str_replace("'", "", str_replace('"', '', $request->site_name))]);
+        $siteName = $request->site_name ? str_replace("'", "", str_replace('"', '', $request->site_name)) : '';
+        $request->merge(['site_name' => $siteName]);
 
-        $res = AppSetting::updateOrCreate(['id' => $request->id], $request->all());
+        $settingId = $request->id ?: (AppSetting::first()->id ?? null);
+        $res = AppSetting::updateOrCreate(['id' => $settingId], $request->all());
 
-        $type = 'APP_NAME';
         $env = $request->env;
-
-        $env['APP_NAME'] = $res->site_name;
-        foreach ($env as $key => $value) {
-            envChanges($key, $value);
+        if (is_array($env)) {
+            $env['APP_NAME'] = $res->site_name;
+            foreach ($env as $key => $value) {
+                try {
+                    envChanges($key, $value);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('envChanges failed: ' . $e->getMessage());
+                }
+            }
         }
 
-        $message = '';
+        try {
+            App::setLocale($defaultLang);
+            session()->put('locale', $defaultLang);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('setLocale failed: ' . $e->getMessage());
+        }
 
-        App::setLocale($env['DEFAULT_LANGUAGE']);
-        session()->put('locale', $env['DEFAULT_LANGUAGE']);
-
-        if ($request->timezone != '') {
+        if ($request->filled('timezone')) {
             $user = auth()->user();
-            $user->timezone = $request->timezone;
-            $user->save();
+            if ($user) {
+                $user->timezone = $request->timezone;
+                $user->save();
+            }
         }
-        uploadMediaFile($res, $request->site_logo, 'site_logo');
-        uploadMediaFile($res, $request->site_dark_logo, 'site_dark_logo');
-        uploadMediaFile($res, $request->site_favicon, 'site_favicon');
 
-        appSettingData('set');
+        try {
+            uploadMediaFile($res, $request->site_logo, 'site_logo');
+            uploadMediaFile($res, $request->site_dark_logo, 'site_dark_logo');
+            uploadMediaFile($res, $request->site_favicon, 'site_favicon');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('uploadMediaFile failed: ' . $e->getMessage());
+        }
 
-        createLangFile($env['DEFAULT_LANGUAGE']);
+        try {
+            appSettingData('set');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('appSettingData failed: ' . $e->getMessage());
+        }
+
+        try {
+            createLangFile($defaultLang);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('createLangFile failed: ' . $e->getMessage());
+        }
 
         return redirect()->route('setting.index', ['page' => $page])->withSuccess(__('message.updated'));
     }
@@ -363,8 +390,14 @@ class SettingController extends Controller
         $env = $request->ENV;
         $envtype = $request->type;
 
-        foreach ($env as $key => $value) {
-            envChanges($key, str_replace('#', '', $value));
+        if (is_array($env)) {
+            foreach ($env as $key => $value) {
+                try {
+                    envChanges($key, str_replace('#', '', $value));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('envChanges failed: ' . $e->getMessage());
+                }
+            }
         }
         return redirect()->route('setting.index', ['page' => $page])->withSuccess(ucfirst($envtype) . ' ' . __('message.updated'));
     }

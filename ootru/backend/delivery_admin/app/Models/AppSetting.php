@@ -41,8 +41,9 @@ class AppSetting extends Model implements HasMedia
             $val = collect(languagesArray())->pluck('id')->toArray();
         }
 
-        if(!in_array(ENV('DEFAULT_LANGUAGE'), $val)){
-            array_push($val, ENV('DEFAULT_LANGUAGE'));
+        $defaultLang = env('DEFAULT_LANGUAGE', 'en') ?: 'en';
+        if(!in_array($defaultLang, $val)){
+            array_push($val, $defaultLang);
         }
 
         return $val;

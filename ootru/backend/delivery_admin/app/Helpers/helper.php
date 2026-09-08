@@ -650,12 +650,21 @@ function flattenToMultiDimensional(array $array, $delimiter = '.')
 
 function createLangFile($lang = '')
 {
-    $langDir = resource_path() . '/lang/';
-    $enDir = $langDir . 'en';
-    $currentLang = $langDir . $lang;
-    if (!File::exists($currentLang)) {
-        File::makeDirectory($currentLang);
-        File::copyDirectory($enDir, $currentLang);
+    try {
+        if (empty($lang)) {
+            return;
+        }
+        $langDir = resource_path() . '/lang/';
+        $enDir = $langDir . 'en';
+        $currentLang = $langDir . $lang;
+        if (!\Illuminate\Support\Facades\File::exists($currentLang)) {
+            if (\Illuminate\Support\Facades\File::exists($enDir)) {
+                @\Illuminate\Support\Facades\File::makeDirectory($currentLang, 0755, true, true);
+                @\Illuminate\Support\Facades\File::copyDirectory($enDir, $currentLang);
+            }
+        }
+    } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\Log::warning('createLangFile failed: ' . $e->getMessage());
     }
 }
 
@@ -713,38 +722,48 @@ function timeAgoFormate($date)
 
 function envChanges($type, $value)
 {
-    $path = base_path('.env');
-
-    $checkType = $type . '="';
-    if (strpos($value, ' ') || strpos(file_get_contents($path), $checkType) || preg_match('/[\'^£$%&*()}{@#~?><>,|=_+¬-]/', $value)) {
-        $value = '"' . $value . '"';
-    }
-
-    $value = str_replace('\\', '\\\\', $value);
-
-    if (file_exists($path)) {
-        $typeValue = env($type);
-
-        if (strpos(env($type), ' ') || strpos(file_get_contents($path), $checkType)) {
-            $typeValue = '"' . env($type) . '"';
+    try {
+        $path = base_path('.env');
+        if (!file_exists($path) || !is_writable($path)) {
+            return;
         }
 
-        file_put_contents($path, str_replace(
+        $content = @file_get_contents($path);
+        if ($content === false) {
+            return;
+        }
+
+        $value = (string) $value;
+        $checkType = $type . '="';
+        if (strpos($value, ' ') !== false || strpos($content, $checkType) !== false || preg_match('/[\'^£$%&*()}{@#~?><>,|=_+¬-]/', $value)) {
+            $value = '"' . $value . '"';
+        }
+
+        $value = str_replace('\\', '\\\\', $value);
+
+        $envVal = env($type);
+        $typeValue = (string) $envVal;
+
+        if (strpos($typeValue, ' ') !== false || strpos($content, $checkType) !== false) {
+            $typeValue = '"' . $typeValue . '"';
+        }
+
+        $newContent = str_replace(
             $type . '=' . $typeValue,
             $type . '=' . $value,
-            file_get_contents($path)
-        ));
+            $content
+        );
 
-        $onesignal = collect(config('constant.ONESIGNAL'))->keys();
-
-        $checkArray = Arr::collapse([['DEFAULT_LANGUAGE']]);
-
-
+        $checkArray = \Illuminate\Support\Arr::collapse([['DEFAULT_LANGUAGE']]);
         if (in_array($type, $checkArray)) {
-            if (env($type) === null) {
-                file_put_contents($path, "\n" . $type . '=' . $value, FILE_APPEND);
+            if ($envVal === null && strpos($newContent, $type . '=') === false) {
+                $newContent .= "\n" . $type . '=' . $value;
             }
         }
+
+        @file_put_contents($path, $newContent);
+    } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\Log::warning('envChanges failed: ' . $e->getMessage());
     }
 }
 function convertUnitvalue($unit)
