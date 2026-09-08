@@ -2837,8 +2837,13 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
 
   Future<void> showMapScreen({required bool isPick, required bool isSaveAddress}) async {
     try {
-      var res =
-          await GoogleMapScreen(isSaveAddress: isSaveAddress, isPick: isPick).launch(context);
+      var res = await GoogleMapScreen(
+        isSaveAddress: isSaveAddress,
+        isPick: isPick,
+        initialLat: isPick ? (pickLat != null ? double.tryParse(pickLat!) : null) : (deliverLat != null ? double.tryParse(deliverLat!) : null),
+        initialLng: isPick ? (pickLong != null ? double.tryParse(pickLong!) : null) : (deliverLong != null ? double.tryParse(deliverLong!) : null),
+        initialAddress: isPick ? pickAddressCont.text : deliverAddressCont.text,
+      ).launch(context);
       if (mounted && res != null && res is PlaceAddressModel) {
         if (isPick) {
           pickAddressCont.text = res.placeAddress ?? "";
