@@ -519,6 +519,10 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
         vId = vehicleList.first.id;
         selectedVehicle = vId;
       }
+      var currentVehicle = vehicleList.firstWhere((element) => element.id == vId);
+      if (currentVehicle.maxKm != null && currentVehicle.maxKm! > 0 && totalDistance > currentVehicle.maxKm!) {
+        toast("${currentVehicle.title} max delivery range is ${currentVehicle.maxKm} km. Trip distance is ${totalDistance.toStringAsFixed(1)} km.");
+      }
     }
     Map request = {
       "city_id": getIntAsync(CITY_ID).toString(),
@@ -569,6 +573,13 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   createOrderApiCall(String orderStatus) async {
+    if (appStore.isVehicleOrder != 0 && selectedVehicle != null && vehicleList.isNotEmpty) {
+      VehicleDetail currentVehicle = vehicleList.firstWhere((e) => e.id == selectedVehicle, orElse: () => vehicleList.first);
+      if (currentVehicle.maxKm != null && currentVehicle.maxKm! > 0 && totalDistance > currentVehicle.maxKm!) {
+        toast("Delivery distance (${totalDistance.toStringAsFixed(1)} km) exceeds maximum range (${currentVehicle.maxKm} km) for ${currentVehicle.title}. Please select a vehicle with higher range.");
+        return;
+      }
+    }
     List<Map<String, String>> packaging_symbols = [];
     selectedPackingSymbols.map((item) {
       packaging_symbols.add({'key': item["key"]!, 'title': item['title']!});
@@ -2474,10 +2485,13 @@ class CreateOrderScreenState extends State<CreateOrderScreen> {
                   style: primaryTextStyle(),
                   isDense: false,
                   items: vehicleList.map<DropdownMenuItem<int>>((item) {
+                    String rangeStr = (item.maxKm != null && item.maxKm! > 0) ? "Max ${item.maxKm} km" : "Unlimited";
+                    bool isOutOfRange = (item.maxKm != null && item.maxKm! > 0 && totalDistance > item.maxKm!);
                     String str =
-                        "${language.name} : ${item.title}, ${language.price} :${appStore.currencySymbol} "
+                        "${language.name} : ${item.title} ($rangeStr), ${language.price} :${appStore.currencySymbol}"
                         "${item.price}, "
-                        "${language.capacity} : ${item.capacity.validate()},${language.perKmCharge} :${appStore.currencySymbol} ${item.perKmCharge.validate()}";
+                        "${language.capacity} : ${item.capacity.validate()}, ${language.perKmCharge} :${appStore.currencySymbol}${item.perKmCharge.validate()}"
+                        "${isOutOfRange ? ' ⚠️ [Exceeds Range]' : ''}";
                     print("---------------------${item.vehicleImage}");
                     return DropdownMenuItem(
                       value: item.id,

@@ -277,6 +277,7 @@ class VehicleDetail {
   String? description;
   int? price;
   int? minKm;
+  num? maxKm;
   int? perKmCharge;
   String? vehicleImage;
   String? createdAt;
@@ -295,6 +296,7 @@ class VehicleDetail {
       this.description,
       this.price,
       this.minKm,
+      this.maxKm,
       this.perKmCharge,
       this.vehicleImage,
       this.createdAt,
@@ -313,6 +315,7 @@ class VehicleDetail {
     description = json['description'];
     price = json['price'];
     minKm = json['min_km'];
+    maxKm = json['max_km'];
     perKmCharge = json['per_km_charge'];
     vehicleImage = json['vehicle_image'];
     createdAt = json['created_at'];
@@ -333,6 +336,7 @@ class VehicleDetail {
     data['description'] = this.description;
     data['price'] = this.price;
     data['min_km'] = this.minKm;
+    data['max_km'] = this.maxKm;
     data['per_km_charge'] = this.perKmCharge;
     data['vehicle_image'] = this.vehicleImage;
     data['created_at'] = this.createdAt;

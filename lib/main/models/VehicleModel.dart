@@ -44,6 +44,7 @@ class VehicleData {
   String? updatedAt;
   String? deletedAt;
   num? minKm;
+  num? maxKm;
   num? perKmCharge;
 
   VehicleData({
@@ -62,6 +63,7 @@ class VehicleData {
     this.updatedAt,
     this.deletedAt,
     this.minKm,
+    this.maxKm,
     this.perKmCharge,
   });
 
@@ -81,6 +83,7 @@ class VehicleData {
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
     minKm = json['min_km'];
+    maxKm = json['max_km'];
     perKmCharge = json['per_km_charge'];
   }
 
@@ -101,6 +104,7 @@ class VehicleData {
     data['updated_at'] = this.updatedAt;
     data['deleted_at'] = this.deletedAt;
     data['min_km'] = this.minKm;
+    data['max_km'] = this.maxKm;
     data['per_km_charge'] = this.perKmCharge;
     return data;
   }
