@@ -88,6 +88,39 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $role = Role::find($id);
+        $status = 'error';
+        $message = __('message.not_found_entry', ['name' => __('message.role')]);
+
+        if ($role != '') {
+            $protected_roles = ['admin', 'demo_admin', 'client', 'delivery_man', 'user', 'agent'];
+            if (in_array(strtolower($role->name), $protected_roles)) {
+                $message = __('message.demo_permission_denied');
+                if (request()->ajax()) {
+                    return response()->json(['status' => false, 'message' => 'System roles cannot be deleted.']);
+                }
+                return redirect()->back()->withErrors('System roles cannot be deleted.');
+            }
+
+            $usersCount = \DB::table('model_has_roles')->where('role_id', $role->id)->count();
+            if ($usersCount > 0) {
+                $message = "Cannot delete role because {$usersCount} user(s) are currently assigned to it. Please reassign the user(s) first.";
+                if (request()->ajax()) {
+                    return response()->json(['status' => false, 'message' => $message]);
+                }
+                return redirect()->back()->withErrors($message);
+            }
+
+            $role->delete();
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+            $status = 'success';
+            $message = __('message.delete_form', ['form' => __('message.role')]);
+        }
+
+        if (request()->ajax()) {
+            return response()->json(['status' => true, 'message' => $message]);
+        }
+
+        return redirect()->back()->with($status, $message);
     }
 }

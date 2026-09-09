@@ -39,7 +39,7 @@
                             <div class="grid" style="--bs-gap: 1rem">
                                 {{ html()->label(__('message.role') . ' <span class="text-danger">*</span>', 'user_type')->class('form-control-label') }}
                                 {{ html()->select('user_type', $roles, old('user_type', isset($data) ? $data->user_type : null))
-                                    ->class('select2js form-group role')
+                                    ->class('select2js form-control role')
                                     ->attribute('data-placeholder', __('message.select_name', ['select' => __('message.role')]))
                                     ->attribute('required', true) }}
                             </div>

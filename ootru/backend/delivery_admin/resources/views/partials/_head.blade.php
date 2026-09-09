@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="{{ asset('vendor/@fortawesome/fontawesome-free/css/all.min.css') }}"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <link rel="stylesheet" href="{{ asset('vendor/remixicon/fonts/remixicon.css') }}"/>
-{{-- Select2 CSS is already included in backend-bundle.min.css --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 <link rel="stylesheet" href="{{ asset('vendor/confirmJS/jquery-confirm.min.css') }}"/>
 <link rel="stylesheet" href="{{ asset('vendor/magnific-popup/css/magnific-popup.css') }}"/>
 <link rel="stylesheet" href="{{ asset('css/custom.css')}}">
