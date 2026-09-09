@@ -67,11 +67,27 @@ class PermissionController extends Controller
 
         $pageTitle = __('message.list_form_title',['form' => __('message.permission')  ]);
 
-        $roles = Role::where('status',1)->orderBy('name','ASC');
-        if(!\Auth::user()->hasRole('admin')){
-            $roles->where('name','!=','admin');
+        $authUser = \Auth::user();
+        if ($authUser && !$authUser->hasRole('admin')) {
+            $userPermissions = $authUser->getAllPermissions()->pluck('name')->toArray();
+            $permission = $permission->filter(function ($parent) use ($userPermissions) {
+                if ($parent->subpermission && $parent->subpermission->count() > 0) {
+                    $matchingSubs = $parent->subpermission->filter(function ($sub) use ($userPermissions) {
+                        return in_array($sub->name, $userPermissions);
+                    });
+                    $parent->setRelation('subpermission', $matchingSubs);
+                    return $matchingSubs->count() > 0;
+                }
+                return in_array($parent->name, $userPermissions);
+            })->values();
+
+            $roles = Role::where('status', 1)
+                ->whereNotIn('name', ['admin', 'client', 'delivery_man'])
+                ->orderBy('name', 'ASC')
+                ->get();
+        } else {
+            $roles = Role::where('status', 1)->orderBy('name', 'ASC')->get();
         }
-        $roles = $roles->get();
 
         $auth_user = authSession();
 
@@ -97,17 +113,46 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        $authUser = \Auth::user();
+        $isAdmin = $authUser && $authUser->hasRole('admin');
         $data = isset($request->permission) ? $request->permission : [];
-        $permission_list = Permission::orderBy('name','ASC')->get()->unique('name');
-        $roles=Role::whereNotIn('name',['admin'])->get()->map(function($role) use($permission_list){
-            $role->revokePermissionTo($permission_list);
-        });
+
+        if (!$isAdmin) {
+            // Sub-admin: can only manage permissions they themselves possess
+            $userPermissions = $authUser ? $authUser->getAllPermissions()->pluck('name')->toArray() : [];
+            $permission_list = Permission::whereIn('name', $userPermissions)->get()->unique('name');
+            $managedRoles = Role::whereNotIn('name', ['admin', 'client', 'delivery_man'])->get();
+            $managedRoleNames = $managedRoles->pluck('name')->toArray();
+
+            foreach ($managedRoles as $role) {
+                $role->revokePermissionTo($permission_list);
+            }
+
+            // Filter incoming submitted permissions to allowed subset
+            $filteredData = [];
+            foreach ($data as $key => $roleArray) {
+                if (in_array($key, $userPermissions)) {
+                    $validRoles = array_intersect($roleArray, $managedRoleNames);
+                    if (!empty($validRoles)) {
+                        $filteredData[$key] = $validRoles;
+                    }
+                }
+            }
+            $data = $filteredData;
+        } else {
+            // Super Admin: full access
+            $permission_list = Permission::orderBy('name','ASC')->get()->unique('name');
+            Role::whereNotIn('name',['admin'])->get()->map(function($role) use($permission_list){
+                $role->revokePermissionTo($permission_list);
+            });
+        }
+
         if(count($data)>0){
-            foreach ($data as $key => $permission){
-                foreach ($permission as $role){
-                    $permission = Permission::findOrCreate($key);
+            foreach ($data as $key => $permissionRoles){
+                foreach ($permissionRoles as $role){
+                    $perm = Permission::findOrCreate($key);
                     $guard = Role::findOrCreate($role,'web');
-                    $guard->givePermissionTo($permission);
+                    $guard->givePermissionTo($perm);
                 }
             }
         }

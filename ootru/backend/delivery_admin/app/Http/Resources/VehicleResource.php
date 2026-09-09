@@ -33,6 +33,7 @@ class VehicleResource extends JsonResource
             'description'   => $this->description,
             'price'         => $this->price,
             'min_km'        => $this->min_km,
+            'max_km'        => $this->max_km,
             'per_km_charge' => $this->per_km_charge,
             'vehicle_image' => getSingleMedia($this, 'vehicle_image',null),
             'created_at'    => $this->created_at,

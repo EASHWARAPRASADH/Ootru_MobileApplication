@@ -62,14 +62,15 @@
                                     {{ html()->label(__('message.base_price').' <span class="text-danger">*</span>')->class('form-control-label') }}
                                     {{ html()->number('price', old('price'))->attribute('step', 'any')->attribute('min', 0)->placeholder(__('message.base_price'))->class('form-control') }}
                                 </div>
-                                <div class="form-group col-md-4">
-                                    {{ html()->label(__('message.min_km'))->class('form-control-label') }}
-                                    {{ html()->number('min_km', old('min_km'))->attribute('step', 'any')->attribute('min', 0)->placeholder(__('message.min_km'))->class('form-control') }}
-                                </div>
-                                <div class="form-group col-md-4">
-                                    {{ html()->label(__('message.per_km_charge'))->class('form-control-label') }}
-                                    {{ html()->number('per_km_charge', old('per_km_charge'))->attribute('step', 'any')->attribute('min', 0)->placeholder(__('message.per_km_charge'))->class('form-control') }}
-                                </div>
+                                 <div class="form-group col-md-4">
+                                     {{ html()->label('Max Delivery Range (KM) <span class="text-danger">*</span>')->class('form-control-label') }}
+                                     {{ html()->number('max_km', old('max_km'))->attribute('step', 'any')->attribute('min', 0)->placeholder('e.g. 15 km (0 for unlimited)')->class('form-control')->required() }}
+                                 </div>
+                                 <div class="form-group col-md-4">
+                                     {{ html()->label(__('message.per_km_charge'))->class('form-control-label') }}
+                                     {{ html()->number('per_km_charge', old('per_km_charge'))->attribute('step', 'any')->attribute('min', 0)->placeholder(__('message.per_km_charge'))->class('form-control') }}
+                                 </div>
+                                 <input type="hidden" name="min_km" value="{{ old('min_km', $data->min_km ?? 0) }}">
 
                                 <div class="form-group col-md-4">
                                     <label class="form-control-label" for="image">{{ __('message.image') }}</label>

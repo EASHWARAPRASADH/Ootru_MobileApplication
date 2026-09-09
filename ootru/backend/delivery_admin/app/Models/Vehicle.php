@@ -13,12 +13,13 @@ class Vehicle extends Model implements HasMedia
     use HasFactory;
     use InteractsWithMedia, SoftDeletes;
 
-    protected $fillable = [ 'title', 'type', 'size', 'capacity', 'city_ids', 'status', 'description','price','min_km','per_km_charge'];
+    protected $fillable = [ 'title', 'type', 'size', 'capacity', 'city_ids', 'status', 'description','price','min_km','per_km_charge', 'max_km'];
 
     protected $casts = [
         'status' => 'integer',
         'per_km_charge' => 'double',
         'price' => 'double',
+        'max_km' => 'double',
     ];
 
     public function getCityIdsAttribute($value)

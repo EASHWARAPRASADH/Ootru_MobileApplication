@@ -55,9 +55,9 @@ class VehicleDataTable extends DataTable
                 $price = optional($row)->price;
                 return $price ? getPriceFormat($price) : '-';
             })
-            ->editColumn('min_km', function ($row) {
-                $min_km = optional($row)->min_km;
-                return $min_km ? $min_km : '-';
+            ->editColumn('max_km', function ($row) {
+                $max_km = optional($row)->max_km;
+                return $max_km ? ($max_km . ' KM') : 'Unlimited';
             })
 
             ->editColumn('per_km_charge', function ($row) {
@@ -109,7 +109,7 @@ class VehicleDataTable extends DataTable
                 ['data' => 'size', 'name' => 'size', 'title' => __('message.vehicle_size')],
                 ['data' => 'capacity', 'name' => 'capacity', 'title' => __('message.vehicle_capacity')],
                 ['data' => 'price', 'name' => 'price', 'title' => __('message.price')],
-                ['data' => 'min_km', 'name' => 'min_km', 'title' => __('message.min_km')],
+                ['data' => 'max_km', 'name' => 'max_km', 'title' => 'Max Range (KM)'],
                 ['data' => 'per_km_charge', 'name' => 'per_km_charge', 'title' => __('message.per_km_charge')],
                 ['data' => 'created_at', 'name' => 'created_at', 'title' => __('message.created_at')],
                 ['data' => 'status', 'name' => 'status', 'title' => __('message.status')],

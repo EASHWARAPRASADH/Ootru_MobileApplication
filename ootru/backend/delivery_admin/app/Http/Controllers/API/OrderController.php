@@ -398,7 +398,13 @@ class OrderController extends Controller
             }
 
 
+            $is_vehicle_available = true;
+            $vehicle_error = null;
             if ($vehicle != '' && $vehicle_allow && $request->vehicle_id) {
+                if ($vehicle->max_km > 0 && $request->total_distance > $vehicle->max_km) {
+                    $is_vehicle_available = false;
+                    $vehicle_error = "Delivery distance (" . round($request->total_distance, 1) . " km) exceeds maximum range (" . $vehicle->max_km . " km) for " . $vehicle->title . ".";
+                }
                 $vehicle_details = $request->total_distance > $vehicle->min_km ? ($request->total_distance - $vehicle->min_km) * $vehicle->per_km_charge : $vehicle->price;
             }
 
@@ -430,6 +436,9 @@ class OrderController extends Controller
             'diff_distance' => $distance_difference,
             'total_amount' =>(float) $totalAmountAll,
             'base_total' => $totalAmount,
+            'is_vehicle_available' => $is_vehicle_available,
+            'vehicle_error' => $vehicle_error,
+            'max_km' => $vehicle ? $vehicle->max_km : null,
         ]);
     }
     public function orderPrintList(Request $request)

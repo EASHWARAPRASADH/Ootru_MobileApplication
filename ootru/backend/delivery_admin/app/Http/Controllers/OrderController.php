@@ -156,7 +156,15 @@ class OrderController extends Controller
         $data['milisecond'] = strtoupper(appSettingcurrency('prefix')) . '' . round(microtime(true) * 1000);
 
         if ($request->has('vehicle_id') && $request->input('vehicle_id') != null) {
-            $data['vehicle_data'] = Vehicle::where('id', $request->input('vehicle_id'))->first() ?? null;
+            $selectedVehicle = Vehicle::where('id', $request->input('vehicle_id'))->first();
+            $data['vehicle_data'] = $selectedVehicle ?? null;
+            if ($selectedVehicle && $selectedVehicle->max_km > 0 && isset($data['total_distance']) && (float)$data['total_distance'] > (float)$selectedVehicle->max_km) {
+                $errorMsg = "Delivery distance (" . round($data['total_distance'], 1) . " km) exceeds maximum range (" . $selectedVehicle->max_km . " km) for " . $selectedVehicle->title . ".";
+                if ($request->is('api/*')) {
+                    return response()->json(['status' => false, 'message' => $errorMsg], 400);
+                }
+                return redirect()->back()->withErrors($errorMsg);
+            }
         }
 
         if (!$request->is('api/*')) {
